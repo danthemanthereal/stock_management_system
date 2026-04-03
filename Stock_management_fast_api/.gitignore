@@ -1,0 +1,63 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual Environment
+
+.venv/
+venv/
+env/
+
+# Environment variables
+
+.env
+.env.*
+
+# Logs
+
+*.log
+
+# OS files
+
+.DS_Store
+Thumbs.db
+
+# IDEs
+
+.vscode/
+.idea/
+
+# Python build / packaging
+
+build/
+dist/
+*.egg-info/
+
+# Testing
+
+.pytest_cache/
+.coverage
+
+# Migrations (optional, wenn du sie nicht tracken willst)
+
+# migrations/
+
+# SQLite (falls genutzt)
+
+*.db
+
+# FastAPI / Uvicorn
+
+*.pid
+
+# mypy
+
+.mypy_cache/
+
+# Ruff / Lint
+
+.ruff_cache/
