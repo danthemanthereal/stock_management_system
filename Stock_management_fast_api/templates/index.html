@@ -6,8 +6,13 @@
     </head>
     <body>
         <h1> Aktien Zusammenfassung</h1>
-        <form action="/analyze" method="post">
+        <form action="/get-summary" method="post">
             <input type="text" name="url" placeholder="Gib eine URL ein um eine Aktienzusammenfassung..." style="width: 300px;" required>
+            <button type="submit">Absenden</button>
+        </form>
+
+        <form action="/get-yt-transcript" method="post">
+            <input type="text" name="video_id" placeholder="Gib eine Video ID für Skript..." style="width: 300px;" required>
             <button type="submit">Absenden</button>
         </form>
     </body>

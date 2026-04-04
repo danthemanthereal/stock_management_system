@@ -1,5 +1,8 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
+
+from youtube_transcript_component.yt_transcript_component import \
+    get_youtube_transcript_based_url
 from gemini_component.gemini_llm_component import get_summary_of_gemini_with_url_context
 app = FastAPI()
 
@@ -13,8 +16,14 @@ def read_root(request: Request):
         context={}
     )
 
-@app.post("/analyze")
+@app.post("/get-summary")
 def analyze(url: str = Form(...)):
     get_summary_of_gemini_with_url_context(url)
     return {"received_url": url}
+
+
+@app.post("/get-yt-transcript")
+def get_yt_transcript(video_id: str = Form(...)):
+    get_youtube_transcript_based_url(video_id)
+    return {"received_url": video_id}
 
