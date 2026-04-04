@@ -25,7 +25,7 @@ def get_summary_of_gemini_with_url_context(url: str):
     return answer
 
 def get_summary_of_gemini_of_transcript(transcript: str):
-    client = genai.Client()
+    client = genai.Client(api_key="AIzaSyDlDOLI8jYT4u_kauJ5C6x_rYSQ8q3unZU")
 
     response = client.models.generate_content(
         model="gemini-3-flash-preview",
