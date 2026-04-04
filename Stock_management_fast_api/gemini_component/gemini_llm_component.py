@@ -19,6 +19,18 @@ def get_summary_of_gemini_with_url_context(url: str):
         )
     )
 
+    answer = ""
     for each in response.candidates[0].content.parts:
-        print(each.text)
+        answer += each.text
+    return answer
 
+def get_summary_of_gemini_of_transcript(transcript: str):
+    client = genai.Client()
+
+    response = client.models.generate_content(
+        model="gemini-3-flash-preview",
+        contents=f"Give the strength and weakness of the companies based on {transcript}."
+        f"Answer only in german."
+    )
+    print(response.text)
+    return response.text
