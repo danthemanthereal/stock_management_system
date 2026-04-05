@@ -34,3 +34,9 @@ def get_summary_of_gemini_of_transcript(transcript: str):
     )
     print(response.text)
     return response.text
+
+
+def get_user_prompt_url_context(url: str):
+    return f"""
+
+"""
