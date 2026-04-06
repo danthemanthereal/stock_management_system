@@ -1,5 +1,5 @@
 from google import genai
-from google.genai.types import Tool, GenerateContentConfig
+from google.genai.types import GenerateContentConfig
 
 
 def get_summary_of_gemini_with_url_context(url: str):

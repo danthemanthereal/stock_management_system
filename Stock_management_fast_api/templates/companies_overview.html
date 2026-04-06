@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hier zusammenfassung basierend Skript oder Url </title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .company { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
+        h2 { margin-bottom: 10px; }
+        .strength { color: green; }
+        .weakness { color: red; }
+    </style>
+</head>
+<body>
+{% if companies %}
+    {% for company in companies %}
+        <div class="company">
+            <h2>{{ company.company_name }}</h2>
+
+            <h3 class="strength">Stärken</h3>
+            <p>{{ company.strength.replace('\\n', '<br>') | safe }}</p>
+
+            <h3 class="weakness">Schwächen</h3>
+            <p>{{ company.weakness.replace('\\n', '<br>') | safe }}</p>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Keine Unternehmen gefunden.</p>
+{% endif %}
+
+</body>
+</html>
