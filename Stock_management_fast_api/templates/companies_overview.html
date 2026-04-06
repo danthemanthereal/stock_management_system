@@ -18,10 +18,10 @@
             <h2>{{ company.company_name }}</h2>
 
             <h3 class="strength">Stärken</h3>
-            <p>{{ company.strength.replace('\\n', '<br>') | safe }}</p>
+            <p>{{ company.strength.replace('•', '<br>') | safe }}</p>
 
             <h3 class="weakness">Schwächen</h3>
-            <p>{{ company.weakness.replace('\\n', '<br>') | safe }}</p>
+            <p>{{ company.weakness.replace('•', '<br>') | safe }}</p>
         </div>
     {% endfor %}
 {% else %}
