@@ -10,13 +10,14 @@ def get_summary_of_gemini_with_url_context(url: str):
         {"url_context": {}},
     ]
 
+    system_prompt = get_system_instruction_url_context()
+    user_prompt = get_user_prompt_url_context(url)
     response = client.models.generate_content(
         model=model_id,
-        contents=f"Give the strength and weakness of the companies based on  {url}."
-                 f"Answer only in german.",
+        contents=user_prompt,
         config=GenerateContentConfig(
             tools=tools,
-            system_instruction="You are an expert of summarazing text of companies based on strengths and weakness."
+            system_instruction=system_prompt
         )
     )
 
@@ -28,21 +29,94 @@ def get_summary_of_gemini_with_url_context(url: str):
 
 def get_summary_of_gemini_of_transcript(transcript: str):
     client = genai.Client(api_key="AIzaSyDlDOLI8jYT4u_kauJ5C6x_rYSQ8q3unZU")
-
+    user_prompt = get_user_prompt_yt_script(transcript)
+    system_prompt = get_system_instruction_youtube_script()
     response = client.models.generate_content(
         model="gemini-3-flash-preview",
-        contents=f"Give the strength and weakness of the companies based on {transcript}."
-                 f"Answer only in german."
+        contents=user_prompt,
+        config=GenerateContentConfig(
+            system_instruction=system_prompt
+        )
     )
-    print(response.text)
     return response.text
 
 
 def get_user_prompt_url_context(url: str):
     return f"""
+<context>
+URL: {url}
+</context>
 
+<task>
+Analyze the content of the provided URL and identify all relevant companies.
+
+For each identified company:
+- Provide a brief summary of the company.
+- Identify strengths (factors that could positively impact the company's stock price).
+- Identify weaknesses (factors that could negatively impact the company's stock price).
+
+Use only information from the provided URL. Do not speculate or add unsupported claims.
+</task>
+
+<output_format>
+Return ONLY a valid JSON array.
+
+Use the exact following structure for each company:
+[
+  {{
+    "company_name": "Company name",
+    "strength": "• Factor 1\n• Factor 2",
+    "weakness": "• Factor 1\n• Factor 2"
+  }}
+]
+
+Rules:
+- The response MUST be in German
+- Do not include any explanations or comments outside the JSON
+- Use double quotes only (strict JSON)
+- No trailing commas
+- If no companies are found, return an empty array []
+</output_format>
 """
 
+def get_user_prompt_yt_script(script: str):
+
+    return f"""
+    <context>
+    text: {script}
+    </context>
+
+    <task>
+    Analyze the content of the provided text and identify all relevant companies.
+
+    For each identified company:
+    - Provide a brief summary of the company.
+    - Identify strengths (factors that could positively impact the company's stock price).
+    - Identify weaknesses (factors that could negatively impact the company's stock price).
+
+    Use only information from the provided text. Do not speculate or add unsupported claims.
+    </task>
+
+    <output_format>
+    Return ONLY a valid JSON array.
+
+    Use the exact following structure for each company:
+    [
+      {{
+        "company_name": "Company name",
+        "strength": "• Factor 1\n• Factor 2",
+        "weakness": "• Factor 1\n• Factor 2"
+      }}
+    ]
+
+    Rules:
+    - The response MUST be in German
+    - Do not include any explanations or comments outside the JSON
+    - Use double quotes only (strict JSON)
+    - No trailing commas
+    - If no companies are found, return an empty array []
+    </output_format>
+    """
 
 def get_system_instruction_url_context() -> str:
     return """
