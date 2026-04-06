@@ -4,29 +4,84 @@
     <meta charset="UTF-8">
     <title>Hier zusammenfassung basierend Skript oder Url </title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .company { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
-        h2 { margin-bottom: 10px; }
-        .strength { color: green; }
-        .weakness { color: red; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        .company {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        .strength {
+            color: green;
+        }
+
+        .weakness {
+            color: red;
+        }
     </style>
 </head>
 <body>
 {% if companies %}
-    {% for company in companies %}
-        <div class="company">
-            <h2>{{ company.company_name }}</h2>
+{% for company in companies %}
+<div class="company">
+    <h2>{{ company.company_name }}</h2>
 
-            <h3 class="strength">Stärken</h3>
-            <p>{{ company.strength.replace('•', '<br>') | safe }}</p>
+    <h3 class="strength">Stärken</h3>
+    <p>{{ company.strength.replace('•', '<br>') | safe }}</p>
 
-            <h3 class="weakness">Schwächen</h3>
-            <p>{{ company.weakness.replace('•', '<br>') | safe }}</p>
-        </div>
-    {% endfor %}
+    <h3 class="weakness">Schwächen</h3>
+    <p>{{ company.weakness.replace('•', '<br>') | safe }}</p>
+
+    <button
+            class="send-btn"
+            data-name="{{ company.company_name }}"
+            data-strength="{{ company.strength }}"
+            data-weakness="{{ company.weakness }}"
+            onclick="sendCompanyData(this)">
+        Senden
+    </button>
+</div>
+{% endfor %}
 {% else %}
-    <p>Keine Unternehmen gefunden.</p>
+<p>Keine Unternehmen gefunden.</p>
 {% endif %}
 
+<script>
+async function sendCompanyData(button) {
+    const data = {
+        company_name: button.dataset.name,
+        strength: button.dataset.strength,
+        weakness: button.dataset.weakness
+    };
+
+    try {
+        const response = await fetch("http://localhost:8000/companies", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            alert("Erfolgreich gesendet!");
+        } else {
+            alert("Fehler beim Senden");
+        }
+    } catch (error) {
+        console.error(error);
+        alert("Netzwerkfehler");
+    }
+}
+</script>
 </body>
 </html>

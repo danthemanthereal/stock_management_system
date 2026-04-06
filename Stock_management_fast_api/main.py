@@ -6,11 +6,30 @@ from youtube_transcript_component.yt_transcript_component import \
 from gemini_component.gemini_llm_component import get_summary_of_gemini_with_url_context, \
     get_summary_of_gemini_of_transcript
 import json
+from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+
+
 app = FastAPI()
+
+origins = [
+   "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # oder ["*"] zum Testen
+    allow_credentials=True,
+    allow_methods=["*"],     # wichtig für OPTIONS!
+    allow_headers=["*"],
+)
 
 templates = Jinja2Templates(directory="templates")
 
-
+class Company(BaseModel):
+    company_name: str
+    strength: str
+    weakness: str
 @app.get("/")
 def read_root(request: Request):
     return templates.TemplateResponse(
@@ -53,3 +72,9 @@ def get_yt_transcript(request: Request, video_id: str = Form(...)):
         name="companies_overview.html",
         context={"request": request, "companies": companies_array}
     )
+
+
+@app.post("/companies")
+async def receive_company(company: Company):
+    print(company)
+    return {"message": "Received"}
