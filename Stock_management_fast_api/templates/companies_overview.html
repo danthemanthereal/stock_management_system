@@ -73,10 +73,11 @@ async function sendCompanyData(button) {
         });
 
         if (response.ok) {
-            alert("Erfolgreich gesendet!");
-        } else {
-            alert("Fehler beim Senden");
-        }
+
+        window.location.href = "/success";
+    }
+
+
     } catch (error) {
         console.error(error);
         alert("Netzwerkfehler");
