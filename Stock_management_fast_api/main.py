@@ -31,8 +31,9 @@ async def analyze(request: Request, url: str = Form(...)):
             companies_array = []
 
     return templates.TemplateResponse(
-        "companies_overview.html",
-        {"request": request, "companies": companies_array}
+        request=request,
+        name="companies_overview.html",
+        context={"request": request, "companies": companies_array}
     )
 
 
@@ -48,6 +49,7 @@ def get_yt_transcript(request: Request, video_id: str = Form(...)):
             companies_array = []
 
     return templates.TemplateResponse(
-        "companies_overview.html",
-        {"request": request, "companies": companies_array}
+        request=request,
+        name="companies_overview.html",
+        context={"request": request, "companies": companies_array}
     )
