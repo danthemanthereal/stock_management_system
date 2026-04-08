@@ -77,6 +77,7 @@ def get_yt_transcript(request: Request, video_id: str = Form(...)):
 @app.post("/companies")
 async def receive_company(company: Company):
     print(company)
+    #TODO make db save operatin
 
 @app.get("/success", response_class=HTMLResponse)
 async def success_page(request: Request):
