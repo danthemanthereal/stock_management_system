@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from database.db import engine, SessionLocal
 from sqlalchemy.orm import Session
 from database import models
@@ -11,6 +11,7 @@ from gemini_component.gemini_llm_component import get_summary_of_gemini_with_url
 import json
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+import requests
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -117,3 +118,40 @@ def show_companies(request: Request, db: Session = Depends(get_db)):
          name="saved_companies_overview.html",
          context={"request": request, "companies": companies
     })
+
+@app.post("/find-potential-stocks")
+def scrape_tradingview(db: Session = Depends(get_db)):
+    url = "https://scanner.tradingview.com/america/scan?label-product=screener-stock"
+
+    payload = {
+        "columns": [
+            "ticker-view", "close", "market_cap_basic", "sector", "AnalystRating"
+        ],
+        "filter": [
+            {"left": "close", "operation": "in_range", "right": [10, 100]}
+        ],
+        "markets": ["america"],
+        "options": {"lang": "en"},
+        "range": [0, 20],
+        "sort": {"sortBy": "market_cap_basic", "sortOrder": "desc"}
+    }
+
+    response = requests.post(url, json=payload)
+    data = response.json()
+    for item in data["data"]:
+        info = item["d"][0]
+
+        name = info["name"]
+        description = info.get("description", "N/A")
+
+        price = item["d"][1]
+        market_cap = item["d"][2]
+        sector = item["d"][3]
+        rating = item["d"][4]
+        print(name, description, price, market_cap, sector, rating)
+        print("#######")
+
+
+
+
+    return RedirectResponse(url="/", status_code=303)
