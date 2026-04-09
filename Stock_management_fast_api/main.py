@@ -126,7 +126,7 @@ def scrape_tradingview(request: Request):
     payload = {
         "columns": [
             "ticker-view", "close", "market_cap_basic",
-            "price_earnings_ttm", "market"
+            "price_earnings_ttm", "market",
             "sector", "AnalystRating", "AnalystRating.tr"
         ],
         "filter": [
@@ -139,6 +139,8 @@ def scrape_tradingview(request: Request):
     }
 
     response = requests.post(url, json=payload)
+    print("resp ")
+    print(response)
     data = response.json()
 
     potential_stocks = []
