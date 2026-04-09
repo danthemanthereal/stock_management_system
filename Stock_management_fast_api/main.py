@@ -8,7 +8,7 @@ from gemini_component.gemini_llm_component import get_summary_of_gemini_with_url
 import json
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
