@@ -125,7 +125,9 @@ def scrape_tradingview(db: Session = Depends(get_db)):
 
     payload = {
         "columns": [
-            "ticker-view", "close", "market_cap_basic", "sector", "AnalystRating"
+            "ticker-view", "close", "market_cap_basic",
+            "price_earnings_ttm", "market"
+            "sector", "AnalystRating", "AnalystRating.tr"
         ],
         "filter": [
             {"left": "close", "operation": "in_range", "right": [10, 100]}
@@ -138,20 +140,35 @@ def scrape_tradingview(db: Session = Depends(get_db)):
 
     response = requests.post(url, json=payload)
     data = response.json()
+
+    potential_stocks = []
     for item in data["data"]:
-        info = item["d"][0]
+        current_stock_info = item["d"]
 
-        name = info["name"]
-        description = info.get("description", "N/A")
+        name = current_stock_info[0]["description"]
+        price = current_stock_info[1]
+        market_cap = current_stock_info[2]
+        p_e_rating = current_stock_info[3]
+        sector = current_stock_info[4]
+        country = current_stock_info[5]
+        analyst_rating = current_stock_info[6]
+        analyst_rating_tr = current_stock_info[7]
+        potential_stocks.append({
+            'name': name,
+            'price': price,
+            'market_cap': market_cap,
+            'sector': sector,
+            'country': country,
+            'p_e_rating': p_e_rating,
+            'analyst_rating': analyst_rating,
+            'analyst_rating_tr': analyst_rating_tr
+        })
 
-        price = item["d"][1]
-        market_cap = item["d"][2]
-        sector = item["d"][3]
-        rating = item["d"][4]
-        print(name, description, price, market_cap, sector, rating)
-        print("#######")
 
 
 
 
+
+
+    print(potential_stocks[0])
     return RedirectResponse(url="/", status_code=303)
