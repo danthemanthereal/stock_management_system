@@ -119,8 +119,8 @@ def show_companies(request: Request, db: Session = Depends(get_db)):
          context={"request": request, "companies": companies
     })
 
-@app.post("/find-potential-stocks")
-def scrape_tradingview(db: Session = Depends(get_db)):
+@app.post("/find-potential-stocks", response_class=HTMLResponse)
+def scrape_tradingview(request: Request):
     url = "https://scanner.tradingview.com/america/scan?label-product=screener-stock"
 
     payload = {
@@ -164,11 +164,7 @@ def scrape_tradingview(db: Session = Depends(get_db)):
             'analyst_rating_tr': analyst_rating_tr
         })
 
-
-
-
-
-
-
-    print(potential_stocks[0])
-    return RedirectResponse(url="/", status_code=303)
+    return templates.TemplateResponse(request=request,
+                                      name="show-potential-stocks.html",
+                                      context={"request": request, "stocks": potential_stocks
+    })

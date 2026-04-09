@@ -6,6 +6,33 @@
 </head>
 <body>
   <h1>Hier sind potenzielle Aktien</h1>
-
+  <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Market Cap</th>
+                <th>Sector</th>
+                <th>Country</th>
+                <th>P/E Rating</th>
+                <th>Analyst Rating</th>
+                <th>Analyst Rating (Translated)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in stocks %}
+            <tr>
+                <td>{{ stock.name }}</td>
+                <td>{{ stock.price }}</td>
+                <td>{{ stock.market_cap }}</td>
+                <td>{{ stock.sector }}</td>
+                <td>{{ stock.country }}</td>
+                <td>{{ stock.p_e_rating }}</td>
+                <td>{{ stock.analyst_rating }}</td>
+                <td>{{ stock.analyst_rating_tr }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
