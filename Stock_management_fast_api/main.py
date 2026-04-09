@@ -130,11 +130,16 @@ def scrape_tradingview(request: Request):
             "sector", "AnalystRating", "AnalystRating.tr"
         ],
         "filter": [
-            {"left": "close", "operation": "in_range", "right": [10, 100]}
+            {"left": "close", "operation": "in_range", "right": [10, 100]}, # stock price filter
+            {"left": "AnalystRating", "operation": "in_range", "right": ["Buy", "StrongBuy"]},
+            {"left": "Perf.YTD", "operation": "greater", "right": 10}, # Performance of the year
+            {"left": "return_on_equity_fq", "operation": "in_range", "right": [20,30]},  # return on equity filter r
+            {"left": "sector", "operation": "in_range", "right": [""]},  # welche Sektroren betrachtet werden
+            {"left": "total_revenue_yoy_growth_ttm", "operation": "greater", "right": 10},  # Performance von umsatzwachstum
         ],
-        "markets": ["america"],
+        "markets": ["america"], # filter für betrachtende länder
         "options": {"lang": "en"},
-        "range": [0, 20],
+        "range": [0, 100],
         "sort": {"sortBy": "market_cap_basic", "sortOrder": "desc"}
     }
 
