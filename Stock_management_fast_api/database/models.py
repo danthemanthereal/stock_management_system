@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from database import Base
+from .db import Base
 
 class StockSummary(Base):
     __tablename__ = "stock_summary"

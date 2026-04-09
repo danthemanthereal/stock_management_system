@@ -1,6 +1,9 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
+
+from database.db import engine
+from database import models
 from youtube_transcript_component.yt_transcript_component import \
     get_youtube_transcript_based_url
 from gemini_component.gemini_llm_component import get_summary_of_gemini_with_url_context, \
@@ -8,6 +11,7 @@ from gemini_component.gemini_llm_component import get_summary_of_gemini_with_url
 import json
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
