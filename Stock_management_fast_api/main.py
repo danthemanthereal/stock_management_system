@@ -139,8 +139,6 @@ def scrape_tradingview(request: Request):
     }
 
     response = requests.post(url, json=payload)
-    print("resp ")
-    print(response)
     data = response.json()
 
     potential_stocks = []
@@ -151,8 +149,8 @@ def scrape_tradingview(request: Request):
         price = current_stock_info[1]
         market_cap = current_stock_info[2]
         p_e_rating = current_stock_info[3]
-        sector = current_stock_info[4]
-        country = current_stock_info[5]
+        country = current_stock_info[4]
+        sector = current_stock_info[5]
         analyst_rating = current_stock_info[6]
         analyst_rating_tr = current_stock_info[7]
         potential_stocks.append({
