@@ -107,3 +107,13 @@ async def success_page(request: Request):
         name="success.html",
         context={"request": request}
     )
+
+
+@app.get("/saved-companies", response_class=HTMLResponse)
+def show_companies(request: Request, db: Session = Depends(get_db)):
+    companies = db.query(models.StockSummary).all()
+
+    return templates.TemplateResponse(request=request,
+         name="saved_companies_overview.html",
+         context={"request": request, "companies": companies
+    })

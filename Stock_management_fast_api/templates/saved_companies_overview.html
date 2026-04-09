@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gespeicherte Aktien</title>
+</head>
+<body>
+
+    <h1>Gespeicherte Aktien</h1>
+
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>Name</th>
+            <th>Stärken</th>
+            <th>Schwächen</th>
+        </tr>
+
+        {% for company in companies %}
+        <tr>
+            <td>{{ company.name }}</td>
+            <td>{{ company.strength }}</td>
+            <td>{{ company.weakness }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <a href="/">Zurück</a>
+
+</body>
+</html>
+
+</body>
+</html>

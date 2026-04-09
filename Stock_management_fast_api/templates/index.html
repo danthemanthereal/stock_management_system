@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Title</title>
-    </head>
-    <body>
-        <h1> Aktien Zusammenfassung</h1>
-        <form action="/get-summary" method="post">
-            <input type="text" name="url" placeholder="Gib eine URL ein um eine Aktienzusammenfassung..." style="width: 300px;" required>
-            <button type="submit">Absenden</button>
-        </form>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1> Aktien Zusammenfassung</h1>
+    <form action="/get-summary" method="post">
+        <input type="text" name="url" placeholder="Gib eine URL ein um eine Aktienzusammenfassung..." style="width: 300px;"
+               required>
+        <button type="submit">Absenden</button>
+    </form>
 
-        <form action="/get-yt-transcript" method="post">
-            <input type="text" name="video_id" placeholder="Gib eine Video ID für Skript..." style="width: 300px;" required>
-            <button type="submit">Absenden</button>
-        </form>
-    </body>
+    <form action="/get-yt-transcript" method="post">
+        <input type="text" name="video_id" placeholder="Gib eine Video ID für Skript..." style="width: 300px;" required>
+        <button type="submit">Absenden</button>
+    </form>
+    <br><br>
+    <form action="/saved-companies" method="get">
+        <button type="submit">Alle gespeicherten Aktien anzeigen</button>
+    </form>
+</body>
 </html>
