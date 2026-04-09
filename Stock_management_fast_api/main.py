@@ -88,18 +88,35 @@ def get_yt_transcript(request: Request, video_id: str = Form(...)):
 
 @app.post("/companies")
 async def receive_company(company: Company, db: Session = Depends(get_db)):
-    print(company)
-    db_company = models.StockSummary(
-        name=company.company_name,
-        strength=company.strength,
-        weakness=company.weakness
-    )
+    db_company = db.query(models.StockSummary).filter_by(name=company.company_name).first()
 
-    db.add(db_company)
-    db.commit()
-    db.refresh(db_company)
+    if db_company:
+        if company.strength:
+            if db_company.strength:
+                db_company.strength += f" • {company.strength}"
+            else:
+                db_company.strength = company.strength
 
-    return {"message": "Company gespeichert!", "id": db_company.id}
+        if company.weakness:
+            if db_company.weakness:
+                db_company.weakness += f" • {company.weakness}"
+            else:
+                db_company.weakness = company.weakness
+
+        db.commit()
+        db.refresh(db_company)
+        return {"message": "Firma aktualisiert!", "id": db_company.id}
+
+    else:
+        db_company = models.StockSummary(
+            name=company.company_name,
+            strength=company.strength,
+            weakness=company.weakness
+        )
+        db.add(db_company)
+        db.commit()
+        db.refresh(db_company)
+        return {"message": "Firma gespeichert!", "id": db_company.id}
 
 @app.get("/success", response_class=HTMLResponse)
 async def success_page(request: Request):
