@@ -74,7 +74,6 @@ def extract_video_id_by_url(url: str) ->str:
 @app.post("/get-yt-transcript", response_class=HTMLResponse)
 def get_yt_transcript(request: Request, url : str = Form(...)):
     video_id = extract_video_id_by_url(url)
-    print(f"video id: {video_id}")
     transcript = get_youtube_transcript_based_url(video_id)
     companies_array = get_summary_of_gemini_of_transcript(transcript)
 
