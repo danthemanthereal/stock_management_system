@@ -12,6 +12,7 @@ import json
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import requests
+from pytube import extract
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -68,11 +69,15 @@ async def analyze(request: Request, url: str = Form(...)):
     )
 
 
+def extract_video_id_by_url(url: str) ->str:
+    return extract.video_id(url)
 @app.post("/get-yt-transcript", response_class=HTMLResponse)
-def get_yt_transcript(request: Request, video_id: str = Form(...)):
+def get_yt_transcript(request: Request, url : str = Form(...)):
+    video_id = extract_video_id_by_url(url)
+    print(f"video id: {video_id}")
     transcript = get_youtube_transcript_based_url(video_id)
     companies_array = get_summary_of_gemini_of_transcript(transcript)
-    print(companies_array)
+
     if isinstance(companies_array, str):
         try:
             companies_array = json.loads(companies_array)
