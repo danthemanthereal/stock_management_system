@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from database import models
 from youtube_transcript_component.yt_transcript_component import \
     get_youtube_transcript_based_url
-from gemini_component.gemini_llm_component import get_summary_of_gemini_with_url_context, \
+from summary_llm_component.gemini_llm_component import get_summary_of_gemini_with_url_context, \
     get_summary_of_gemini_of_transcript
 import json
 from pydantic import BaseModel
