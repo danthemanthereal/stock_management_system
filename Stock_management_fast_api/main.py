@@ -196,5 +196,5 @@ def scrape_tradingview(request: Request):
     })
 
 
-def get_financial_metrics_by_guro_focus(company: str):
+def get_financial_metrics_by_guro_focus_end_point(company: str):
     pass
