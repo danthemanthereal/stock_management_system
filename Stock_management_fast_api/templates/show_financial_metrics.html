@@ -4,6 +4,23 @@
     <meta charset="UTF-8">
     <title>Financial Metrics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <style>
+        .satisfied {
+            color: green;
+            font-weight: bold;
+        }
+
+        .unsatisfied {
+            color: red;
+            font-weight: bold;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+    </style>
 </head>
 <body>
 
@@ -43,6 +60,22 @@
         });
     }
 </script>
+<div class="container">
+
+    {% for metric in satisfied_metrics %}
+        <div class="satisfied">
+            {{ metric }}
+        </div>
+    {% endfor %}
+
+    {% for metric in unsatisfied_metrics %}
+        <div class="unsatisfied">
+            {{ metric }}
+        </div>
+    {% endfor %}
+
+</div>
+
 
 </body>
 </html>
