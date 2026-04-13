@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Kennzahl bearbeiten</h1>
+
+<form action="/metrics/update/{{ metric.id }}" method="post">
+
+    <input type="text" name="name" value="{{ metric.name }}">
+
+    <label>
+        Sollte steigen:
+        <input type="checkbox" name="should_rise" {% if metric.should_rise %}checked{% endif %}>
+    </label>
+
+    <input type="number" name="reference_value" value="{{ metric.reference_value }}">
+
+    <input type="text" name="unit" value="{{ metric.unit }}">
+
+    <button type="submit">Save</button>
+</form>
+</body>
+</html>

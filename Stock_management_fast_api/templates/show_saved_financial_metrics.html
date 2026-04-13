@@ -52,12 +52,12 @@
                 <input type="hidden" name="should_rise" value="{{ m.should_rise }}">
                 <input type="hidden" name="reference_value" value="{{ m.reference_value }}">
                 <input type="hidden" name="unit" value="{{ m.unit }}">
-                <button type="submit">Edit (same data)</button>
+                <a href="/metrics/edit/{{ m.id }}">Bearbeiten</a>
             </form>
 
             <form action="/metrics/delete/{{ m.id }}" method="post" style="display:inline;">
                 <button type="submit" onclick="return confirm('Delete?')">
-                    Delete
+                    Löschen
                 </button>
             </form>
 

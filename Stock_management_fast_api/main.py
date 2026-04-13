@@ -246,10 +246,14 @@ def create_metric(
     db.commit()
     db.refresh(metric)
 
+    metrics = db.query(models.FinancialMetric).all()
     return templates.TemplateResponse(
         request=request,
-        name="success.html",
-        context={"request": request}
+        name="show_saved_financial_metrics.html",
+        context={
+            "request": request,
+            "metrics": metrics
+        }
     )
 
 @app.post("/metrics/update/{metric_id}", response_class=HTMLResponse)
@@ -279,6 +283,16 @@ def update_metric(
             "request": request,
             "metrics": metrics
         }
+    )
+
+@app.get("/metrics/edit/{metric_id}")
+def edit_metric_page(metric_id: int, request: Request, db: Session = Depends(get_db)):
+    metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
+
+    return templates.TemplateResponse(
+        request=request,
+        name ="edit_metric.html",
+        context={"request": request, "metric": metric}
     )
 
 @app.post("/metrics/delete/{metric_id}")
