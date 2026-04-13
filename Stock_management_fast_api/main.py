@@ -197,6 +197,18 @@ def scrape_tradingview(request: Request):
     })
 
 
-@app.post("/get-financial-metrics")
-def get_financial_metrics_by_guro_focus_end_point(company: str = Form(...)):
-    get_financial_metrics_by_guro_focus(company)
+@app.post("/get-financial-metrics", response_class=HTMLResponse)
+def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str = Form(...)):
+    financial_metrics_map = get_financial_metrics_by_guro_focus(company)
+
+    years = ["2022", "2023", "2024", "2025"]
+
+    return templates.TemplateResponse(
+        request=request,
+        name="show_financial_metrics.html",
+        context=
+        {
+            "request": request,
+            "data": financial_metrics_map,
+            "years": years
+        })

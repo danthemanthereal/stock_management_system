@@ -35,4 +35,4 @@ def get_financial_metrics_by_guro_focus(company: str):
                 result[key] = []
             result[key].append(value)"""
 
-    print(result["quick_ratio"])
+    return result

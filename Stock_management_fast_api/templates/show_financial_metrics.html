@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Financial Metrics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1>Financial Metrics</h1>
+
+<div id="charts"></div>
+
+<script>
+    const data = {{ data | tojson }};
+    const years = {{ years | tojson }};
+
+    const container = document.getElementById("charts");
+
+    for (const key in data) {
+        // Canvas erstellen
+        const canvas = document.createElement("canvas");
+        container.appendChild(canvas);
+
+        new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: years,
+                datasets: [{
+                    label: key,
+                    data: data[key],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: key
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
