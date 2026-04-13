@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
+from financial_metric_component.financial_metric import get_financial_metrics_by_guro_focus
 from database.db import engine, SessionLocal
 from sqlalchemy.orm import Session
 from database import models
@@ -196,5 +197,6 @@ def scrape_tradingview(request: Request):
     })
 
 
-def get_financial_metrics_by_guro_focus_end_point(company: str):
-    pass
+@app.post("/get-financial-metrics")
+def get_financial_metrics_by_guro_focus_end_point(company: str = Form(...)):
+    get_financial_metrics_by_guro_focus(company)
