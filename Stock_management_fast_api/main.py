@@ -212,3 +212,10 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
             "data": financial_metrics_map,
             "years": years
         })
+
+@app.post("/show-saved-financial-metrics", response_class=HTMLResponse)
+def show_saved_financial_metrics_page(request: Request):
+    return templates.TemplateResponse(
+    request=request,
+        name="show_saved_financial_metrics.html"
+    )
