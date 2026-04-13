@@ -21,7 +21,16 @@ def get_financial_metrics_by_guro_focus(company: str, db):
 
     response = requests.post(url, json=payload, headers=headers)
     yearly_data = response.json()["annual"]
-    print(f"keys = {yearly_data[0].keys()}")
+    for key in yearly_data[0].keys():
+        metric = FinancialMetric(
+            name=key,
+            should_rise=True,
+            reference_value=10,
+            unit="%"
+        )
+        db.add(metric)
+
+    db.commit()
     ttm_data =  response.json()["ttm"]
     result = {}
     # last years
