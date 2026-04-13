@@ -199,8 +199,8 @@ def scrape_tradingview(request: Request):
 
 
 @app.post("/get-financial-metrics", response_class=HTMLResponse)
-def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str = Form(...)):
-    financial_metrics_map = get_financial_metrics_by_guro_focus(company)
+def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str = Form(...), db: Session = Depends(get_db)):
+    financial_metrics_map = get_financial_metrics_by_guro_focus(company, db)
 
     years = ["2022", "2023", "2024", "2025"]
 

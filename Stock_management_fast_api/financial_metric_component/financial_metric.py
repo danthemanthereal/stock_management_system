@@ -1,6 +1,8 @@
 import requests
+from database.models import FinancialMetric
 
-def get_financial_metrics_by_guro_focus(company: str):
+
+def get_financial_metrics_by_guro_focus(company: str, db):
     url = f"https://www.gurufocus.com/reader/_api/stocks/US04EJ/financial?v={company}"
 
     headers = {
@@ -25,6 +27,10 @@ def get_financial_metrics_by_guro_focus(company: str):
     # last years
     for entry in yearly_data:
         for key, value in entry.items():
+            financial_metric = db.query(FinancialMetric).filter(FinancialMetric.name == key).first()
+            if not financial_metric:
+                continue
+
             if key not in result:
                 result[key] = []
             result[key].append(value)
