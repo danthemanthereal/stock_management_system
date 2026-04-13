@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
+from database.models import FinancialMetric
 from financial_metric_component.financial_metric import get_financial_metrics_by_guro_focus
 from database.db import engine, SessionLocal
 from sqlalchemy.orm import Session
@@ -215,12 +216,87 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
 
 @app.post("/show-saved-financial-metrics", response_class=HTMLResponse)
 def show_saved_financial_metrics_page(request: Request, db: Session = Depends(get_db)):
-    metrics = db.query(models.StockSummary).all()
+    metrics = db.query(models.FinancialMetric).all()
     return templates.TemplateResponse(
     request=request,
         name="show_saved_financial_metrics.html",
         context={
             "request": request,
             "metrics": metrics
+        }
+    )
+
+@app.post("/metrics/create", response_class=HTMLResponse)
+def create_metric(
+    request: Request,
+    name: str = Form(...),
+    should_rise: bool = Form(False),
+    reference_value: int = Form(...),
+    unit: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    metric = FinancialMetric(
+        name=name,
+        should_rise=should_rise,
+        reference_value=reference_value,
+        unit=unit
+    )
+
+    db.add(metric)
+    db.commit()
+    db.refresh(metric)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="success.html",
+        context={"request": request}
+    )
+
+@app.post("/metrics/update/{metric_id}", response_class=HTMLResponse)
+def update_metric(
+    request: Request,
+    metric_id: int,
+    name: str = Form(...),
+    should_rise: bool = Form(False),
+    reference_value: int = Form(...),
+    unit: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
+
+    metric.name = name
+    metric.should_rise = should_rise
+    metric.reference_value = reference_value
+    metric.unit = unit
+
+    db.commit()
+
+    metrics = db.query(models.FinancialMetric).all()
+    return templates.TemplateResponse(
+        request=request,
+        name="show_saved_financial_metrics.html",
+        context={
+            "request": request,
+            "metrics": metrics
+        }
+    )
+
+@app.post("/metrics/delete/{metric_id}")
+def delete_metric(
+        request: Request,
+        metric_id: int, db: Session = Depends(get_db)):
+    metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
+
+    db.delete(metric)
+    db.commit()
+
+
+    metrics = db.query(models.FinancialMetric).all()
+    return templates.TemplateResponse(
+    request=request,
+    name="show_saved_financial_metrics.html",
+    context={
+        "request": request,
+        "metrics": metrics
         }
     )
