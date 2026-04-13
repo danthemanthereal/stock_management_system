@@ -214,8 +214,13 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
         })
 
 @app.post("/show-saved-financial-metrics", response_class=HTMLResponse)
-def show_saved_financial_metrics_page(request: Request):
+def show_saved_financial_metrics_page(request: Request, db: Session = Depends(get_db)):
+    metrics = db.query(models.StockSummary).all()
     return templates.TemplateResponse(
     request=request,
-        name="show_saved_financial_metrics.html"
+        name="show_saved_financial_metrics.html",
+        context={
+            "request": request,
+            "metrics": metrics
+        }
     )

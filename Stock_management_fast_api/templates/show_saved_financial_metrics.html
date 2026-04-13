@@ -5,7 +5,67 @@
     <title>Title</title>
 </head>
 <body>
-<h1>Hier Kennzahlen bearbeiten</h1>
+<h1>Gespiecherte Kennzahlen</h1>
+
+
+<h2>Kennzahl hinzufügen</h2>
+
+<form action="/metrics/create" method="post">
+    <input type="text" name="name" placeholder="Name" required>
+
+    <label>
+        Steigen in dem Verlauf der Jahre:
+        <input type="checkbox" name="should_rise">
+    </label>
+
+    <input type="number" name="reference_value" placeholder="Richtwert" required>
+
+    <input type="text" name="unit" placeholder="Einheit" required>
+
+    <button type="submit">Add</button>
+</form>
+
+<hr>
+
+
+<table border="1">
+    <tr>
+
+        <th>Name</th>
+        <th>Should Rise</th>
+        <th>Reference Value</th>
+        <th>Unit</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for m in metrics %}
+    <tr>
+        <td>{{ m.name }}</td>
+        <td>{{ m.should_rise }}</td>
+        <td>{{ m.reference_value }}</td>
+        <td>{{ m.unit }}</td>
+
+        <td>
+
+            <form action="/metrics/update/{{ m.id }}" method="post" style="display:inline;">
+                <input type="hidden" name="name" value="{{ m.name }}">
+                <input type="hidden" name="should_rise" value="{{ m.should_rise }}">
+                <input type="hidden" name="reference_value" value="{{ m.reference_value }}">
+                <input type="hidden" name="unit" value="{{ m.unit }}">
+                <button type="submit">Edit (same data)</button>
+            </form>
+
+            <form action="/metrics/delete/{{ m.id }}" method="post" style="display:inline;">
+                <button type="submit" onclick="return confirm('Delete?')">
+                    Delete
+                </button>
+            </form>
+
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
 
 </body>
 </html>
