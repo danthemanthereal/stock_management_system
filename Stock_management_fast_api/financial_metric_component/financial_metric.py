@@ -18,6 +18,21 @@ def get_financial_metrics_by_guro_focus(company: str):
     }
 
     response = requests.post(url, json=payload, headers=headers)
-    data = response.json()
+    yearly_data = response.json()["annual"]
+    ttm_data =  response.json()["ttm"]
+    result = {}
+    # last years
+    for entry in yearly_data:
+        for key, value in entry.items():
+            if key not in result:
+                result[key] = []
+            result[key].append(value)
 
-    print(data["annual"][0])
+    # TODO : check yearly ttm always last ?
+    """for entry in ttm_data:
+        for key, value in entry.items():
+            if key not in result:
+                result[key] = []
+            result[key].append(value)"""
+
+    print(result["quick_ratio"])
