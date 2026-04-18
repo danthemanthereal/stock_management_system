@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-
+from typing import List
 from financial_metric_evaluator_component.financial_metric_evaluator import \
     get_satisfied_and_not_satisfied_financial_metrics
 from database.models import FinancialMetric
@@ -300,22 +300,25 @@ def edit_metric_page(metric_id: int, request: Request, db: Session = Depends(get
         context={"request": request, "metric": metric}
     )
 
-@app.post("/metrics/delete/{metric_id}")
-def delete_metric(
-        request: Request,
-        metric_id: int, db: Session = Depends(get_db)):
-    metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
+@app.post("/metrics/delete-multiple")
+def delete_metrics(
+    request: Request,
+    metric_ids: List[int] = Form(...),
+    db: Session = Depends(get_db)
+):
+    metrics = db.query(FinancialMetric).filter(FinancialMetric.id.in_(metric_ids)).all()
 
-    db.delete(metric)
+    for metric in metrics:
+        db.delete(metric)
+
     db.commit()
 
-
-    metrics = db.query(models.FinancialMetric).all()
+    metrics = db.query(FinancialMetric).all()
     return templates.TemplateResponse(
-    request=request,
-    name="show_saved_financial_metrics.html",
-    context={
-        "request": request,
-        "metrics": metrics
+        request=request,
+        name="show_saved_financial_metrics.html",
+        context={
+            "request": request,
+            "metrics": metrics
         }
     )

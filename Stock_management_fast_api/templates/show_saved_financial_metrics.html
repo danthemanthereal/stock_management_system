@@ -28,9 +28,10 @@
 <hr>
 
 
+<form action="/metrics/delete-multiple" method="post">
 <table border="1">
     <tr>
-
+        <th>Auswählen</th>
         <th>Name</th>
         <th>Should Rise</th>
         <th>Reference Value</th>
@@ -40,32 +41,26 @@
 
     {% for m in metrics %}
     <tr>
+        <td>
+            <input type="checkbox" name="metric_ids" value="{{ m.id }}">
+        </td>
         <td>{{ m.name }}</td>
         <td>{{ m.should_rise }}</td>
         <td>{{ m.reference_value }}</td>
         <td>{{ m.unit }}</td>
 
         <td>
-
-            <form action="/metrics/update/{{ m.id }}" method="post" style="display:inline;">
-                <input type="hidden" name="name" value="{{ m.name }}">
-                <input type="hidden" name="should_rise" value="{{ m.should_rise }}">
-                <input type="hidden" name="reference_value" value="{{ m.reference_value }}">
-                <input type="hidden" name="unit" value="{{ m.unit }}">
-                <a href="/metrics/edit/{{ m.id }}">Bearbeiten</a>
-            </form>
-
-            <form action="/metrics/delete/{{ m.id }}" method="post" style="display:inline;">
-                <button type="submit" onclick="return confirm('Delete?')">
-                    Löschen
-                </button>
-            </form>
-
+            <a href="/metrics/edit/{{ m.id }}">Bearbeiten</a>
         </td>
     </tr>
     {% endfor %}
-
 </table>
+
+<br>
+<button type="submit" onclick="return confirm('Ausgewählte Einträge löschen?')">
+    Ausgewählte löschen
+</button>
+</form>
 
 </body>
 </html>
