@@ -2,4 +2,4 @@
 
 ## Anwendung starten 
 
-in Stcok_management_fast_api ordner :  uvicorn main:app --reload  in Konsole
+in Stock_management_fast_api ordner :  uvicorn main:app --reload  in Konsole
