@@ -2,20 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<!DOCTYPE html>
-<html>
-<head>
     <title>Gespeicherte Aktien</title>
 </head>
+
+
 <body>
 
-    <h1>Gespeicherte Aktien</h1>
-
+<h1>Gespeicherte Aktien</h1>
+<form id="companyForm">
     <table border="1" cellpadding="10">
         <tr>
+            <th>Auswahl</th>
             <th>Name</th>
             <th>Stärken</th>
             <th>Schwächen</th>
@@ -23,16 +20,21 @@
 
         {% for company in companies %}
         <tr>
+            <td>
+                <input type="checkbox" name="selected_companies" value="{{ company.name }}">
+            </td>
+
             <td>{{ company.name }}</td>
+
             <td>
                 {% for item in company.strength.split('•') if item.strip() %}
-                    • {{ item.strip() }}<br>
+                • {{ item.strip() }}<br>
                 {% endfor %}
             </td>
 
             <td>
                 {% for item in company.weakness.split('•') if item.strip() %}
-                    • {{ item.strip() }}<br>
+                • {{ item.strip() }}<br>
                 {% endfor %}
             </td>
         </tr>
@@ -40,10 +42,42 @@
     </table>
 
     <br>
-    <a href="/">Zurück</a>
 
-</body>
-</html>
+    <button type="button" onclick="sendSelected()">Auswahl senden</button>
+</form>
+
+<script>
+    async function sendSelected() {
+        const checkboxes = document.querySelectorAll('input[name="selected_companies"]:checked');
+
+        const selected = Array.from(checkboxes).map(cb => cb.value);
+
+        if (selected.length === 0) {
+            alert("Bitte mindestens eine Firma auswählen.");
+            return;
+        }
+
+        try {
+            await fetch("http://localhost:8000/delete-saved-companies", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({companies: selected})
+            });
+
+            location.reload();
+
+
+
+        } catch (error) {
+            console.error(error);
+            alert("Fehler beim Senden der Daten");
+        }
+    }
+</script>
+<br>
+<a href="/">Zurück</a>
 
 </body>
 </html>

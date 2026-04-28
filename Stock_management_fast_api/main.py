@@ -48,6 +48,9 @@ class Company(BaseModel):
     company_name: str
     strength: str
     weakness: str
+
+class DeleteCompaniesRequest(BaseModel):
+    companies: List[str]
 @app.get("/")
 def read_root(request: Request):
     return templates.TemplateResponse(
@@ -322,3 +325,25 @@ def delete_metrics(
             "metrics": metrics
         }
     )
+
+@app.post("/delete-saved-companies", response_class=HTMLResponse)
+def delete_saved_companies(
+        request: Request,
+    data: DeleteCompaniesRequest,
+    db: Session = Depends(get_db)
+):
+    if not data.companies:
+        return {"message": "Keine Companies übergeben", "deleted": 0}
+
+    db.query(models.StockSummary)\
+        .filter(models.StockSummary.name.in_(data.companies))\
+        .delete(synchronize_session=False)
+
+    db.commit()
+
+    companies = db.query(models.StockSummary).all()
+
+    return templates.TemplateResponse(request=request,
+                                      name="saved_companies_overview.html",
+                                      context={"request": request, "companies": companies
+                                               })
