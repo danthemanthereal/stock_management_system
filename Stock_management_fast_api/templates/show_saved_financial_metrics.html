@@ -29,37 +29,42 @@
 
 
 <form action="/metrics/delete-multiple" method="post">
-<table border="1">
-    <tr>
-        <th>Auswählen</th>
-        <th>Name</th>
-        <th>Should Rise</th>
-        <th>Reference Value</th>
-        <th>Unit</th>
-        <th>Actions</th>
-    </tr>
+    <table border="1">
+        <tr>
+            <th>Auswählen</th>
+            <th>Name</th>
+            <th>Sollte Steigen</th>
+            <th>Richtwert</th>
+            <th>Einheit</th>
+            <th>Ist Aktiv</th>
+            <th>Actions</th>
+        </tr>
 
-    {% for m in metrics %}
-    <tr>
-        <td>
-            <input type="checkbox" name="metric_ids" value="{{ m.id }}">
-        </td>
-        <td>{{ m.name }}</td>
-        <td>{{ m.should_rise }}</td>
-        <td>{{ m.reference_value }}</td>
-        <td>{{ m.unit }}</td>
+        {% for m in metrics %}
+        <tr>
+            <td>
+                <input type="checkbox" name="metric_ids" value="{{ m.id }}">
+            </td>
+            <td>{{ m.name }}</td>
+            <td>{{ m.should_rise }}</td>
+            <td>{{ m.reference_value }}</td>
+            <td>{{ m.unit }}</td>
+            <td>
+                <input type="checkbox"
+                       name="is_active_{{ m.id }}"
+                       {% if m.is_active %}checked{% endif %}>
+            </td>
+            <td>
+                <a href="/metrics/edit/{{ m.id }}">Bearbeiten</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 
-        <td>
-            <a href="/metrics/edit/{{ m.id }}">Bearbeiten</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-
-<br>
-<button type="submit" onclick="return confirm('Ausgewählte Einträge löschen?')">
-    Ausgewählte löschen
-</button>
+    <br>
+    <button type="submit" onclick="return confirm('Ausgewählte Einträge löschen?')">
+        Ausgewählte löschen
+    </button>
 </form>
 
 </body>
