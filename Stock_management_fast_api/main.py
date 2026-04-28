@@ -207,7 +207,8 @@ def scrape_tradingview(request: Request):
 @app.post("/get-financial-metrics", response_class=HTMLResponse)
 def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str = Form(...), db: Session = Depends(get_db)):
     financial_metrics_map = get_financial_metrics_by_guro_focus(company, db)
-    satisfied_metrics, unsatisfied_metrics = get_satisfied_and_not_satisfied_financial_metrics(financial_metrics_map, db)
+    
+    satisfied_metrics, unsatisfied_metrics, satisfied_benchmarks, unsatisfied_benchmarks, satisfied_development, unsatisfied_development = get_satisfied_and_not_satisfied_financial_metrics(financial_metrics_map, db)
     years = ["2022", "2023", "2024", "2025"]
 
     return templates.TemplateResponse(
@@ -220,6 +221,10 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
             "years": years,
             "satisfied_metrics": satisfied_metrics,
             "unsatisfied_metrics": unsatisfied_metrics,
+            "satisfied_benchmarks": satisfied_benchmarks,
+            "unsatisfied_benchmarks": unsatisfied_benchmarks,
+            "satisfied_development": satisfied_development,
+            "unsatisfied_development": unsatisfied_development
         })
 
 @app.post("/show-saved-financial-metrics", response_class=HTMLResponse)

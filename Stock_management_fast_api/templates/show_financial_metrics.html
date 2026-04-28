@@ -74,6 +74,30 @@
         </div>
     {% endfor %}
 
+     {% for metric in satisfied_benchmarks %}
+        <div class="satisfied">
+            {{ metric }}
+        </div>
+    {% endfor %}
+
+    {% for metric in unsatisfied_benchmarks %}
+        <div class="unsatisfied">
+            {{ metric }}
+        </div>
+    {% endfor %}
+
+     {% for metric in satisfied_development %}
+        <div class="satisfied">
+            {{ metric }}
+        </div>
+    {% endfor %}
+
+    {% for metric in unsatisfied_development %}
+        <div class="unsatisfied">
+            {{ metric }}
+        </div>
+    {% endfor %}
+
 </div>
 
 
