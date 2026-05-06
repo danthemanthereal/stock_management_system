@@ -1,4 +1,5 @@
 from database.models import FinancialMetric
+from sqlalchemy import and_
 
 
 def get_satisfied_and_not_satisfied_financial_metrics(financial_metrics: dict, db):
@@ -10,8 +11,15 @@ def get_satisfied_and_not_satisfied_financial_metrics(financial_metrics: dict, d
     unsatisfied_benchmark_value = []
 
     for financial_metric_name in financial_metrics.keys():
-        financial_metric_object =    db.query(FinancialMetric).filter(FinancialMetric.name == financial_metric_name).first()
+        financial_metric_object = db.query(FinancialMetric).filter(
+            and_(
+                FinancialMetric.name == financial_metric_name,
+                FinancialMetric.is_active == True
+            )
+        ).first()
         values = financial_metrics[financial_metric_name]
+        if not financial_metric_object:
+            continue
         if check_satisfiability(financial_metric_object, values):
             satisfied_financial_metrics.append(financial_metric_name)
         else:
