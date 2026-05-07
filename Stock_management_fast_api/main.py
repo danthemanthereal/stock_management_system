@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, Form, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from typing import List
+from combining_stock_infos_llm.combine_stock import get_combination
 from financial_metric_evaluator_component.financial_metric_evaluator import \
     get_satisfied_and_not_satisfied_financial_metrics
 from database.models import FinancialMetric
@@ -18,6 +19,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 from pytube import extract
+import re
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -103,21 +105,14 @@ async def receive_company(company: Company, db: Session = Depends(get_db)):
     db_company = db.query(models.StockSummary).filter_by(name=company.company_name).first()
 
     if db_company:
-        if company.strength:
-            if db_company.strength:
-                db_company.strength += f" • {company.strength}"
-            else:
-                db_company.strength = company.strength
-
-        if company.weakness:
-            if db_company.weakness:
-                db_company.weakness += f" • {company.weakness}"
-            else:
-                db_company.weakness = company.weakness
-
-        db.commit()
-        db.refresh(db_company)
-        return {"message": "Firma aktualisiert!", "id": db_company.id}
+         current_strengths = db_company.strength
+         current_weakness =  db_company.weakness
+         strengths, weaknesses = get_combination(current_strengths, current_weakness, company.strength, company.weakness)
+         db_company.strength = "\n".join(f"• {s}" for s in strengths)
+         db_company.weakness = "\n".join(f"• {w}" for w in weaknesses)
+         db.commit()
+         db.refresh(db_company)
+         return {"message": "Firma aktualisiert!", "id": db_company.id}
 
     else:
         db_company = models.StockSummary(
