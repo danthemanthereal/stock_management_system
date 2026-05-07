@@ -5,7 +5,7 @@ import json
 from sqlalchemy import and_
 
 
-def get_financial_metrics_by_guro_focus(json_copied: str,db):
+def get_financial_metrics_by_guro_focus(db):
     """async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
@@ -21,13 +21,12 @@ def get_financial_metrics_by_guro_focus(json_copied: str,db):
         print(f"data {data}")
         await browser.close()
         return data"""
-    data = f'''
-            {json_copied}  
-    '''
-    
 
-    parsed = json.loads(data)
-    annuals = parsed["annual"]
+    with open("/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/financial_metric_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
+        financial_metrics = json.load(financial_metrics_file)
+
+
+    annuals = financial_metrics.get("annual", [])
     financial_metric_map = {}
     for current_year_map in annuals:
         for key, value in current_year_map.items():
