@@ -51,8 +51,6 @@ def check_satisfiability(financial_metric_obj: FinancialMetric, values: list[int
         last_value = int(last_value * 100)
 
     if financial_metric_obj.should_rise:
-        print("val in method")
-        print(values)
         asc_sorting = sorted(values)
 
         return asc_sorting == values and financial_metric_obj.reference_value > last_value

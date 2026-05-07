@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <title>Financial Metrics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-     <style>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
         .satisfied {
             color: green;
             font-weight: bold;
@@ -19,12 +24,32 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
+            margin-top: 40px;
+        }
+
+        .nav-btn {
+            padding: 10px 16px;
+            margin: 20px 0;
+            cursor: pointer;
+            border: none;
+            background: #333;
+            color: white;
+            border-radius: 8px;
+        }
+
+        .nav-btn:hover {
+            background: #555;
         }
     </style>
 </head>
 <body>
 
 <h1>Financial Metrics</h1>
+
+<!-- Button nach unten -->
+<button class="nav-btn" onclick="scrollToContainer()">
+    ↓ Zu den Ergebnissen
+</button>
 
 <div id="charts"></div>
 
@@ -35,7 +60,7 @@
     const container = document.getElementById("charts");
 
     for (const key in data) {
-        // Canvas erstellen
+
         const canvas = document.createElement("canvas");
         container.appendChild(canvas);
 
@@ -59,39 +84,63 @@
             }
         });
     }
+
+    function scrollToContainer() {
+        document.querySelector(".container").scrollIntoView({
+            behavior: "smooth"
+        });
+    }
+
+    function scrollToCharts() {
+        document.getElementById("charts").scrollIntoView({
+            behavior: "smooth"
+        });
+    }
 </script>
+
 <div class="container">
 
+    <!-- Button nach oben -->
+    <button class="nav-btn" onclick="scrollToCharts()">
+        ↑ Zu den Charts
+    </button>
+
+    <h2>Erfüllen Entwicklung und Richtwert</h2>
     {% for metric in satisfied_metrics %}
         <div class="satisfied">
             {{ metric }}
         </div>
     {% endfor %}
 
+    <h2>Erfüllen weder Richtwert noch Entwicklung</h2>
     {% for metric in unsatisfied_metrics %}
         <div class="unsatisfied">
             {{ metric }}
         </div>
     {% endfor %}
 
-     {% for metric in satisfied_benchmarks %}
+    <h2>Erfüllen Richtwert</h2>
+    {% for metric in satisfied_benchmarks %}
         <div class="satisfied">
             {{ metric }}
         </div>
     {% endfor %}
 
+    <h2>Erfüllen nicht Richtwert</h2>
     {% for metric in unsatisfied_benchmarks %}
         <div class="unsatisfied">
             {{ metric }}
         </div>
     {% endfor %}
 
-     {% for metric in satisfied_development %}
+    <h2>Erfüllen Entwicklung</h2>
+    {% for metric in satisfied_development %}
         <div class="satisfied">
             {{ metric }}
         </div>
     {% endfor %}
 
+    <h2>Erfüllen nicht Entwicklung</h2>
     {% for metric in unsatisfied_development %}
         <div class="unsatisfied">
             {{ metric }}
@@ -99,7 +148,6 @@
     {% endfor %}
 
 </div>
-
 
 </body>
 </html>
