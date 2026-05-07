@@ -33,7 +33,13 @@
 {% if companies %}
 {% for company in companies %}
 <div class="company">
-    <h2>{{ company.company_name }}</h2>
+    <h2
+    contenteditable="true"
+    class="editable-name"
+    data-original="{{ company.company_name }}"
+>
+    {{ company.company_name }}
+</h2>
 
     <h3 class="strength">Stärken</h3>
     <p>{{ company.strength.replace('•', '<br>') | safe }}</p>
