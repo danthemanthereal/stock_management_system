@@ -18,14 +18,19 @@ def get_satisfied_and_not_satisfied_financial_metrics(financial_metrics: dict, d
             )
         ).first()
         values = financial_metrics[financial_metric_name]
-        if not financial_metric_object:
+        if not financial_metric_object or not values:
+            continue
+        if None in values:
+            continue
+
+        if any(isinstance(x, str) for x in values):
             continue
         if check_satisfiability(financial_metric_object, values):
             satisfied_financial_metrics.append(financial_metric_name)
         else:
             unsatisfied_financial_metrics.append(financial_metric_name)
 
-        if check_satisfiability(financial_metric_object, values):
+        if check_satisfiability_development(financial_metric_object, values):
             satisfied_development_metric.append(financial_metric_name)
         else:
             unsatisfied_development_metric.append(financial_metric_name)
@@ -46,6 +51,8 @@ def check_satisfiability(financial_metric_obj: FinancialMetric, values: list[int
         last_value = int(last_value * 100)
 
     if financial_metric_obj.should_rise:
+        print("val in method")
+        print(values)
         asc_sorting = sorted(values)
 
         return asc_sorting == values and financial_metric_obj.reference_value > last_value
