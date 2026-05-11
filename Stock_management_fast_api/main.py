@@ -179,28 +179,41 @@ class DeleteCompaniesRequest(BaseModel):
     companies: List[str]
 @app.get("/")
 def read_root(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={}
-    )
+    try:
+        return templates.TemplateResponse(
+            request=request,
+            name="index.html",
+            context={}
+        )
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request},
+        )
 
 @app.post("/get-summary", response_class=HTMLResponse)
 async def analyze(request: Request, url: str = Form(...)):
+    try:
+        companies_array = get_summary_of_gemini_with_url_context(url)
 
-    companies_array = get_summary_of_gemini_with_url_context(url)
+        if isinstance(companies_array, str):
+            try:
+                companies_array = json.loads(companies_array)
+            except json.JSONDecodeError:
+                companies_array = []
 
-    if isinstance(companies_array, str):
-        try:
-            companies_array = json.loads(companies_array)
-        except json.JSONDecodeError:
-            companies_array = []
-
-    return templates.TemplateResponse(
-        request=request,
-        name="companies_overview.html",
-        context={"request": request, "companies": companies_array}
-    )
+        return templates.TemplateResponse(
+            request=request,
+            name="companies_overview.html",
+            context={"request": request, "companies": companies_array}
+        )
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request},
+        )
 
 
 def extract_video_id_by_url(url: str) ->str:
