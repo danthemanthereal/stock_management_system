@@ -97,6 +97,44 @@
             color: #444;
         }
 
+        .results-summary {
+            margin-top: 40px;
+            padding: 20px 24px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background: #fafafa;
+            max-width: 960px;
+        }
+
+        .results-summary > h2 {
+            margin-top: 0;
+            margin-bottom: 18px;
+            font-size: 1.2rem;
+        }
+
+        .summary-pair-block {
+            margin-bottom: 22px;
+        }
+
+        .summary-pair-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-pair-block h3 {
+            font-size: 1rem;
+            margin: 0 0 10px;
+            color: #222;
+        }
+
+        .summary-row {
+            margin: 6px 0 6px 12px;
+            line-height: 1.5;
+        }
+
+        .summary-row .counts {
+            margin-left: 4px;
+        }
+
     </style>
 </head>
 <body>
@@ -324,6 +362,52 @@
         {% endfor %}
     </div>
 
+</div>
+
+<div class="results-summary">
+    <h2>Zusammenfassung nach Kategorie</h2>
+
+    <div class="summary-pair-block">
+        <h3>Erfüllen Entwicklung und Richtwert · Erfüllen weder Richtwert noch Entwicklung</h3>
+        {% for row in summary_combined_by_category %}
+        <div class="summary-row">
+            <strong>{{ row.category }}</strong>
+            <span class="counts">
+                <span class="satisfied">{{ row.satisfied }}/{{ row.total }} erfüllt</span>
+                ·
+                <span class="unsatisfied">{{ row.unsatisfied }}/{{ row.total }} nicht erfüllt</span>
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="summary-pair-block">
+        <h3>Erfüllen Richtwert · Erfüllen nicht Richtwert</h3>
+        {% for row in summary_benchmark_by_category %}
+        <div class="summary-row">
+            <strong>{{ row.category }}</strong>
+            <span class="counts">
+                <span class="satisfied">{{ row.satisfied }}/{{ row.total }} erfüllt</span>
+                ·
+                <span class="unsatisfied">{{ row.unsatisfied }}/{{ row.total }} nicht erfüllt</span>
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="summary-pair-block">
+        <h3>Erfüllen Entwicklung · Erfüllen nicht Entwicklung</h3>
+        {% for row in summary_development_by_category %}
+        <div class="summary-row">
+            <strong>{{ row.category }}</strong>
+            <span class="counts">
+                <span class="satisfied">{{ row.satisfied }}/{{ row.total }} erfüllt</span>
+                ·
+                <span class="unsatisfied">{{ row.unsatisfied }}/{{ row.total }} nicht erfüllt</span>
+            </span>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 </body>
 </html>

@@ -134,6 +134,32 @@ def group_metric_names_by_category(
     return [(k if k else "Ohne Kategorie", groups[k]) for k in ordered_keys]
 
 
+def build_category_pair_summary(
+    satisfied_by_category: List[Tuple[str, List[str]]],
+    unsatisfied_by_category: List[Tuple[str, List[str]]],
+) -> List[dict]:
+    sat_map = {label: len(names) for label, names in satisfied_by_category}
+    unsat_map = {label: len(names) for label, names in unsatisfied_by_category}
+    all_labels = set(sat_map) | set(unsat_map)
+    ordered = sorted(
+        all_labels,
+        key=lambda L: (1 if L == "Ohne Kategorie" else 0, L.casefold()),
+    )
+    rows: List[dict] = []
+    for L in ordered:
+        s = sat_map.get(L, 0)
+        u = unsat_map.get(L, 0)
+        rows.append(
+            {
+                "category": L,
+                "satisfied": s,
+                "unsatisfied": u,
+                "total": s + u,
+            }
+        )
+    return rows
+
+
 class Company(BaseModel):
     company_name: str
     strength: str
@@ -295,6 +321,24 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
     data_by_category = group_financial_metrics_map_by_category(
         financial_metrics_map, db
     )
+    satisfied_metrics_by_category = group_metric_names_by_category(
+        satisfied_metrics, db
+    )
+    unsatisfied_metrics_by_category = group_metric_names_by_category(
+        unsatisfied_metrics, db
+    )
+    satisfied_benchmarks_by_category = group_metric_names_by_category(
+        satisfied_benchmarks, db
+    )
+    unsatisfied_benchmarks_by_category = group_metric_names_by_category(
+        unsatisfied_benchmarks, db
+    )
+    satisfied_development_by_category = group_metric_names_by_category(
+        satisfied_development, db
+    )
+    unsatisfied_development_by_category = group_metric_names_by_category(
+        unsatisfied_development, db
+    )
 
     return templates.TemplateResponse(
         request=request,
@@ -304,23 +348,23 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
             "request": request,
             "data_by_category": data_by_category,
             "years": years,
-            "satisfied_metrics_by_category": group_metric_names_by_category(
-                satisfied_metrics, db
+            "satisfied_metrics_by_category": satisfied_metrics_by_category,
+            "unsatisfied_metrics_by_category": unsatisfied_metrics_by_category,
+            "satisfied_benchmarks_by_category": satisfied_benchmarks_by_category,
+            "unsatisfied_benchmarks_by_category": unsatisfied_benchmarks_by_category,
+            "satisfied_development_by_category": satisfied_development_by_category,
+            "unsatisfied_development_by_category": unsatisfied_development_by_category,
+            "summary_combined_by_category": build_category_pair_summary(
+                satisfied_metrics_by_category,
+                unsatisfied_metrics_by_category,
             ),
-            "unsatisfied_metrics_by_category": group_metric_names_by_category(
-                unsatisfied_metrics, db
+            "summary_benchmark_by_category": build_category_pair_summary(
+                satisfied_benchmarks_by_category,
+                unsatisfied_benchmarks_by_category,
             ),
-            "satisfied_benchmarks_by_category": group_metric_names_by_category(
-                satisfied_benchmarks, db
-            ),
-            "unsatisfied_benchmarks_by_category": group_metric_names_by_category(
-                unsatisfied_benchmarks, db
-            ),
-            "satisfied_development_by_category": group_metric_names_by_category(
-                satisfied_development, db
-            ),
-            "unsatisfied_development_by_category": group_metric_names_by_category(
-                unsatisfied_development, db
+            "summary_development_by_category": build_category_pair_summary(
+                satisfied_development_by_category,
+                unsatisfied_development_by_category,
             ),
         })
 
