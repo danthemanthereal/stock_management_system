@@ -7,6 +7,9 @@
 <body>
 <h1>Gespiecherte Kennzahlen</h1>
 
+<p>
+    <button type="button" id="toggle-active-metrics">Nur aktive Kennzahlen</button>
+</p>
 
 <h2>Kennzahl hinzufügen</h2>
 
@@ -42,7 +45,7 @@
         </tr>
 
         {% for m in metrics %}
-        <tr>
+        <tr class="saved-metric-row" data-is-active="{{ 'true' if m.is_active else 'false' }}">
             <td>
                 <input type="checkbox" name="metric_ids" value="{{ m.id }}">
             </td>
@@ -68,6 +71,29 @@
         Ausgewählte löschen
     </button>
 </form>
+
+<script>
+(function () {
+    var btn = document.getElementById('toggle-active-metrics');
+    if (!btn) return;
+    var rows = document.querySelectorAll('tr.saved-metric-row');
+    var showOnlyActive = false;
+
+    function applyFilter() {
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var active = row.getAttribute('data-is-active') === 'true';
+            row.style.display = showOnlyActive && !active ? 'none' : '';
+        }
+        btn.textContent = showOnlyActive ? 'Alle Kennzahlen anzeigen' : 'Nur aktive Kennzahlen';
+    }
+
+    btn.addEventListener('click', function () {
+        showOnlyActive = !showOnlyActive;
+        applyFilter();
+    });
+})();
+</script>
 
 </body>
 </html>
