@@ -115,54 +115,59 @@ def group_metric_names_by_category(
     metric_names: List[str],
     db: Session,
 ) -> List[Tuple[str, List[str]]]:
-    if not metric_names:
+    try:
+        if not metric_names:
+            return []
+        names = list(metric_names)
+        rows = (
+            db.query(FinancialMetric)
+            .filter(FinancialMetric.name.in_(set(names)))
+            .all()
+        )
+        name_to_category = {
+            r.name: (r.category or "").strip() or "" for r in rows
+        }
+        groups: dict[str, List[str]] = defaultdict(list)
+        for n in names:
+            cat = name_to_category.get(n, "")
+            groups[cat].append(n)
+        for k in groups:
+            groups[k].sort(key=str.casefold)
+        ordered_keys = sorted(
+            groups.keys(),
+            key=lambda k: (1 if k == "" else 0, k.casefold()),
+        )
+        return [(k if k else "Ohne Kategorie", groups[k]) for k in ordered_keys]
+    except Exception as e:
         return []
-    names = list(metric_names)
-    rows = (
-        db.query(FinancialMetric)
-        .filter(FinancialMetric.name.in_(set(names)))
-        .all()
-    )
-    name_to_category = {
-        r.name: (r.category or "").strip() or "" for r in rows
-    }
-    groups: dict[str, List[str]] = defaultdict(list)
-    for n in names:
-        cat = name_to_category.get(n, "")
-        groups[cat].append(n)
-    for k in groups:
-        groups[k].sort(key=str.casefold)
-    ordered_keys = sorted(
-        groups.keys(),
-        key=lambda k: (1 if k == "" else 0, k.casefold()),
-    )
-    return [(k if k else "Ohne Kategorie", groups[k]) for k in ordered_keys]
-
 
 def build_category_pair_summary(
     satisfied_by_category: List[Tuple[str, List[str]]],
     unsatisfied_by_category: List[Tuple[str, List[str]]],
 ) -> List[dict]:
-    sat_map = {label: len(names) for label, names in satisfied_by_category}
-    unsat_map = {label: len(names) for label, names in unsatisfied_by_category}
-    all_labels = set(sat_map) | set(unsat_map)
-    ordered = sorted(
-        all_labels,
-        key=lambda L: (1 if L == "Ohne Kategorie" else 0, L.casefold()),
-    )
-    rows: List[dict] = []
-    for L in ordered:
-        s = sat_map.get(L, 0)
-        u = unsat_map.get(L, 0)
-        rows.append(
-            {
-                "category": L,
-                "satisfied": s,
-                "unsatisfied": u,
-                "total": s + u,
-            }
+    try:
+        sat_map = {label: len(names) for label, names in satisfied_by_category}
+        unsat_map = {label: len(names) for label, names in unsatisfied_by_category}
+        all_labels = set(sat_map) | set(unsat_map)
+        ordered = sorted(
+            all_labels,
+            key=lambda L: (1 if L == "Ohne Kategorie" else 0, L.casefold()),
         )
-    return rows
+        rows: List[dict] = []
+        for L in ordered:
+            s = sat_map.get(L, 0)
+            u = unsat_map.get(L, 0)
+            rows.append(
+                {
+                    "category": L,
+                    "satisfied": s,
+                    "unsatisfied": u,
+                    "total": s + u,
+                }
+            )
+        return rows
+    except Exception as e:
+        return []
 
 
 class Company(BaseModel):
