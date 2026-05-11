@@ -43,3 +43,17 @@ def get_financial_metrics_by_guro_focus(db):
             financial_metric_map.setdefault(key, []).append(value)
 
     return financial_metric_map
+
+
+def get_financial_metrics_with_alpha_ventage_api(db, financial_metric_map, company_name):
+    alpha_vantage_api_key = "QZX1ZGLLW5C7LMB0"
+    url = f'https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol={company_name}&apikey={alpha_vantage_api_key}'
+    r = requests.get(url)
+    financial_metric_to_get = ["costOfRevenue"]
+    ## 22, 23, 24, 25
+    annual_reports = list(reversed(r.json()['annualReports']))[-4:]
+    for annual_report in annual_reports:
+        for (key, value) in annual_report.items():
+            if key in financial_metric_to_get:
+                financial_metric_map.setdefault(key, []).append(value)
+
