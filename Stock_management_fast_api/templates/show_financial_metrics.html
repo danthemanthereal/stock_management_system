@@ -74,6 +74,29 @@
             width: 250px;
         }
 
+        .category-charts-heading {
+            margin-top: 2rem;
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            background: #eee;
+            border-radius: 8px;
+            font-size: 1.15rem;
+        }
+
+        .category-charts-heading:first-of-type {
+            margin-top: 0;
+        }
+
+        .metric-category-block {
+            margin-bottom: 14px;
+        }
+
+        .metric-category-block h3 {
+            font-size: 0.95rem;
+            margin: 10px 0 6px;
+            color: #444;
+        }
+
     </style>
 </head>
 <body>
@@ -93,12 +116,19 @@
 <div id="charts"></div>
 
 <script>
-    const data = {{ data | tojson }};
+    const groups = {{ data_by_category | tojson }};
     const years = {{ years | tojson }};
 
     const container = document.getElementById("charts");
 
-    for (const key in data) {
+    groups.forEach(function (group) {
+        const catHeading = document.createElement("h2");
+        catHeading.className = "category-charts-heading";
+        catHeading.textContent = group.category;
+        container.appendChild(catHeading);
+
+        Object.keys(group.metrics).forEach(function (key) {
+        const series = group.metrics[key];
 
         const wrapper = document.createElement("div");
         wrapper.id = "chart-" + key;
@@ -135,7 +165,7 @@
                 labels: years,
                 datasets: [{
                     label: key,
-                    data: data[key],
+                    data: series,
                 }]
             },
             options: {
@@ -148,7 +178,8 @@
                 }
             }
         });
-    }
+        });
+    });
 
 
     function scrollToContainer() {
@@ -186,54 +217,84 @@
 
     <div class="box">
         <h2>Erfüllen Entwicklung und Richtwert</h2>
-        {% for metric in satisfied_metrics %}
-        <div class="satisfied">
-            {{ metric }}
+        {% for category_label, metrics in satisfied_metrics_by_category %}
+        <div class="metric-category-block">
+            <h3>{{ category_label }}</h3>
+            {% for metric in metrics %}
+            <div class="satisfied">
+                {{ metric }}
+            </div>
+            {% endfor %}
         </div>
         {% endfor %}
     </div>
 
     <div class="box">
         <h2>Erfüllen weder Richtwert noch Entwicklung</h2>
-        {% for metric in unsatisfied_metrics %}
-        <div class="unsatisfied">
-            {{ metric }}
+        {% for category_label, metrics in unsatisfied_metrics_by_category %}
+        <div class="metric-category-block">
+            <h3>{{ category_label }}</h3>
+            {% for metric in metrics %}
+            <div class="unsatisfied">
+                {{ metric }}
+            </div>
+            {% endfor %}
         </div>
         {% endfor %}
     </div>
 
     <div class="box">
         <h2>Erfüllen Richtwert</h2>
-        {% for metric in satisfied_benchmarks %}
-        <div class="satisfied">
-            {{ metric }}
+        {% for category_label, metrics in satisfied_benchmarks_by_category %}
+        <div class="metric-category-block">
+            <h3>{{ category_label }}</h3>
+            {% for metric in metrics %}
+            <div class="satisfied">
+                {{ metric }}
+            </div>
+            {% endfor %}
         </div>
         {% endfor %}
     </div>
 
     <div class="box">
         <h2>Erfüllen nicht Richtwert</h2>
-        {% for metric in unsatisfied_benchmarks %}
-        <div class="unsatisfied">
-            {{ metric }}
+        {% for category_label, metrics in unsatisfied_benchmarks_by_category %}
+        <div class="metric-category-block">
+            <h3>{{ category_label }}</h3>
+            {% for metric in metrics %}
+            <div class="unsatisfied">
+                {{ metric }}
+            </div>
+            {% endfor %}
         </div>
         {% endfor %}
     </div>
 
     <div class="box">
         <h2>Erfüllen Entwicklung</h2>
-        {% for metric in satisfied_development %}
-        <div class="satisfied">
-            {{ metric }}
+        {% for category_label, metrics in satisfied_development_by_category %}
+        <div class="metric-category-block">
+            <h3>{{ category_label }}</h3>
+            {% for metric in metrics %}
+            <div class="satisfied">
+                {{ metric }}
+            </div>
+            {% endfor %}
         </div>
         {% endfor %}
     </div>
 
     <div class="box">
         <h2>Erfüllen nicht Entwicklung</h2>
-        {% for metric in unsatisfied_development %}
-        <div class="unsatisfied">
-            {{ metric }}
+        {% for category_label, metrics in unsatisfied_development_by_category %}
+        <div class="metric-category-block">
+            <h3>{{ category_label }}</h3>
+            {% for metric in metrics %}
+            <div class="unsatisfied">
+                {{ metric }}
+            </div>
+            {% endfor %}
         </div>
         {% endfor %}
     </div>

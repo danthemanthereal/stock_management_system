@@ -68,6 +68,72 @@ def group_financial_metrics_by_category(
     ]
 
 
+def group_financial_metrics_map_by_category(
+    financial_metrics_map: dict,
+    db: Session,
+) -> List[dict]:
+    if not financial_metrics_map:
+        return []
+    metric_names = list(financial_metrics_map.keys())
+    rows = (
+        db.query(FinancialMetric)
+        .filter(FinancialMetric.name.in_(metric_names))
+        .all()
+    )
+    name_to_category = {
+        r.name: (r.category or "").strip() or "" for r in rows
+    }
+    groups: dict[str, dict] = defaultdict(dict)
+    for name, values in financial_metrics_map.items():
+        cat_key = name_to_category.get(name, "")
+        groups[cat_key][name] = values
+    ordered_keys = sorted(
+        groups.keys(),
+        key=lambda k: (1 if k == "" else 0, k.casefold()),
+    )
+    out: List[dict] = []
+    for k in ordered_keys:
+        inner = groups[k]
+        sorted_metrics = {
+            n: inner[n] for n in sorted(inner.keys(), key=str.casefold)
+        }
+        out.append(
+            {
+                "category": k if k else "Ohne Kategorie",
+                "metrics": sorted_metrics,
+            }
+        )
+    return out
+
+
+def group_metric_names_by_category(
+    metric_names: List[str],
+    db: Session,
+) -> List[Tuple[str, List[str]]]:
+    if not metric_names:
+        return []
+    names = list(metric_names)
+    rows = (
+        db.query(FinancialMetric)
+        .filter(FinancialMetric.name.in_(set(names)))
+        .all()
+    )
+    name_to_category = {
+        r.name: (r.category or "").strip() or "" for r in rows
+    }
+    groups: dict[str, List[str]] = defaultdict(list)
+    for n in names:
+        cat = name_to_category.get(n, "")
+        groups[cat].append(n)
+    for k in groups:
+        groups[k].sort(key=str.casefold)
+    ordered_keys = sorted(
+        groups.keys(),
+        key=lambda k: (1 if k == "" else 0, k.casefold()),
+    )
+    return [(k if k else "Ohne Kategorie", groups[k]) for k in ordered_keys]
+
+
 class Company(BaseModel):
     company_name: str
     strength: str
@@ -226,6 +292,9 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
     financial_metrics_map =  get_total_financial_metrics(db, company)
     satisfied_metrics, unsatisfied_metrics, satisfied_benchmarks, unsatisfied_benchmarks, satisfied_development, unsatisfied_development = get_satisfied_and_not_satisfied_financial_metrics(financial_metrics_map, db)
     years = ["2022", "2023", "2024", "2025"]
+    data_by_category = group_financial_metrics_map_by_category(
+        financial_metrics_map, db
+    )
 
     return templates.TemplateResponse(
         request=request,
@@ -233,14 +302,26 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
         context=
         {
             "request": request,
-            "data": financial_metrics_map,
+            "data_by_category": data_by_category,
             "years": years,
-            "satisfied_metrics": satisfied_metrics,
-            "unsatisfied_metrics": unsatisfied_metrics,
-            "satisfied_benchmarks": satisfied_benchmarks,
-            "unsatisfied_benchmarks": unsatisfied_benchmarks,
-            "satisfied_development": satisfied_development,
-            "unsatisfied_development": unsatisfied_development
+            "satisfied_metrics_by_category": group_metric_names_by_category(
+                satisfied_metrics, db
+            ),
+            "unsatisfied_metrics_by_category": group_metric_names_by_category(
+                unsatisfied_metrics, db
+            ),
+            "satisfied_benchmarks_by_category": group_metric_names_by_category(
+                satisfied_benchmarks, db
+            ),
+            "unsatisfied_benchmarks_by_category": group_metric_names_by_category(
+                unsatisfied_benchmarks, db
+            ),
+            "satisfied_development_by_category": group_metric_names_by_category(
+                satisfied_development, db
+            ),
+            "unsatisfied_development_by_category": group_metric_names_by_category(
+                unsatisfied_development, db
+            ),
         })
 
 @app.post("/show-saved-financial-metrics", response_class=HTMLResponse)
