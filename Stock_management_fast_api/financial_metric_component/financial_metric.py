@@ -58,6 +58,7 @@ def get_financial_metrics_with_alpha_ventage_api(db, financial_metric_map, compa
                 financial_metric_map.setdefault(key, []).append(value)
 
 def get_financial_metrics_with_fmp_api(db, financial_metric_map, company_name):
+    fmp_api_key = "xYWzSku7uTc6MnZk5Qdm4Lrd7WVRVZzr"
     key_metrics_to_consider =[
     "capexToDepreciation",
     "salesGeneralAndAdministrativeToRevenue",
@@ -68,6 +69,37 @@ def get_financial_metrics_with_fmp_api(db, financial_metric_map, company_name):
     "freeCashFlowToEquity",
     "freeCashFlowToFirm"
     ]
+
+    ratio_metrics_to_consider = [
+        "ebitMargin",
+        "operatingProfitMargin",
+        "pretaxProfitMargin",
+        "netProfitMargin",
+        "payablesTurnover",
+        "fixedAssetTurnover",
+        "solvencyRatio",
+        "priceToEarningsRatio",
+        "priceToEarningsGrowthRatio",
+        "forwardPriceToEarningsGrowthRatio",
+        "priceToBookRatio",
+        "priceToSalesRatio",
+        "priceToFreeCashFlowRatio",
+        "priceToOperatingCashFlowRatio",
+        "debtToAssetsRatio",
+        "debtToEquityRatio",
+        "debtToCapitalRatio",
+        "longTermDebtToCapitalRatio",
+        "financialLeverageRatio",
+        "workingCapitalTurnoverRatio",
+        "operatingCashFlowRatio",
+        "operatingCashFlowSalesRatio",
+        "freeCashFlowOperatingCashFlowRatio",
+        "debtServiceCoverageRatio",
+        "interestCoverageRatio",
+        "shortTermOperatingCashFlowCoverageRatio",
+        "operatingCashFlowCoverageRatio",
+        "capitalExpenditureCoverageRatio",
+        "dividendPaidAndCapexCoverageRatio"]
 
     url = f"https://financialmodelingprep.com/stable/key-metrics?symbol={company_name}&apikey={fmp_api_key}"
     r = requests.get(url)
@@ -80,3 +112,13 @@ def get_financial_metrics_with_fmp_api(db, financial_metric_map, company_name):
                 financial_metric_map.setdefault(key, []).append(value)
 
 
+    ratio_url = f"https://financialmodelingprep.com/stable/ratios?symbol={company_name}&apikey={fmp_api_key}"
+    ratio_response = requests.get(ratio_url)
+
+    annual_reports_because_of_ratio = list(reversed(ratio_response.json()))[-4:]
+
+    for annual_report in annual_reports_because_of_ratio:
+        for (key, value) in annual_report.items():
+            if key in ratio_metrics_to_consider:
+                financial_metric_map.setdefault(key, []).append(value)
+                
