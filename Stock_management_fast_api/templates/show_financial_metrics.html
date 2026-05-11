@@ -109,6 +109,13 @@
     </button>
 </div>
 
+<div class="search-bar">
+    <input type="text" id="categorySearchInput" placeholder="Kategorie eingeben...">
+    <button class="nav-btn" onclick="scrollToCategoryByName()">
+        🔎 Zur Kategorie
+    </button>
+</div>
+
 <button class="nav-btn" onclick="scrollToContainer()">
     ↓ Zu den Ergebnissen
 </button>
@@ -203,6 +210,24 @@
         } else {
             alert("Chart nicht gefunden!");
         }
+    }
+
+    function scrollToCategoryByName() {
+        const raw = document.getElementById("categorySearchInput").value;
+        const value = raw.trim().toLowerCase();
+        if (!value) {
+            alert("Bitte eine Kategorie eingeben.");
+            return;
+        }
+        const headings = document.querySelectorAll("#charts > h2.category-charts-heading");
+        for (let i = 0; i < headings.length; i++) {
+            const label = headings[i].textContent.trim().toLowerCase();
+            if (label === value) {
+                headings[i].scrollIntoView({ behavior: "smooth" });
+                return;
+            }
+        }
+        alert("Kategorie nicht gefunden!");
     }
 
 </script>
