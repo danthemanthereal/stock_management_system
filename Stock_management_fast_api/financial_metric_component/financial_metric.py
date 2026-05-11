@@ -6,75 +6,10 @@ from sqlalchemy import and_
 
 
 def get_total_financial_metrics(db, company_name: str)->dict:
-    created = []
-    metrics = [
-        "salesGeneralAndAdministrativeToRevenue",
-        "researchAndDevelopementToRevenue",
-        "capexToDepreciation",
-        "intangiblesToTotalAssets",
-        "daysOfPayablesOutstanding",
-        "daysOfInventoryOutstanding",
-        "freeCashFlowToEquity",
-        "freeCashFlowToFirm",
-        "ebitMargin",
-        "operatingProfitMargin",
-        "pretaxProfitMargin",
-        "netProfitMargin",
-        "payablesTurnover",
-        "fixedAssetTurnover",
-        "solvencyRatio",
-        "priceToEarningsRatio",
-        "priceToEarningsGrowthRatio",
-        "forwardPriceToEarningsGrowthRatio",
-        "priceToBookRatio",
-        "priceToSalesRatio",
-        "priceToFreeCashFlowRatio",
-        "priceToOperatingCashFlowRatio",
-        "debtToAssetsRatio",
-        "debtToEquityRatio",
-        "debtToCapitalRatio",
-        "longTermDebtToCapitalRatio",
-        "financialLeverageRatio",
-        "workingCapitalTurnoverRatio",
-        "operatingCashFlowRatio",
-        "operatingCashFlowSalesRatio",
-        "freeCashFlowOperatingCashFlowRatio",
-        "debtServiceCoverageRatio",
-        "interestCoverageRatio",
-        "shortTermOperatingCashFlowCoverageRatio",
-        "operatingCashFlowCoverageRatio",
-        "capitalExpenditureCoverageRatio",
-        "dividendPaidAndCapexCoverageRatio"
-    ]
-    for metric_name in metrics:
-
-        existing_metric = (
-            db.query(FinancialMetric)
-            .filter(FinancialMetric.name == metric_name)
-            .first()
-        )
-
-        if existing_metric:
-            continue
-
-        metric = FinancialMetric(
-            name=metric_name,
-            should_rise=True,
-            reference_value=10,
-            unit="ratio",
-            is_active=True
-        )
-
-        db.add(metric)
-        created.append(metric_name)
-
-    db.commit()
-
     total_financial_metric_map = {}
     total_financial_metric_map = get_financial_metrics_by_guro_focus(db, total_financial_metric_map)
     total_financial_metric_map = get_financial_metrics_with_alpha_ventage_api(db, total_financial_metric_map, company_name)
     total_financial_metric_map = get_financial_metrics_with_fmp_api(db, total_financial_metric_map, company_name)
-    print(total_financial_metric_map.keys())
     return  total_financial_metric_map
 
 def get_financial_metrics_by_guro_focus(db, financial_metric_map: dict)->dict:
