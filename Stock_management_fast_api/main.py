@@ -420,19 +420,27 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
         return templates.TemplateResponse(
             request=request,
             name="error.html",
+            context={"request": request}
         )
-    
+
 @app.post("/show-saved-financial-metrics", response_class=HTMLResponse)
 def show_saved_financial_metrics_page(request: Request, db: Session = Depends(get_db)):
-    metrics = db.query(models.FinancialMetric).all()
-    return templates.TemplateResponse(
-    request=request,
-        name="show_saved_financial_metrics.html",
-        context={
-            "request": request,
-            "metrics_by_category": group_financial_metrics_by_category(metrics),
-        }
-    )
+   try:
+        metrics = db.query(models.FinancialMetric).all()
+        return templates.TemplateResponse(
+        request=request,
+            name="show_saved_financial_metrics.html",
+            context={
+                "request": request,
+                "metrics_by_category": group_financial_metrics_by_category(metrics),
+            }
+        )
+   except Exception as e:
+       return templates.TemplateResponse(
+           request=request,
+           name="error.html",
+           context={"request": request}
+       )
 
 @app.post("/metrics/create", response_class=HTMLResponse)
 def create_metric(
@@ -443,26 +451,34 @@ def create_metric(
     unit: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    metric = FinancialMetric(
-        name=name,
-        should_rise=should_rise,
-        reference_value=reference_value,
-        unit=unit
-    )
+    try:
+        metric = FinancialMetric(
+            name=name,
+            should_rise=should_rise,
+            reference_value=reference_value,
+            unit=unit
+        )
 
-    db.add(metric)
-    db.commit()
-    db.refresh(metric)
+        db.add(metric)
+        db.commit()
+        db.refresh(metric)
 
-    metrics = db.query(models.FinancialMetric).all()
-    return templates.TemplateResponse(
-        request=request,
-        name="show_saved_financial_metrics.html",
-        context={
-            "request": request,
-            "metrics_by_category": group_financial_metrics_by_category(metrics),
-        }
-    )
+        metrics = db.query(models.FinancialMetric).all()
+        return templates.TemplateResponse(
+            request=request,
+            name="show_saved_financial_metrics.html",
+            context={
+                "request": request,
+                "metrics_by_category": group_financial_metrics_by_category(metrics),
+            }
+        )
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request}
+        )
+
 
 @app.post("/metrics/update/{metric_id}", response_class=HTMLResponse)
 def update_metric(
