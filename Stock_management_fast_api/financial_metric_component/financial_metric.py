@@ -57,3 +57,26 @@ def get_financial_metrics_with_alpha_ventage_api(db, financial_metric_map, compa
             if key in financial_metric_to_get:
                 financial_metric_map.setdefault(key, []).append(value)
 
+def get_financial_metrics_with_fmp_api(db, financial_metric_map, company_name):
+    key_metrics_to_consider =[
+    "capexToDepreciation",
+    "salesGeneralAndAdministrativeToRevenue",
+    "researchAndDevelopementToRevenue",
+    "intangiblesToTotalAssets",
+    "daysOfPayablesOutstanding",
+    "daysOfInventoryOutstanding",
+    "freeCashFlowToEquity",
+    "freeCashFlowToFirm"
+    ]
+
+    url = f"https://financialmodelingprep.com/stable/key-metrics?symbol={company_name}&apikey={fmp_api_key}"
+    r = requests.get(url)
+
+    annual_reports = list(reversed(r.json()))[-4:]
+
+    for annual_report in annual_reports:
+        for (key, value) in annual_report.items():
+            if key in key_metrics_to_consider:
+                financial_metric_map.setdefault(key, []).append(value)
+
+
