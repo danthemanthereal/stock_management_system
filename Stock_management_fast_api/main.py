@@ -545,22 +545,29 @@ def delete_metrics(
     metric_ids: List[int] = Form(...),
     db: Session = Depends(get_db)
 ):
-    metrics = db.query(FinancialMetric).filter(FinancialMetric.id.in_(metric_ids)).all()
+    try:
+        metrics = db.query(FinancialMetric).filter(FinancialMetric.id.in_(metric_ids)).all()
 
-    for metric in metrics:
-        db.delete(metric)
+        for metric in metrics:
+            db.delete(metric)
 
-    db.commit()
+        db.commit()
 
-    metrics = db.query(FinancialMetric).all()
-    return templates.TemplateResponse(
-        request=request,
-        name="show_saved_financial_metrics.html",
-        context={
-            "request": request,
-            "metrics_by_category": group_financial_metrics_by_category(metrics),
-        }
-    )
+        metrics = db.query(FinancialMetric).all()
+        return templates.TemplateResponse(
+            request=request,
+            name="show_saved_financial_metrics.html",
+            context={
+                "request": request,
+                "metrics_by_category": group_financial_metrics_by_category(metrics),
+            }
+        )
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request}
+        )
 
 @app.post("/delete-saved-companies", response_class=HTMLResponse)
 def delete_saved_companies(
@@ -568,18 +575,25 @@ def delete_saved_companies(
     data: DeleteCompaniesRequest,
     db: Session = Depends(get_db)
 ):
-    if not data.companies:
-        return {"message": "Keine Companies übergeben", "deleted": 0}
+    try:
+        if not data.companies:
+            return {"message": "Keine Companies übergeben", "deleted": 0}
 
-    db.query(models.StockSummary)\
-        .filter(models.StockSummary.name.in_(data.companies))\
-        .delete(synchronize_session=False)
+        db.query(models.StockSummary)\
+            .filter(models.StockSummary.name.in_(data.companies))\
+            .delete(synchronize_session=False)
 
-    db.commit()
+        db.commit()
 
-    companies = db.query(models.StockSummary).all()
+        companies = db.query(models.StockSummary).all()
 
-    return templates.TemplateResponse(request=request,
-                                      name="saved_companies_overview.html",
-                                      context={"request": request, "companies": companies
-                                               })
+        return templates.TemplateResponse(request=request,
+                                          name="saved_companies_overview.html",
+                                          context={"request": request, "companies": companies
+                                                   })
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request}
+        )
