@@ -33,18 +33,24 @@
 
 <form action="/metrics/delete-multiple" method="post">
     <table border="1">
+        <thead>
         <tr>
             <th>Auswählen</th>
             <th>Name</th>
             <th>Sollte Steigen</th>
             <th>Richtwert</th>
             <th>Einheit</th>
-            <th> Kategorie</th>
+            <th>Kategorie</th>
             <th>Ist Aktiv</th>
             <th>Actions</th>
         </tr>
-
-        {% for m in metrics %}
+        </thead>
+        {% for category_label, category_metrics in metrics_by_category %}
+        <tbody class="metric-category-group">
+        <tr class="category-heading-row">
+            <th colspan="8" style="text-align:left;background:#eee;">{{ category_label }}</th>
+        </tr>
+        {% for m in category_metrics %}
         <tr class="saved-metric-row" data-is-active="{{ 'true' if m.is_active else 'false' }}">
             <td>
                 <input type="checkbox" name="metric_ids" value="{{ m.id }}">
@@ -53,7 +59,7 @@
             <td>{{ m.should_rise }}</td>
             <td>{{ m.reference_value }}</td>
             <td>{{ m.unit }}</td>
-            <td> {{m.category }}</td>
+            <td>{{ m.category or "—" }}</td>
             <td>
                 <input type="checkbox"
                        name="is_active_{{ m.id }}"
@@ -63,6 +69,8 @@
                 <a href="/metrics/edit/{{ m.id }}">Bearbeiten</a>
             </td>
         </tr>
+        {% endfor %}
+        </tbody>
         {% endfor %}
     </table>
 
@@ -85,6 +93,23 @@
             var active = row.getAttribute('data-is-active') === 'true';
             row.style.display = showOnlyActive && !active ? 'none' : '';
         }
+        document.querySelectorAll('tbody.metric-category-group').forEach(function (tbody) {
+            var heading = tbody.querySelector('tr.category-heading-row');
+            if (!heading) return;
+            if (!showOnlyActive) {
+                heading.style.display = '';
+                return;
+            }
+            var dataRows = tbody.querySelectorAll('tr.saved-metric-row');
+            var anyVisible = false;
+            for (var j = 0; j < dataRows.length; j++) {
+                if (dataRows[j].style.display !== 'none') {
+                    anyVisible = true;
+                    break;
+                }
+            }
+            heading.style.display = anyVisible ? '' : 'none';
+        });
         btn.textContent = showOnlyActive ? 'Alle Kennzahlen anzeigen' : 'Nur aktive Kennzahlen';
     }
 

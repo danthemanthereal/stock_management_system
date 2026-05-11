@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from typing import List
+from collections import defaultdict
+from typing import List, Tuple
 from combining_stock_infos_llm.combine_stock import get_combination
 from financial_metric_evaluator_component.financial_metric_evaluator import \
     get_satisfied_and_not_satisfied_financial_metrics
@@ -44,6 +45,28 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def group_financial_metrics_by_category(
+    metrics: List[FinancialMetric],
+) -> List[Tuple[str, List[FinancialMetric]]]:
+    groups: dict[str, List[FinancialMetric]] = defaultdict(list)
+    for m in metrics:
+        raw = (m.category or "").strip()
+        key = raw if raw else ""
+        groups[key].append(m)
+    ordered_keys = sorted(
+        groups.keys(),
+        key=lambda k: (1 if k == "" else 0, k.casefold()),
+    )
+    return [
+        (
+            k if k else "Ohne Kategorie",
+            sorted(groups[k], key=lambda m: (m.name or "").casefold()),
+        )
+        for k in ordered_keys
+    ]
+
 
 class Company(BaseModel):
     company_name: str
@@ -228,7 +251,7 @@ def show_saved_financial_metrics_page(request: Request, db: Session = Depends(ge
         name="show_saved_financial_metrics.html",
         context={
             "request": request,
-            "metrics": metrics
+            "metrics_by_category": group_financial_metrics_by_category(metrics),
         }
     )
 
@@ -258,7 +281,7 @@ def create_metric(
         name="show_saved_financial_metrics.html",
         context={
             "request": request,
-            "metrics": metrics
+            "metrics_by_category": group_financial_metrics_by_category(metrics),
         }
     )
 
@@ -291,7 +314,7 @@ def update_metric(
         name="show_saved_financial_metrics.html",
         context={
             "request": request,
-            "metrics": metrics
+            "metrics_by_category": group_financial_metrics_by_category(metrics),
         }
     )
 
@@ -324,7 +347,7 @@ def delete_metrics(
         name="show_saved_financial_metrics.html",
         context={
             "request": request,
-            "metrics": metrics
+            "metrics_by_category": group_financial_metrics_by_category(metrics),
         }
     )
 
