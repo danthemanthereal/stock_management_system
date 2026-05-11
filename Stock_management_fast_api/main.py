@@ -299,115 +299,129 @@ def show_companies(request: Request, db: Session = Depends(get_db)):
 
 @app.post("/find-potential-stocks", response_class=HTMLResponse)
 def scrape_tradingview(request: Request):
-    url = "https://scanner.tradingview.com/america/scan?label-product=screener-stock"
+    try:
+        url = "https://scanner.tradingview.com/america/scan?label-product=screener-stock"
 
-    payload = {
-        "columns": [
-            "ticker-view", "close", "market_cap_basic",
-            "price_earnings_ttm", "market",
-            "sector", "AnalystRating", "AnalystRating.tr"
-        ],
-        "filter": [
-            {"left": "close", "operation": "in_range", "right": [10, 100]}, # stock price filter
-            {"left": "AnalystRating", "operation": "in_range", "right": ["Buy", "StrongBuy"]},
-            {"left": "Perf.YTD", "operation": "greater", "right": 10}, # Performance of the year
-            {"left": "return_on_equity_fq", "operation": "in_range", "right": [20,30]},  # return on equity filter r
-            {"left": "sector", "operation": "in_range", "right": [""]},  # welche Sektroren betrachtet werden
-            {"left": "total_revenue_yoy_growth_ttm", "operation": "greater", "right": 10},  # Performance von umsatzwachstum
-        ],
-        "markets": ["america"], # filter für betrachtende länder
-        "options": {"lang": "en"},
-        "range": [0, 100],
-        "sort": {"sortBy": "market_cap_basic", "sortOrder": "desc"}
-    }
+        payload = {
+            "columns": [
+                "ticker-view", "close", "market_cap_basic",
+                "price_earnings_ttm", "market",
+                "sector", "AnalystRating", "AnalystRating.tr"
+            ],
+            "filter": [
+                {"left": "close", "operation": "in_range", "right": [10, 100]}, # stock price filter
+                {"left": "AnalystRating", "operation": "in_range", "right": ["Buy", "StrongBuy"]},
+                {"left": "Perf.YTD", "operation": "greater", "right": 10}, # Performance of the year
+                {"left": "return_on_equity_fq", "operation": "in_range", "right": [20,30]},  # return on equity filter r
+                {"left": "sector", "operation": "in_range", "right": [""]},  # welche Sektroren betrachtet werden
+                {"left": "total_revenue_yoy_growth_ttm", "operation": "greater", "right": 10},  # Performance von umsatzwachstum
+            ],
+            "markets": ["america"], # filter für betrachtende länder
+            "options": {"lang": "en"},
+            "range": [0, 100],
+            "sort": {"sortBy": "market_cap_basic", "sortOrder": "desc"}
+        }
 
-    response = requests.post(url, json=payload)
-    data = response.json()
+        response = requests.post(url, json=payload)
+        data = response.json()
 
-    potential_stocks = []
-    for item in data["data"]:
-        current_stock_info = item["d"]
+        potential_stocks = []
+        for item in data["data"]:
+            current_stock_info = item["d"]
 
-        name = current_stock_info[0]["description"]
-        price = current_stock_info[1]
-        market_cap = current_stock_info[2]
-        p_e_rating = current_stock_info[3]
-        country = current_stock_info[4]
-        sector = current_stock_info[5]
-        analyst_rating = current_stock_info[6]
-        analyst_rating_tr = current_stock_info[7]
-        potential_stocks.append({
-            'name': name,
-            'price': price,
-            'market_cap': market_cap,
-            'sector': sector,
-            'country': country,
-            'p_e_rating': p_e_rating,
-            'analyst_rating': analyst_rating,
-            'analyst_rating_tr': analyst_rating_tr
+            name = current_stock_info[0]["description"]
+            price = current_stock_info[1]
+            market_cap = current_stock_info[2]
+            p_e_rating = current_stock_info[3]
+            country = current_stock_info[4]
+            sector = current_stock_info[5]
+            analyst_rating = current_stock_info[6]
+            analyst_rating_tr = current_stock_info[7]
+            potential_stocks.append({
+                'name': name,
+                'price': price,
+                'market_cap': market_cap,
+                'sector': sector,
+                'country': country,
+                'p_e_rating': p_e_rating,
+                'analyst_rating': analyst_rating,
+                'analyst_rating_tr': analyst_rating_tr
+            })
+
+        return templates.TemplateResponse(request=request,
+                                          name="show-potential-stocks.html",
+                                          context={"request": request, "stocks": potential_stocks
         })
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request}
+        )
 
-    return templates.TemplateResponse(request=request,
-                                      name="show-potential-stocks.html",
-                                      context={"request": request, "stocks": potential_stocks
-    })
 
 
 @app.post("/get-financial-metrics", response_class=HTMLResponse)
 def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str = Form(...), db: Session = Depends(get_db)):
-    financial_metrics_map =  get_total_financial_metrics(db, company)
-    satisfied_metrics, unsatisfied_metrics, satisfied_benchmarks, unsatisfied_benchmarks, satisfied_development, unsatisfied_development = get_satisfied_and_not_satisfied_financial_metrics(financial_metrics_map, db)
-    years = ["2022", "2023", "2024", "2025"]
-    data_by_category = group_financial_metrics_map_by_category(
-        financial_metrics_map, db
-    )
-    satisfied_metrics_by_category = group_metric_names_by_category(
-        satisfied_metrics, db
-    )
-    unsatisfied_metrics_by_category = group_metric_names_by_category(
-        unsatisfied_metrics, db
-    )
-    satisfied_benchmarks_by_category = group_metric_names_by_category(
-        satisfied_benchmarks, db
-    )
-    unsatisfied_benchmarks_by_category = group_metric_names_by_category(
-        unsatisfied_benchmarks, db
-    )
-    satisfied_development_by_category = group_metric_names_by_category(
-        satisfied_development, db
-    )
-    unsatisfied_development_by_category = group_metric_names_by_category(
-        unsatisfied_development, db
-    )
+    try:
+        financial_metrics_map =  get_total_financial_metrics(db, company)
+        satisfied_metrics, unsatisfied_metrics, satisfied_benchmarks, unsatisfied_benchmarks, satisfied_development, unsatisfied_development = get_satisfied_and_not_satisfied_financial_metrics(financial_metrics_map, db)
+        years = ["2022", "2023", "2024", "2025"]
+        data_by_category = group_financial_metrics_map_by_category(
+            financial_metrics_map, db
+        )
+        satisfied_metrics_by_category = group_metric_names_by_category(
+            satisfied_metrics, db
+        )
+        unsatisfied_metrics_by_category = group_metric_names_by_category(
+            unsatisfied_metrics, db
+        )
+        satisfied_benchmarks_by_category = group_metric_names_by_category(
+            satisfied_benchmarks, db
+        )
+        unsatisfied_benchmarks_by_category = group_metric_names_by_category(
+            unsatisfied_benchmarks, db
+        )
+        satisfied_development_by_category = group_metric_names_by_category(
+            satisfied_development, db
+        )
+        unsatisfied_development_by_category = group_metric_names_by_category(
+            unsatisfied_development, db
+        )
 
-    return templates.TemplateResponse(
-        request=request,
-        name="show_financial_metrics.html",
-        context=
-        {
-            "request": request,
-            "data_by_category": data_by_category,
-            "years": years,
-            "satisfied_metrics_by_category": satisfied_metrics_by_category,
-            "unsatisfied_metrics_by_category": unsatisfied_metrics_by_category,
-            "satisfied_benchmarks_by_category": satisfied_benchmarks_by_category,
-            "unsatisfied_benchmarks_by_category": unsatisfied_benchmarks_by_category,
-            "satisfied_development_by_category": satisfied_development_by_category,
-            "unsatisfied_development_by_category": unsatisfied_development_by_category,
-            "summary_combined_by_category": build_category_pair_summary(
-                satisfied_metrics_by_category,
-                unsatisfied_metrics_by_category,
-            ),
-            "summary_benchmark_by_category": build_category_pair_summary(
-                satisfied_benchmarks_by_category,
-                unsatisfied_benchmarks_by_category,
-            ),
-            "summary_development_by_category": build_category_pair_summary(
-                satisfied_development_by_category,
-                unsatisfied_development_by_category,
-            ),
-        })
-
+        return templates.TemplateResponse(
+            request=request,
+            name="show_financial_metrics.html",
+            context=
+            {
+                "request": request,
+                "data_by_category": data_by_category,
+                "years": years,
+                "satisfied_metrics_by_category": satisfied_metrics_by_category,
+                "unsatisfied_metrics_by_category": unsatisfied_metrics_by_category,
+                "satisfied_benchmarks_by_category": satisfied_benchmarks_by_category,
+                "unsatisfied_benchmarks_by_category": unsatisfied_benchmarks_by_category,
+                "satisfied_development_by_category": satisfied_development_by_category,
+                "unsatisfied_development_by_category": unsatisfied_development_by_category,
+                "summary_combined_by_category": build_category_pair_summary(
+                    satisfied_metrics_by_category,
+                    unsatisfied_metrics_by_category,
+                ),
+                "summary_benchmark_by_category": build_category_pair_summary(
+                    satisfied_benchmarks_by_category,
+                    unsatisfied_benchmarks_by_category,
+                ),
+                "summary_development_by_category": build_category_pair_summary(
+                    satisfied_development_by_category,
+                    unsatisfied_development_by_category,
+                ),
+            })
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+        )
+    
 @app.post("/show-saved-financial-metrics", response_class=HTMLResponse)
 def show_saved_financial_metrics_page(request: Request, db: Session = Depends(get_db)):
     metrics = db.query(models.FinancialMetric).all()
