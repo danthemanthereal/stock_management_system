@@ -492,36 +492,52 @@ def update_metric(
     is_active: bool = Form(False),
     db: Session = Depends(get_db)
 ):
-    metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
+    try:
+        metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
 
-    metric.name = name
-    metric.should_rise = should_rise
-    metric.reference_value = reference_value
-    metric.unit = unit
-    metric.category = category
-    metric.is_active = is_active
+        metric.name = name
+        metric.should_rise = should_rise
+        metric.reference_value = reference_value
+        metric.unit = unit
+        metric.category = category
+        metric.is_active = is_active
 
-    db.commit()
+        db.commit()
 
-    metrics = db.query(models.FinancialMetric).all()
-    return templates.TemplateResponse(
-        request=request,
-        name="show_saved_financial_metrics.html",
-        context={
-            "request": request,
-            "metrics_by_category": group_financial_metrics_by_category(metrics),
-        }
-    )
+        metrics = db.query(models.FinancialMetric).all()
+        return templates.TemplateResponse(
+            request=request,
+            name="show_saved_financial_metrics.html",
+            context={
+                "request": request,
+                "metrics_by_category": group_financial_metrics_by_category(metrics),
+            }
+        )
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request}
+        )
+
 
 @app.get("/metrics/edit/{metric_id}")
 def edit_metric_page(metric_id: int, request: Request, db: Session = Depends(get_db)):
-    metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
+    try:
+        metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
 
-    return templates.TemplateResponse(
-        request=request,
-        name ="edit_metric.html",
-        context={"request": request, "metric": metric}
-    )
+        return templates.TemplateResponse(
+            request=request,
+            name ="edit_metric.html",
+            context={"request": request, "metric": metric}
+        )
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request}
+        )
+
 
 @app.post("/metrics/delete-multiple")
 def delete_metrics(
