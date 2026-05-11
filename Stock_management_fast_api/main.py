@@ -283,12 +283,19 @@ async def success_page(request: Request):
 
 @app.get("/saved-companies", response_class=HTMLResponse)
 def show_companies(request: Request, db: Session = Depends(get_db)):
-    companies = db.query(models.StockSummary).all()
+    try:
+        companies = db.query(models.StockSummary).all()
 
-    return templates.TemplateResponse(request=request,
-         name="saved_companies_overview.html",
-         context={"request": request, "companies": companies
-    })
+        return templates.TemplateResponse(request=request,
+             name="saved_companies_overview.html",
+             context={"request": request, "companies": companies
+        })
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request}
+        )
 
 @app.post("/find-potential-stocks", response_class=HTMLResponse)
 def scrape_tradingview(request: Request):
