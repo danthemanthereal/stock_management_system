@@ -217,24 +217,34 @@ async def analyze(request: Request, url: str = Form(...)):
 
 
 def extract_video_id_by_url(url: str) ->str:
-    return extract.video_id(url)
+    try:
+        return extract.video_id(url)
+    except Exception as e:
+        return ""
 @app.post("/get-yt-transcript", response_class=HTMLResponse)
 def get_yt_transcript(request: Request, url : str = Form(...)):
-    video_id = extract_video_id_by_url(url)
-    transcript = get_youtube_transcript_based_url(video_id)
-    companies_array = get_summary_of_gemini_of_transcript(transcript)
+    try:
+        video_id = extract_video_id_by_url(url)
+        transcript = get_youtube_transcript_based_url(video_id)
+        companies_array = get_summary_of_gemini_of_transcript(transcript)
 
-    if isinstance(companies_array, str):
-        try:
-            companies_array = json.loads(companies_array)
-        except json.JSONDecodeError:
-            companies_array = []
+        if isinstance(companies_array, str):
+            try:
+                companies_array = json.loads(companies_array)
+            except json.JSONDecodeError:
+                companies_array = []
 
-    return templates.TemplateResponse(
-        request=request,
-        name="companies_overview.html",
-        context={"request": request, "companies": companies_array}
-    )
+        return templates.TemplateResponse(
+            request=request,
+            name="companies_overview.html",
+            context={"request": request, "companies": companies_array}
+        )
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request},
+        )
 
 
 @app.post("/companies")
