@@ -5,7 +5,79 @@ import json
 from sqlalchemy import and_
 
 
-def get_financial_metrics_by_guro_focus(db):
+def get_total_financial_metrics(db, company_name: str)->dict:
+    created = []
+    metrics = [
+        "salesGeneralAndAdministrativeToRevenue",
+        "researchAndDevelopementToRevenue",
+        "capexToDepreciation",
+        "intangiblesToTotalAssets",
+        "daysOfPayablesOutstanding",
+        "daysOfInventoryOutstanding",
+        "freeCashFlowToEquity",
+        "freeCashFlowToFirm",
+        "ebitMargin",
+        "operatingProfitMargin",
+        "pretaxProfitMargin",
+        "netProfitMargin",
+        "payablesTurnover",
+        "fixedAssetTurnover",
+        "solvencyRatio",
+        "priceToEarningsRatio",
+        "priceToEarningsGrowthRatio",
+        "forwardPriceToEarningsGrowthRatio",
+        "priceToBookRatio",
+        "priceToSalesRatio",
+        "priceToFreeCashFlowRatio",
+        "priceToOperatingCashFlowRatio",
+        "debtToAssetsRatio",
+        "debtToEquityRatio",
+        "debtToCapitalRatio",
+        "longTermDebtToCapitalRatio",
+        "financialLeverageRatio",
+        "workingCapitalTurnoverRatio",
+        "operatingCashFlowRatio",
+        "operatingCashFlowSalesRatio",
+        "freeCashFlowOperatingCashFlowRatio",
+        "debtServiceCoverageRatio",
+        "interestCoverageRatio",
+        "shortTermOperatingCashFlowCoverageRatio",
+        "operatingCashFlowCoverageRatio",
+        "capitalExpenditureCoverageRatio",
+        "dividendPaidAndCapexCoverageRatio"
+    ]
+    for metric_name in metrics:
+
+        existing_metric = (
+            db.query(FinancialMetric)
+            .filter(FinancialMetric.name == metric_name)
+            .first()
+        )
+
+        if existing_metric:
+            continue
+
+        metric = FinancialMetric(
+            name=metric_name,
+            should_rise=True,
+            reference_value=10,
+            unit="ratio",
+            is_active=True
+        )
+
+        db.add(metric)
+        created.append(metric_name)
+
+    db.commit()
+
+    total_financial_metric_map = {}
+    total_financial_metric_map = get_financial_metrics_by_guro_focus(db, total_financial_metric_map)
+    total_financial_metric_map = get_financial_metrics_with_alpha_ventage_api(db, total_financial_metric_map, company_name)
+    total_financial_metric_map = get_financial_metrics_with_fmp_api(db, total_financial_metric_map, company_name)
+    print(total_financial_metric_map.keys())
+    return  total_financial_metric_map
+
+def get_financial_metrics_by_guro_focus(db, financial_metric_map: dict)->dict:
     """async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
@@ -27,7 +99,6 @@ def get_financial_metrics_by_guro_focus(db):
 
 
     annuals = financial_metrics.get("annual", [])
-    financial_metric_map = {}
     for current_year_map in annuals:
         for key, value in current_year_map.items():
             if key == "date":
@@ -55,7 +126,16 @@ def get_financial_metrics_with_alpha_ventage_api(db, financial_metric_map, compa
     for annual_report in annual_reports:
         for (key, value) in annual_report.items():
             if key in financial_metric_to_get:
+                financial_metric_object = db.query(FinancialMetric).filter(
+                    and_(
+                        FinancialMetric.name == key,
+                        FinancialMetric.is_active == True
+                    )
+                ).first()
+                if not financial_metric_object:
+                    continue
                 financial_metric_map.setdefault(key, []).append(value)
+    return financial_metric_map
 
 def get_financial_metrics_with_fmp_api(db, financial_metric_map, company_name):
     fmp_api_key = "xYWzSku7uTc6MnZk5Qdm4Lrd7WVRVZzr"
@@ -103,22 +183,38 @@ def get_financial_metrics_with_fmp_api(db, financial_metric_map, company_name):
 
     url = f"https://financialmodelingprep.com/stable/key-metrics?symbol={company_name}&apikey={fmp_api_key}"
     r = requests.get(url)
-
+    ## 22, 23, 24, 25
     annual_reports = list(reversed(r.json()))[-4:]
 
     for annual_report in annual_reports:
         for (key, value) in annual_report.items():
             if key in key_metrics_to_consider:
+                financial_metric_object = db.query(FinancialMetric).filter(
+                    and_(
+                        FinancialMetric.name == key,
+                        FinancialMetric.is_active == True
+                    )
+                ).first()
+                if not financial_metric_object:
+                    continue
                 financial_metric_map.setdefault(key, []).append(value)
 
 
     ratio_url = f"https://financialmodelingprep.com/stable/ratios?symbol={company_name}&apikey={fmp_api_key}"
     ratio_response = requests.get(ratio_url)
-
+    ## 22, 23, 24, 25
     annual_reports_because_of_ratio = list(reversed(ratio_response.json()))[-4:]
 
     for annual_report in annual_reports_because_of_ratio:
         for (key, value) in annual_report.items():
             if key in ratio_metrics_to_consider:
+                financial_metric_object = db.query(FinancialMetric).filter(
+                    and_(
+                        FinancialMetric.name == key,
+                        FinancialMetric.is_active == True
+                    )
+                ).first()
+                if not financial_metric_object:
+                    continue
                 financial_metric_map.setdefault(key, []).append(value)
-                
+    return financial_metric_map
