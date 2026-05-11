@@ -19,7 +19,6 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 from pytube import extract
-import re
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -271,6 +270,7 @@ def update_metric(
     should_rise: bool = Form(False),
     reference_value: int = Form(...),
     unit: str = Form(...),
+    category: str = Form(...),
     is_active: bool = Form(False),
     db: Session = Depends(get_db)
 ):
@@ -280,6 +280,7 @@ def update_metric(
     metric.should_rise = should_rise
     metric.reference_value = reference_value
     metric.unit = unit
+    metric.category = category
     metric.is_active = is_active
 
     db.commit()

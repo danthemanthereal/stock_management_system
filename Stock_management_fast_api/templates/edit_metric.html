@@ -19,6 +19,7 @@
     <input type="number" name="reference_value" value="{{ metric.reference_value }}">
 
     <input type="text" name="unit" value="{{ metric.unit }}">
+    <input type="text" name="category" value="{{metric.category}}">
     <label>
         Ist Aktiv:
         <input type="checkbox" name="is_active" {% if metric.is_active %}checked{% endif %}>

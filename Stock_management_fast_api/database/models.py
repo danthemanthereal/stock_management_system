@@ -16,6 +16,7 @@ class FinancialMetric(Base):
     name = Column(String, unique=True, index=True)
     should_rise = Column(Boolean, index=False)
     reference_value = Column(Integer, index=False)
+    category = Column(String, index=False)
     unit = Column(String, index=False)
     is_active = Column(Boolean, index=False, default=True)
 

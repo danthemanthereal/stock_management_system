@@ -36,6 +36,7 @@
             <th>Sollte Steigen</th>
             <th>Richtwert</th>
             <th>Einheit</th>
+            <th> Kategorie</th>
             <th>Ist Aktiv</th>
             <th>Actions</th>
         </tr>
@@ -49,6 +50,7 @@
             <td>{{ m.should_rise }}</td>
             <td>{{ m.reference_value }}</td>
             <td>{{ m.unit }}</td>
+            <td> {{m.category }}</td>
             <td>
                 <input type="checkbox"
                        name="is_active_{{ m.id }}"
