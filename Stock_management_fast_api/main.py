@@ -50,61 +50,66 @@ def get_db():
 def group_financial_metrics_by_category(
     metrics: List[FinancialMetric],
 ) -> List[Tuple[str, List[FinancialMetric]]]:
-    groups: dict[str, List[FinancialMetric]] = defaultdict(list)
-    for m in metrics:
-        raw = (m.category or "").strip()
-        key = raw if raw else ""
-        groups[key].append(m)
-    ordered_keys = sorted(
-        groups.keys(),
-        key=lambda k: (1 if k == "" else 0, k.casefold()),
-    )
-    return [
-        (
-            k if k else "Ohne Kategorie",
-            sorted(groups[k], key=lambda m: (m.name or "").casefold()),
+    try:
+        groups: dict[str, List[FinancialMetric]] = defaultdict(list)
+        for m in metrics:
+            raw = (m.category or "").strip()
+            key = raw if raw else ""
+            groups[key].append(m)
+        ordered_keys = sorted(
+            groups.keys(),
+            key=lambda k: (1 if k == "" else 0, k.casefold()),
         )
-        for k in ordered_keys
-    ]
+        return [
+            (
+                k if k else "Ohne Kategorie",
+                sorted(groups[k], key=lambda m: (m.name or "").casefold()),
+            )
+            for k in ordered_keys
+        ]
+    except Exception as e:
+        return []
 
 
 def group_financial_metrics_map_by_category(
     financial_metrics_map: dict,
     db: Session,
 ) -> List[dict]:
-    if not financial_metrics_map:
-        return []
-    metric_names = list(financial_metrics_map.keys())
-    rows = (
-        db.query(FinancialMetric)
-        .filter(FinancialMetric.name.in_(metric_names))
-        .all()
-    )
-    name_to_category = {
-        r.name: (r.category or "").strip() or "" for r in rows
-    }
-    groups: dict[str, dict] = defaultdict(dict)
-    for name, values in financial_metrics_map.items():
-        cat_key = name_to_category.get(name, "")
-        groups[cat_key][name] = values
-    ordered_keys = sorted(
-        groups.keys(),
-        key=lambda k: (1 if k == "" else 0, k.casefold()),
-    )
-    out: List[dict] = []
-    for k in ordered_keys:
-        inner = groups[k]
-        sorted_metrics = {
-            n: inner[n] for n in sorted(inner.keys(), key=str.casefold)
-        }
-        out.append(
-            {
-                "category": k if k else "Ohne Kategorie",
-                "metrics": sorted_metrics,
-            }
+    try:
+        if not financial_metrics_map:
+            return []
+        metric_names = list(financial_metrics_map.keys())
+        rows = (
+            db.query(FinancialMetric)
+            .filter(FinancialMetric.name.in_(metric_names))
+            .all()
         )
-    return out
-
+        name_to_category = {
+            r.name: (r.category or "").strip() or "" for r in rows
+        }
+        groups: dict[str, dict] = defaultdict(dict)
+        for name, values in financial_metrics_map.items():
+            cat_key = name_to_category.get(name, "")
+            groups[cat_key][name] = values
+        ordered_keys = sorted(
+            groups.keys(),
+            key=lambda k: (1 if k == "" else 0, k.casefold()),
+        )
+        out: List[dict] = []
+        for k in ordered_keys:
+            inner = groups[k]
+            sorted_metrics = {
+                n: inner[n] for n in sorted(inner.keys(), key=str.casefold)
+            }
+            out.append(
+                {
+                    "category": k if k else "Ohne Kategorie",
+                    "metrics": sorted_metrics,
+                }
+            )
+        return out
+    except Exception as e:
+        return []
 
 def group_metric_names_by_category(
     metric_names: List[str],
