@@ -1,8 +1,9 @@
 from fastapi import FastAPI, Request, Form, Depends
+from sqlalchemy.exc import IntegrityError
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from collections import defaultdict
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from combining_stock_infos_llm.combine_stock import get_combination
 from financial_metric_evaluator_component.financial_metric_evaluator import \
     get_satisfied_and_not_satisfied_financial_metrics
@@ -16,6 +17,7 @@ from youtube_transcript_component.yt_transcript_component import \
 from summary_llm_component.gemini_llm_component import get_summary_of_gemini_with_url_context, \
     get_summary_of_gemini_of_transcript
 import json
+import re
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import requests
@@ -45,6 +47,60 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def metric_ids_for_branch_profile_from_form(form) -> List[int]:
+    """Auswahl-Spalte metric_ids, per JS gesetztes profile_selected_metric_ids, oder Fallback is_active_<id>."""
+    hidden = form.get("profile_selected_metric_ids")
+    if hidden is not None and str(hidden).strip():
+        parts = [x.strip() for x in str(hidden).split(",") if x.strip()]
+        try:
+            return sorted({int(x) for x in parts})
+        except ValueError:
+            pass
+    listed = form.getlist("metric_ids")
+    if listed:
+        try:
+            return sorted({int(x) for x in listed})
+        except ValueError:
+            pass
+    found = set()
+    for key, _ in form.multi_items():
+        m = re.match(r"^is_active_(\d+)$", str(key))
+        if m:
+            found.add(int(m.group(1)))
+    return sorted(found)
+
+
+def saved_financial_metrics_page_context(
+    db: Session,
+    branch_profile_id: Optional[int] = None,
+) -> dict:
+    profiles = (
+        db.query(models.FinancialMetricBranchProfile)
+        .order_by(models.FinancialMetricBranchProfile.name)
+        .all()
+    )
+    all_metrics = db.query(models.FinancialMetric).all()
+    selected_id: Optional[int] = None
+    metrics = all_metrics
+    if branch_profile_id is not None:
+        profile = (
+            db.query(models.FinancialMetricBranchProfile)
+            .filter(
+                models.FinancialMetricBranchProfile.id == branch_profile_id
+            )
+            .first()
+        )
+        if profile is not None:
+            allowed = {m.id for m in profile.metrics}
+            metrics = [m for m in all_metrics if m.id in allowed]
+            selected_id = branch_profile_id
+    return {
+        "metrics_by_category": group_financial_metrics_by_category(metrics),
+        "branch_profiles": profiles,
+        "selected_branch_profile_id": selected_id,
+    }
 
 
 def group_financial_metrics_by_category(
@@ -424,23 +480,24 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
         )
 
 @app.post("/show-saved-financial-metrics", response_class=HTMLResponse)
-def show_saved_financial_metrics_page(request: Request, db: Session = Depends(get_db)):
-   try:
-        metrics = db.query(models.FinancialMetric).all()
+def show_saved_financial_metrics_page(
+    request: Request,
+    db: Session = Depends(get_db),
+    branch_profile_id: Optional[int] = Form(None),
+):
+    try:
+        ctx = saved_financial_metrics_page_context(db, branch_profile_id)
         return templates.TemplateResponse(
-        request=request,
+            request=request,
             name="show_saved_financial_metrics.html",
-            context={
-                "request": request,
-                "metrics_by_category": group_financial_metrics_by_category(metrics),
-            }
+            context={"request": request, **ctx},
         )
-   except Exception as e:
-       return templates.TemplateResponse(
-           request=request,
-           name="error.html",
-           context={"request": request}
-       )
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request},
+        )
 
 @app.post("/metrics/create", response_class=HTMLResponse)
 def create_metric(
@@ -463,20 +520,103 @@ def create_metric(
         db.commit()
         db.refresh(metric)
 
-        metrics = db.query(models.FinancialMetric).all()
+        ctx = saved_financial_metrics_page_context(db, None)
         return templates.TemplateResponse(
             request=request,
             name="show_saved_financial_metrics.html",
-            context={
-                "request": request,
-                "metrics_by_category": group_financial_metrics_by_category(metrics),
-            }
+            context={"request": request, **ctx},
         )
     except Exception as e:
         return templates.TemplateResponse(
             request=request,
             name="error.html",
             context={"request": request}
+        )
+
+
+@app.post("/metrics/branch-profiles/create", response_class=HTMLResponse)
+async def create_branch_profile(request: Request, db: Session = Depends(get_db)):
+    try:
+        form = await request.form()
+        raw_name = form.get("branch_profile_name")
+        name = (str(raw_name).strip() if raw_name is not None else "")
+        if not name:
+            return templates.TemplateResponse(
+                request=request,
+                name="error.html",
+                context={"request": request},
+            )
+        metric_ids = metric_ids_for_branch_profile_from_form(form)
+        if not metric_ids:
+            return templates.TemplateResponse(
+                request=request,
+                name="error.html",
+                context={"request": request},
+            )
+        metrics = (
+            db.query(models.FinancialMetric)
+            .filter(models.FinancialMetric.id.in_(metric_ids))
+            .all()
+        )
+        if len(metrics) != len(set(metric_ids)):
+            return templates.TemplateResponse(
+                request=request,
+                name="error.html",
+                context={"request": request},
+            )
+        profile = models.FinancialMetricBranchProfile(name=name)
+        profile.metrics = metrics
+        db.add(profile)
+        db.commit()
+        ctx = saved_financial_metrics_page_context(db, None)
+        return templates.TemplateResponse(
+            request=request,
+            name="show_saved_financial_metrics.html",
+            context={"request": request, **ctx},
+        )
+    except IntegrityError:
+        db.rollback()
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request},
+        )
+    except Exception as e:
+        db.rollback()
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request},
+        )
+
+
+@app.post("/metrics/branch-profiles/{profile_id}/delete", response_class=HTMLResponse)
+def delete_branch_profile(
+    profile_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    try:
+        profile = (
+            db.query(models.FinancialMetricBranchProfile)
+            .filter(models.FinancialMetricBranchProfile.id == profile_id)
+            .first()
+        )
+        if profile:
+            db.delete(profile)
+            db.commit()
+        ctx = saved_financial_metrics_page_context(db, None)
+        return templates.TemplateResponse(
+            request=request,
+            name="show_saved_financial_metrics.html",
+            context={"request": request, **ctx},
+        )
+    except Exception as e:
+        db.rollback()
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request},
         )
 
 
@@ -504,14 +644,11 @@ def update_metric(
 
         db.commit()
 
-        metrics = db.query(models.FinancialMetric).all()
+        ctx = saved_financial_metrics_page_context(db, None)
         return templates.TemplateResponse(
             request=request,
             name="show_saved_financial_metrics.html",
-            context={
-                "request": request,
-                "metrics_by_category": group_financial_metrics_by_category(metrics),
-            }
+            context={"request": request, **ctx},
         )
     except Exception as e:
         return templates.TemplateResponse(
@@ -553,14 +690,11 @@ def delete_metrics(
 
         db.commit()
 
-        metrics = db.query(FinancialMetric).all()
+        ctx = saved_financial_metrics_page_context(db, None)
         return templates.TemplateResponse(
             request=request,
             name="show_saved_financial_metrics.html",
-            context={
-                "request": request,
-                "metrics_by_category": group_financial_metrics_by_category(metrics),
-            }
+            context={"request": request, **ctx},
         )
     except Exception as e:
         return templates.TemplateResponse(

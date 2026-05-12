@@ -1,11 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Gespeicherte Kennzahlen</title>
+    <style>
+        .branch-profile-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f5f5f5;
+            border-radius: 6px;
+        }
+        .branch-profile-bar form {
+            display: inline;
+            margin: 0;
+        }
+        .branch-profile-bar button {
+            cursor: pointer;
+        }
+        .branch-profile-bar .profile-active {
+            font-weight: bold;
+            box-shadow: inset 0 0 0 2px #333;
+        }
+        .save-profile-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+    </style>
 </head>
 <body>
-<h1>Gespiecherte Kennzahlen</h1>
+<h1>Gespeicherte Kennzahlen</h1>
+
+<div class="branch-profile-bar" role="toolbar" aria-label="Branchenprofile">
+    <span style="margin-right:0.25rem;">Branche:</span>
+    <form action="/show-saved-financial-metrics" method="post">
+        <button type="submit"
+                class="{% if selected_branch_profile_id is none %}profile-active{% endif %}"
+                title="Alle Kennzahlen anzeigen">
+            Alle
+        </button>
+    </form>
+    {% for p in branch_profiles %}
+    <form action="/show-saved-financial-metrics" method="post" style="display:inline;">
+        <input type="hidden" name="branch_profile_id" value="{{ p.id }}">
+        <button type="submit"
+                class="{% if selected_branch_profile_id == p.id %}profile-active{% endif %}">
+            {{ p.name }}
+        </button>
+    </form>
+    <form action="/metrics/branch-profiles/{{ p.id }}/delete" method="post"
+          style="display:inline;"
+          onsubmit="return confirm('Profil „{{ p.name }}“ löschen?');">
+        <button type="submit" title="Profil löschen" aria-label="Profil {{ p.name }} löschen">×</button>
+    </form>
+    {% endfor %}
+</div>
 
 <p>
     <button type="button" id="toggle-active-metrics">Nur aktive Kennzahlen</button>
@@ -30,8 +85,20 @@
 
 <hr>
 
+<form action="/metrics/delete-multiple" method="post" id="saved-metrics-form">
+    <div class="save-profile-row" style="margin-bottom:0.75rem;">
+        <label>
+            Neues Branchenprofil:
+            <input type="text" name="branch_profile_name" placeholder="z.B. Banken, Tech …" autocomplete="off">
+        </label>
+        <button type="submit"
+                id="btn-save-branch-profile"
+                formaction="/metrics/branch-profiles/create"
+                formmethod="post">
+            Ausgewählte als Profil speichern
+        </button>
+    </div>
 
-<form action="/metrics/delete-multiple" method="post">
     <table border="1">
         <thead>
         <tr>
@@ -75,12 +142,38 @@
     </table>
 
     <br>
-    <button type="submit" onclick="return confirm('Ausgewählte Einträge löschen?')">
+    <button type="submit"
+            id="btn-delete-metrics"
+            onclick="return confirm('Ausgewählte Einträge löschen?')">
         Ausgewählte löschen
     </button>
 </form>
 
 <script>
+(function () {
+    var metricsForm = document.getElementById('saved-metrics-form');
+    var saveProfileBtn = document.getElementById('btn-save-branch-profile');
+    if (!metricsForm) return;
+
+    /* Läuft beim Zusammenbau des Request-Bodys — zuverlässiger als submit + verstecktes Feld. */
+    metricsForm.addEventListener('formdata', function (ev) {
+        var ids = [];
+        metricsForm.querySelectorAll('input[name="metric_ids"]:checked').forEach(function (el) {
+            ids.push(el.value);
+        });
+        ev.formData.set('profile_selected_metric_ids', ids.join(','));
+    });
+
+    if (saveProfileBtn) {
+        saveProfileBtn.addEventListener('click', function (ev) {
+            if (!confirm('Branchenprofil mit den ausgewählten Kennzahlen speichern?')) {
+                ev.preventDefault();
+                ev.stopPropagation();
+            }
+        }, true);
+    }
+})();
+
 (function () {
     var btn = document.getElementById('toggle-active-metrics');
     if (!btn) return;
