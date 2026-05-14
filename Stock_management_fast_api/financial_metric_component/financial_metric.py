@@ -167,7 +167,8 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
                                     "total_free_cash_flow",
                                     "total_current_assets",
                                     "total_non_current_assets",
-                                    "total_assets"]
+                                    "total_assets",
+                                    "good_will"]
 
     with open("/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/financial_metric_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
         financial_metrics = json.load(financial_metrics_file)
@@ -193,6 +194,7 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
     total_current_assets = needed_financial_metrics_map.get("total_current_assets", [])
     total_non_current_assets = needed_financial_metrics_map.get("total_non_current_assets", [])
     total_assets = needed_financial_metrics_map.get("total_assets", [])
+    total_good_will = needed_financial_metrics_map.get("good_will", [])
 
     revenue_per_employee_object = db.query(FinancialMetric).filter(
         and_(
@@ -289,5 +291,20 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
             current_long_term_liabilities = total_liabilities[idx] - total_current_liabilities[idx]
             value = (current_equity_in_year + current_long_term_liabilities ) / current_total_asset
             financial_metric_map.setdefault("asset_cover_ratio_two", []).append(value)
+
+
+    good_will_object = db.query(FinancialMetric).filter(
+        and_(
+            FinancialMetric.name == "good_will_ratio",
+            FinancialMetric.is_active == True
+        )
+    ).first()
+
+    if len(total_good_will) == len(total_equity) and good_will_object:
+        for idx, current_equity_in_year in enumerate(total_equity):
+            current_good_will = total_good_will[idx]
+            value = current_good_will / current_equity_in_year
+            financial_metric_map.setdefault("good_will_ratio", []).append(value)
+
 
     return financial_metric_map
