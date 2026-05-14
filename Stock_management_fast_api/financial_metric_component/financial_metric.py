@@ -162,7 +162,8 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
                                     "total_employee_number",
                                     "total_equity",
                                     "total_liabilities",
-                                    "cash_and_cash_equivalents"]
+                                    "cash_and_cash_equivalents",
+                                    "total_free_cash_flow"]
 
     with open("/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/financial_metric_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
         financial_metrics = json.load(financial_metrics_file)
@@ -183,6 +184,7 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
     total_equity = needed_financial_metrics_map.get("total_equity", [])
     total_liabilities = needed_financial_metrics_map.get("total_liabilities", [])
     cash_and_cash_equivalents = needed_financial_metrics_map.get("cash_and_cash_equivalents", [])
+    total_free_cash_flows = needed_financial_metrics_map.get("total_free_cash_flow", [])
 
     revenue_per_employee_object = db.query(FinancialMetric).filter(
         and_(
@@ -210,5 +212,20 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
             net_debt = current_total_liability - current_cash_and_cash_equivalent
             value = net_debt / current_equity_in_year
             financial_metric_map.setdefault("gearing", []).append(value)
+
+    dynamic_debt_degree_object = db.query(FinancialMetric).filter(
+        and_(
+            FinancialMetric.name == "dynamic debt degree",
+            FinancialMetric.is_active == True
+        )
+    ).first()
+    if len(total_free_cash_flows) == len(total_liabilities) and len(total_liabilities) == len(cash_and_cash_equivalents) and dynamic_debt_degree_object:
+        for idx, current_equity_in_year in enumerate(total_equity):
+            current_total_liability = total_liabilities[idx]
+            current_cash_and_cash_equivalent = cash_and_cash_equivalents[idx]
+            net_debt = current_total_liability - current_cash_and_cash_equivalent
+            value = net_debt / current_equity_in_year
+            financial_metric_map.setdefault("dynamic debt degree", []).append(value)
+
 
     return financial_metric_map
