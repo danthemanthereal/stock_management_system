@@ -83,7 +83,8 @@ def get_financial_metrics_with_fmp_api(db, financial_metric_map, company_name):
     "daysOfPayablesOutstanding",
     "daysOfInventoryOutstanding",
     "freeCashFlowToEquity",
-    "freeCashFlowToFirm"
+    "freeCashFlowToFirm",
+    "netDebtToEBITDA"
     ]
 
     ratio_metrics_to_consider = [
