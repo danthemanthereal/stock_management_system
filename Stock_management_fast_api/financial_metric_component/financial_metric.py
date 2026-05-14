@@ -162,6 +162,7 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
                                     "total_employee_number",
                                     "total_equity",
                                     "total_liabilities",
+                                    "total_current_liabilities",
                                     "cash_and_cash_equivalents",
                                     "total_free_cash_flow",
                                     "total_current_assets",
@@ -186,6 +187,7 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
     revenues = needed_financial_metrics_map.get("revenue", [])
     total_equity = needed_financial_metrics_map.get("total_equity", [])
     total_liabilities = needed_financial_metrics_map.get("total_liabilities", [])
+    total_current_liabilities = needed_financial_metrics_map.get("total_current_liabilities", [])
     cash_and_cash_equivalents = needed_financial_metrics_map.get("cash_and_cash_equivalents", [])
     total_free_cash_flows = needed_financial_metrics_map.get("total_free_cash_flow", [])
     total_current_assets = needed_financial_metrics_map.get("total_current_assets", [])
@@ -260,5 +262,32 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
             current_non_current_asset = total_non_current_assets[idx]
             value = current_non_current_asset / current_total_asset
             financial_metric_map.setdefault("non_current_asset_intensity", []).append(value)
+
+    asset_cover_degree_one_object = db.query(FinancialMetric).filter(
+        and_(
+            FinancialMetric.name == "asset_cover_ratio_one",
+            FinancialMetric.is_active == True
+        )
+    ).first()
+
+    if len(total_equity) == len(total_assets) and asset_cover_degree_one_object:
+        for idx, current_equity_in_year in enumerate(total_equity):
+            current_total_asset = total_assets[idx]
+            value = current_equity_in_year / current_total_asset
+            financial_metric_map.setdefault("asset_cover_ratio_one", []).append(value)
+
+    asset_cover_degree_two_object = db.query(FinancialMetric).filter(
+        and_(
+            FinancialMetric.name == "asset_cover_ratio_two",
+            FinancialMetric.is_active == True
+        )
+    ).first()
+
+    if len(total_equity) == len(total_assets) and len(total_assets) == len(total_liabilities) and len(total_current_liabilities) and asset_cover_degree_two_object:
+        for idx, current_equity_in_year in enumerate(total_equity):
+            current_total_asset = total_assets[idx]
+            current_long_term_liabilities = total_liabilities[idx] - total_current_liabilities[idx]
+            value = (current_equity_in_year + current_long_term_liabilities ) / current_total_asset
+            financial_metric_map.setdefault("asset_cover_ratio_two", []).append(value)
 
     return financial_metric_map
