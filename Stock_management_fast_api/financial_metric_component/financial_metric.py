@@ -163,7 +163,10 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
                                     "total_equity",
                                     "total_liabilities",
                                     "cash_and_cash_equivalents",
-                                    "total_free_cash_flow"]
+                                    "total_free_cash_flow",
+                                    "total_current_assets",
+                                    "total_non_current_assets",
+                                    "total_assets"]
 
     with open("/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/financial_metric_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
         financial_metrics = json.load(financial_metrics_file)
@@ -185,6 +188,9 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
     total_liabilities = needed_financial_metrics_map.get("total_liabilities", [])
     cash_and_cash_equivalents = needed_financial_metrics_map.get("cash_and_cash_equivalents", [])
     total_free_cash_flows = needed_financial_metrics_map.get("total_free_cash_flow", [])
+    total_current_assets = needed_financial_metrics_map.get("total_current_assets", [])
+    total_non_current_assets = needed_financial_metrics_map.get("total_non_current_assets", [])
+    total_assets = needed_financial_metrics_map.get("total_assets", [])
 
     revenue_per_employee_object = db.query(FinancialMetric).filter(
         and_(
@@ -227,5 +233,32 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
             value = net_debt / current_equity_in_year
             financial_metric_map.setdefault("dynamic debt degree", []).append(value)
 
+    current_asset_intensity_object = db.query(FinancialMetric).filter(
+        and_(
+            FinancialMetric.name == "current_asset_intensity",
+            FinancialMetric.is_active == True
+        )
+    ).first()
+
+    if len(total_current_assets) == len(total_assets) and current_asset_intensity_object:
+        for idx, current_total_asset in enumerate(total_assets):
+            current_current_asset = total_current_assets[idx]
+            value = current_current_asset / current_total_asset
+            financial_metric_map.setdefault("current_asset_intensity", []).append(value)
+
+
+
+
+    non_current_asset_intensity_object = db.query(FinancialMetric).filter(
+        and_(
+            FinancialMetric.name == "non_current_asset_intensity",
+            FinancialMetric.is_active == True
+        )
+    ).first()
+    if len(total_non_current_assets) == len(total_assets) and non_current_asset_intensity_object:
+        for idx, current_total_asset in enumerate(total_assets):
+            current_non_current_asset = total_non_current_assets[idx]
+            value = current_non_current_asset / current_total_asset
+            financial_metric_map.setdefault("non_current_asset_intensity", []).append(value)
 
     return financial_metric_map
