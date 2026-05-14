@@ -227,6 +227,53 @@ def build_category_pair_summary(
         return []
 
 
+def merge_financial_summary_triples(
+    combined: List[dict],
+    benchmark: List[dict],
+    development: List[dict],
+) -> List[dict]:
+    """Eine Zeile pro Kategorie mit allen drei Kennzahlen-Paaren + Prozent (von total)."""
+
+    def to_map(rows: List[dict]) -> dict:
+        return {r["category"]: dict(r) for r in rows}
+
+    def enrich(row: Optional[dict]) -> dict:
+        base = {"satisfied": 0, "unsatisfied": 0, "total": 0}
+        if row:
+            base.update(
+                {
+                    "satisfied": int(row.get("satisfied", 0)),
+                    "unsatisfied": int(row.get("unsatisfied", 0)),
+                    "total": int(row.get("total", 0)),
+                }
+            )
+        t = base["total"]
+        s, u = base["satisfied"], base["unsatisfied"]
+        base["satisfied_pct"] = round(100.0 * s / t, 1) if t else None
+        base["unsatisfied_pct"] = round(100.0 * u / t, 1) if t else None
+        return base
+
+    c_map = to_map(combined)
+    b_map = to_map(benchmark)
+    d_map = to_map(development)
+    all_labels = set(c_map) | set(b_map) | set(d_map)
+    ordered = sorted(
+        all_labels,
+        key=lambda L: (1 if L == "Ohne Kategorie" else 0, L.casefold()),
+    )
+    out: List[dict] = []
+    for L in ordered:
+        out.append(
+            {
+                "category": L,
+                "combined": enrich(c_map.get(L)),
+                "benchmark": enrich(b_map.get(L)),
+                "development": enrich(d_map.get(L)),
+            }
+        )
+    return out
+
+
 class Company(BaseModel):
     company_name: str
     strength: str
@@ -446,6 +493,19 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
             unsatisfied_development, db
         )
 
+        summary_combined = build_category_pair_summary(
+            satisfied_metrics_by_category,
+            unsatisfied_metrics_by_category,
+        )
+        summary_benchmark = build_category_pair_summary(
+            satisfied_benchmarks_by_category,
+            unsatisfied_benchmarks_by_category,
+        )
+        summary_development = build_category_pair_summary(
+            satisfied_development_by_category,
+            unsatisfied_development_by_category,
+        )
+
         return templates.TemplateResponse(
             request=request,
             name="show_financial_metrics.html",
@@ -460,17 +520,10 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
                 "unsatisfied_benchmarks_by_category": unsatisfied_benchmarks_by_category,
                 "satisfied_development_by_category": satisfied_development_by_category,
                 "unsatisfied_development_by_category": unsatisfied_development_by_category,
-                "summary_combined_by_category": build_category_pair_summary(
-                    satisfied_metrics_by_category,
-                    unsatisfied_metrics_by_category,
-                ),
-                "summary_benchmark_by_category": build_category_pair_summary(
-                    satisfied_benchmarks_by_category,
-                    unsatisfied_benchmarks_by_category,
-                ),
-                "summary_development_by_category": build_category_pair_summary(
-                    satisfied_development_by_category,
-                    unsatisfied_development_by_category,
+                "summary_wide_by_category": merge_financial_summary_triples(
+                    summary_combined,
+                    summary_benchmark,
+                    summary_development,
                 ),
             })
     except Exception as e:

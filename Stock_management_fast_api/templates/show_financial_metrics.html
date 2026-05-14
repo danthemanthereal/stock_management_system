@@ -97,42 +97,57 @@
             color: #444;
         }
 
-        .results-summary {
-            margin-top: 40px;
-            padding: 20px 24px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            background: #fafafa;
-            max-width: 960px;
-        }
-
         .results-summary > h2 {
             margin-top: 0;
             margin-bottom: 18px;
             font-size: 1.2rem;
         }
 
-        .summary-pair-block {
-            margin-bottom: 22px;
+        .results-summary {
+            margin-top: 40px;
+            padding: 20px 24px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background: #fafafa;
+            max-width: min(1200px, 100%);
         }
 
-        .summary-pair-block:last-child {
-            margin-bottom: 0;
+        .summary-wide-headings,
+        .summary-wide-row {
+            display: grid;
+            grid-template-columns: minmax(9.5rem, 1fr) repeat(3, minmax(0, 1fr));
+            gap: 12px 16px;
+            align-items: start;
         }
 
-        .summary-pair-block h3 {
-            font-size: 1rem;
-            margin: 0 0 10px;
+        .summary-wide-headings {
+            font-weight: 600;
+            font-size: 0.9rem;
+            line-height: 1.35;
+            padding-bottom: 12px;
+            margin-bottom: 4px;
+            border-bottom: 2px solid #bbb;
             color: #222;
         }
 
-        .summary-row {
-            margin: 6px 0 6px 12px;
-            line-height: 1.5;
+        .summary-wide-row {
+            padding: 12px 0;
+            border-bottom: 1px solid #e8e8e8;
         }
 
-        .summary-row .counts {
-            margin-left: 4px;
+        .summary-wide-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-pair-cell {
+            font-size: 0.9rem;
+            line-height: 1.55;
+        }
+
+        .summary-pair-cell .pct {
+            color: #555;
+            font-weight: normal;
+            white-space: nowrap;
         }
 
     </style>
@@ -367,46 +382,46 @@
 <div class="results-summary">
     <h2>Zusammenfassung nach Kategorie</h2>
 
-    <div class="summary-pair-block">
-        <h3>Erfüllen Entwicklung und Richtwert · Erfüllen weder Richtwert noch Entwicklung</h3>
-        {% for row in summary_combined_by_category %}
-        <div class="summary-row">
-            <strong>{{ row.category }}</strong>
-            <span class="counts">
-                <span class="satisfied">{{ row.satisfied }}/{{ row.total }} erfüllt</span>
-                ·
-                <span class="unsatisfied">{{ row.unsatisfied }}/{{ row.total }} nicht erfüllt</span>
-            </span>
+    {% macro summary_pair_cell(part) -%}
+    <div class="summary-pair-cell">
+        <div>
+            <span class="satisfied">Erfüllt:</span>
+            {{ part.satisfied }}/{{ part.total -}}
+            {%- if part.total > 0 -%}
+            <span class="pct"> ({{ part.satisfied_pct }}%)</span>
+            {%- else -%}
+            <span class="pct"> (—)</span>
+            {%- endif %}
         </div>
-        {% endfor %}
+        <div>
+            <span class="unsatisfied">Nicht erfüllt:</span>
+            {{ part.unsatisfied }}/{{ part.total -}}
+            {%- if part.total > 0 -%}
+            <span class="pct"> ({{ part.unsatisfied_pct }}%)</span>
+            {%- else -%}
+            <span class="pct"> (—)</span>
+            {%- endif %}
+        </div>
     </div>
+    {%- endmacro %}
 
-    <div class="summary-pair-block">
-        <h3>Erfüllen Richtwert · Erfüllen nicht Richtwert</h3>
-        {% for row in summary_benchmark_by_category %}
-        <div class="summary-row">
-            <strong>{{ row.category }}</strong>
-            <span class="counts">
-                <span class="satisfied">{{ row.satisfied }}/{{ row.total }} erfüllt</span>
-                ·
-                <span class="unsatisfied">{{ row.unsatisfied }}/{{ row.total }} nicht erfüllt</span>
-            </span>
+    <div class="summary-wide-scroll" style="overflow-x:auto;">
+        <div style="min-width:720px;">
+            <div class="summary-wide-headings">
+                <div>Kategorie</div>
+                <div>Entwicklung &amp; Richtwert · weder Richtwert noch Entwicklung</div>
+                <div>Richtwert · nicht Richtwert</div>
+                <div>Entwicklung · nicht Entwicklung</div>
+            </div>
+            {% for row in summary_wide_by_category %}
+            <div class="summary-wide-row">
+                <div><strong>{{ row.category }}</strong></div>
+                {{ summary_pair_cell(row.combined) }}
+                {{ summary_pair_cell(row.benchmark) }}
+                {{ summary_pair_cell(row.development) }}
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-
-    <div class="summary-pair-block">
-        <h3>Erfüllen Entwicklung · Erfüllen nicht Entwicklung</h3>
-        {% for row in summary_development_by_category %}
-        <div class="summary-row">
-            <strong>{{ row.category }}</strong>
-            <span class="counts">
-                <span class="satisfied">{{ row.satisfied }}/{{ row.total }} erfüllt</span>
-                ·
-                <span class="unsatisfied">{{ row.unsatisfied }}/{{ row.total }} nicht erfüllt</span>
-            </span>
-        </div>
-        {% endfor %}
     </div>
 </div>
 </body>
