@@ -10,7 +10,7 @@ from financial_metric_evaluator_component.financial_metric_evaluator import \
 from database.models import FinancialMetric
 from financial_metric_component.financial_metric import get_total_financial_metrics
 from database.db import engine, SessionLocal
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from database import models
 from youtube_transcript_component.yt_transcript_component import \
     get_youtube_transcript_based_url
@@ -81,7 +81,16 @@ def saved_financial_metrics_page_context(
         .order_by(models.FinancialMetricBranchProfile.name)
         .all()
     )
-    all_metrics = db.query(models.FinancialMetric).all()
+    all_metrics = (
+        db.query(models.FinancialMetric)
+        .options(joinedload(models.FinancialMetric.category_rel))
+        .all()
+    )
+    metric_categories = (
+        db.query(models.FinancialMetricCategory)
+        .order_by(models.FinancialMetricCategory.name)
+        .all()
+    )
     selected_id: Optional[int] = None
     metrics = all_metrics
     if branch_profile_id is not None:
@@ -101,6 +110,7 @@ def saved_financial_metrics_page_context(
         "branch_profiles": profiles,
         "selected_branch_profile_id": selected_id,
         "displayed_metrics_count": len(metrics),
+        "metric_categories": metric_categories,
     }
 
 
@@ -110,7 +120,7 @@ def group_financial_metrics_by_category(
     try:
         groups: dict[str, List[FinancialMetric]] = defaultdict(list)
         for m in metrics:
-            raw = (m.category or "").strip()
+            raw = m.category_name
             key = raw if raw else ""
             groups[key].append(m)
         ordered_keys = sorted(
@@ -138,11 +148,12 @@ def group_financial_metrics_map_by_category(
         metric_names = list(financial_metrics_map.keys())
         rows = (
             db.query(FinancialMetric)
+            .options(joinedload(FinancialMetric.category_rel))
             .filter(FinancialMetric.name.in_(metric_names))
             .all()
         )
         name_to_category = {
-            r.name: (r.category or "").strip() or "" for r in rows
+            r.name: r.category_name for r in rows
         }
         groups: dict[str, dict] = defaultdict(dict)
         for name, values in financial_metrics_map.items():
@@ -178,11 +189,12 @@ def group_metric_names_by_category(
         names = list(metric_names)
         rows = (
             db.query(FinancialMetric)
+            .options(joinedload(FinancialMetric.category_rel))
             .filter(FinancialMetric.name.in_(set(names)))
             .all()
         )
         name_to_category = {
-            r.name: (r.category or "").strip() or "" for r in rows
+            r.name: r.category_name for r in rows
         }
         groups: dict[str, List[str]] = defaultdict(list)
         for n in names:
@@ -560,15 +572,19 @@ def create_metric(
     should_rise: bool = Form(False),
     reference_value: int = Form(...),
     unit: str = Form(...),
-    db: Session = Depends(get_db)
+    category_id: str = Form(""),
+    db: Session = Depends(get_db),
 ):
     try:
         metric = FinancialMetric(
             name=name,
             should_rise=should_rise,
             reference_value=reference_value,
-            unit=unit
+            unit=unit,
         )
+        raw_cid = category_id.strip() if category_id else ""
+        if raw_cid:
+            metric.category_id = int(raw_cid)
 
         db.add(metric)
         db.commit()
@@ -682,9 +698,9 @@ def update_metric(
     should_rise: bool = Form(False),
     reference_value: int = Form(...),
     unit: str = Form(...),
-    category: str = Form(...),
+    category_id: str = Form(""),
     is_active: bool = Form(False),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     try:
         metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
@@ -693,7 +709,8 @@ def update_metric(
         metric.should_rise = should_rise
         metric.reference_value = reference_value
         metric.unit = unit
-        metric.category = category
+        raw_cid = category_id.strip() if category_id else ""
+        metric.category_id = int(raw_cid) if raw_cid else None
         metric.is_active = is_active
 
         db.commit()
@@ -715,12 +732,26 @@ def update_metric(
 @app.get("/metrics/edit/{metric_id}")
 def edit_metric_page(metric_id: int, request: Request, db: Session = Depends(get_db)):
     try:
-        metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
+        metric = (
+            db.query(FinancialMetric)
+            .options(joinedload(FinancialMetric.category_rel))
+            .filter(FinancialMetric.id == metric_id)
+            .first()
+        )
+        categories = (
+            db.query(models.FinancialMetricCategory)
+            .order_by(models.FinancialMetricCategory.name)
+            .all()
+        )
 
         return templates.TemplateResponse(
             request=request,
             name ="edit_metric.html",
-            context={"request": request, "metric": metric}
+            context={
+                "request": request,
+                "metric": metric,
+                "metric_categories": categories,
+            },
         )
     except Exception as e:
         return templates.TemplateResponse(

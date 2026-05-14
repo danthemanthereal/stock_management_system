@@ -48,6 +48,15 @@ class FinancialMetric(Base):
         back_populates="metrics",
     )
 
+    @property
+    def category_name(self) -> str:
+        if self.category_id is None:
+            return ""
+        rel = self.category_rel
+        if rel is None:
+            return ""
+        return (rel.name or "").strip()
+
 
 class FinancialMetricBranchProfile(Base):
     __tablename__ = "financial_metric_branch_profile"

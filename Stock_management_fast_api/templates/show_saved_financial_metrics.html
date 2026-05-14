@@ -85,6 +85,16 @@
 
     <input type="text" name="unit" placeholder="Einheit" required>
 
+    <label>
+        Kategorie (optional):
+        <select name="category_id">
+            <option value="">— keine —</option>
+            {% for c in metric_categories %}
+            <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </label>
+
     <button type="submit">Hinzufügen</button>
 </form>
 
@@ -131,7 +141,7 @@
             <td>{{ m.should_rise }}</td>
             <td>{{ m.reference_value }}</td>
             <td>{{ m.unit }}</td>
-            <td>{{ m.category or "—" }}</td>
+            <td>{{ m.category_name or "—" }}</td>
             <td>
                 <input type="checkbox"
                        name="is_active_{{ m.id }}"
