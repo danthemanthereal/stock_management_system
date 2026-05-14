@@ -559,6 +559,7 @@ def show_saved_financial_metrics_page(
             context={"request": request, **ctx},
         )
     except Exception as e:
+        print(e)
         return templates.TemplateResponse(
             request=request,
             name="error.html",

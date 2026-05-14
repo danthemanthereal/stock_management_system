@@ -63,6 +63,10 @@ class FinancialMetricBranchProfile(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
+    should_rise = Column(Boolean, index=False)
+    reference_value = Column(Integer, index=False)
+    unit = Column(String, index=False)
+    is_active = Column(Boolean, index=False, default=True)
     metrics = relationship(
         "FinancialMetric",
         secondary=branch_profile_metric_link,
