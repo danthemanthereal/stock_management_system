@@ -100,6 +100,7 @@ def saved_financial_metrics_page_context(
         "metrics_by_category": group_financial_metrics_by_category(metrics),
         "branch_profiles": profiles,
         "selected_branch_profile_id": selected_id,
+        "displayed_metrics_count": len(metrics),
     }
 
 

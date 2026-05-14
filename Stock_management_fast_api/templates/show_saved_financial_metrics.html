@@ -37,6 +37,11 @@
 <body>
 <h1>Gespeicherte Kennzahlen</h1>
 
+<p id="metrics-count-row" data-total-metrics="{{ displayed_metrics_count }}" style="margin:0.5rem 0 1rem;">
+    Es werden <strong id="displayed-metrics-count">{{ displayed_metrics_count }}</strong>
+    <span id="metrics-count-word">{% if displayed_metrics_count == 1 %}Kennzahl{% else %}Kennzahlen{% endif %}</span> angezeigt.
+</p>
+
 <div class="branch-profile-bar" role="toolbar" aria-label="Branchenprofile">
     <span style="margin-right:0.25rem;">Branche:</span>
     <form action="/show-saved-financial-metrics" method="post">
@@ -179,6 +184,30 @@
     if (!btn) return;
     var rows = document.querySelectorAll('tr.saved-metric-row');
     var showOnlyActive = false;
+    var countRow = document.getElementById('metrics-count-row');
+    var countStrong = document.getElementById('displayed-metrics-count');
+    var countWord = document.getElementById('metrics-count-word');
+    var totalInView = countRow
+        ? parseInt(countRow.getAttribute('data-total-metrics'), 10)
+        : NaN;
+    if (isNaN(totalInView)) totalInView = rows.length;
+
+    function updateDisplayedCount() {
+        if (!countStrong) return;
+        var n;
+        if (!showOnlyActive) {
+            n = totalInView;
+        } else {
+            n = 0;
+            for (var k = 0; k < rows.length; k++) {
+                if (rows[k].style.display !== 'none') n++;
+            }
+        }
+        countStrong.textContent = String(n);
+        if (countWord) {
+            countWord.textContent = n === 1 ? 'Kennzahl' : 'Kennzahlen';
+        }
+    }
 
     function applyFilter() {
         for (var i = 0; i < rows.length; i++) {
@@ -204,6 +233,7 @@
             heading.style.display = anyVisible ? '' : 'none';
         });
         btn.textContent = showOnlyActive ? 'Alle Kennzahlen anzeigen' : 'Nur aktive Kennzahlen';
+        updateDisplayedCount();
     }
 
     btn.addEventListener('click', function () {
