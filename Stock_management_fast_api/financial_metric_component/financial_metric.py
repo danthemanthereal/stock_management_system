@@ -157,38 +157,57 @@ def get_financial_metrics_with_fmp_api(db, financial_metric_map, company_name):
 
 def get_calculated_metrics(db, financial_metric_map, company_name):
 
-    considered_financial_metrics = ["revenue", "total_employee_number"]
+    considered_financial_metrics = ["revenue",
+                                    "total_employee_number",
+                                    "total_equity",
+                                    "total_liabilities",
+                                    "cash_and_cash_equivalents"]
 
     with open("/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/financial_metric_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
         financial_metrics = json.load(financial_metrics_file)
 
     annuals = financial_metrics.get("annual", [])
 
-    revenue_per_employee_map = {}
+    needed_financial_metrics_map = {}
 
     for current_year_map in annuals:
         for key, value in current_year_map.items():
             if key not in considered_financial_metrics:
                 continue
-            financial_metric_object = db.query(FinancialMetric).filter(
-            and_(
-                FinancialMetric.name == "revenue_per_employee",
-                FinancialMetric.is_active == True
-            )
-            ).first()
-            if not financial_metric_object:
-                continue
-            revenue_per_employee_map.setdefault(key, []).append(value)
 
-    employee_numbers = revenue_per_employee_map.get("total_employee_number", [])
-    revenues = revenue_per_employee_map.get("revenue", [])
+            needed_financial_metrics_map.setdefault(key, []).append(value)
 
-    if len(employee_numbers) != len(revenues):
-        return financial_metric_map
+    employee_numbers = needed_financial_metrics_map.get("total_employee_number", [])
+    revenues = needed_financial_metrics_map.get("revenue", [])
+    total_equity = needed_financial_metrics_map.get("total_equity", [])
+    total_liabilities = needed_financial_metrics_map.get("total_liabilities", [])
+    cash_and_cash_equivalents = needed_financial_metrics_map.get("cash_and_cash_equivalents", [])
 
-    for idx, employee_number in enumerate(employee_numbers):
-        revenue = revenues[idx]
-        value = int(revenue / employee_number)
-        financial_metric_map.setdefault("total_employee_number", []).append(value)
+    revenue_per_employee_object = db.query(FinancialMetric).filter(
+        and_(
+            FinancialMetric.name == "revenue_per_employee",
+            FinancialMetric.is_active == True
+        )
+    ).first()
+    if len(employee_numbers) == len(revenues) and revenue_per_employee_object:
+        for idx, employee_number in enumerate(employee_numbers):
+            revenue = revenues[idx]
+            value = revenue / employee_number
+            financial_metric_map.setdefault("total_employee_number", []).append(value)
+
+    gearing_object = db.query(FinancialMetric).filter(
+        and_(
+            FinancialMetric.name == "gearing",
+            FinancialMetric.is_active == True
+        )
+    ).first()
+
+    if len(total_equity) == len(total_liabilities) and len(total_liabilities) == len(cash_and_cash_equivalents) and gearing_object:
+        for idx, current_equity_in_year in enumerate(total_equity):
+            current_total_liability = total_liabilities[idx]
+            current_cash_and_cash_equivalent = cash_and_cash_equivalents[idx]
+            net_debt = current_total_liability - current_cash_and_cash_equivalent
+            value = net_debt / current_equity_in_year
+            financial_metric_map.setdefault("gearing", []).append(value)
 
     return financial_metric_map
