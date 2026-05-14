@@ -10,6 +10,7 @@ def get_total_financial_metrics(db, company_name: str)->dict:
     total_financial_metric_map = get_financial_metrics_by_guro_focus(db, total_financial_metric_map)
     total_financial_metric_map = get_financial_metrics_with_alpha_ventage_api(db, total_financial_metric_map, company_name)
     total_financial_metric_map = get_financial_metrics_with_fmp_api(db, total_financial_metric_map, company_name)
+    total_financial_metric_map = get_calculated_metrics(db, total_financial_metric_map, company_name)
     return  total_financial_metric_map
 
 def get_financial_metrics_by_guro_focus(db, financial_metric_map: dict)->dict:
@@ -152,4 +153,42 @@ def get_financial_metrics_with_fmp_api(db, financial_metric_map, company_name):
                 if not financial_metric_object:
                     continue
                 financial_metric_map.setdefault(key, []).append(value)
+    return financial_metric_map
+
+def get_calculated_metrics(db, financial_metric_map, company_name):
+
+    considered_financial_metrics = ["revenue", "total_employee_number"]
+
+    with open("/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/financial_metric_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
+        financial_metrics = json.load(financial_metrics_file)
+
+    annuals = financial_metrics.get("annual", [])
+
+    revenue_per_employee_map = {}
+
+    for current_year_map in annuals:
+        for key, value in current_year_map.items():
+            if key not in considered_financial_metrics:
+                continue
+            financial_metric_object = db.query(FinancialMetric).filter(
+            and_(
+                FinancialMetric.name == "revenue_per_employee",
+                FinancialMetric.is_active == True
+            )
+            ).first()
+            if not financial_metric_object:
+                continue
+            revenue_per_employee_map.setdefault(key, []).append(value)
+
+    employee_numbers = revenue_per_employee_map.get("total_employee_number", [])
+    revenues = revenue_per_employee_map.get("revenue", [])
+
+    if len(employee_numbers) != len(revenues):
+        return financial_metric_map
+
+    for idx, employee_number in enumerate(employee_numbers):
+        revenue = revenues[idx]
+        value = int(revenue / employee_number)
+        financial_metric_map.setdefault("total_employee_number", []).append(value)
+
     return financial_metric_map
