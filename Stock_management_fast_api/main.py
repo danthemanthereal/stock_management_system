@@ -72,47 +72,6 @@ def metric_ids_for_branch_profile_from_form(form) -> List[int]:
     return sorted(found)
 
 
-def saved_financial_metrics_page_context(
-    db: Session,
-    branch_profile_id: Optional[int] = None,
-) -> dict:
-    profiles = (
-        db.query(models.FinancialMetricBranchProfile)
-        .order_by(models.FinancialMetricBranchProfile.name)
-        .all()
-    )
-    all_metrics = (
-        db.query(models.FinancialMetric)
-        .options(joinedload(models.FinancialMetric.category_rel))
-        .all()
-    )
-    metric_categories = (
-        db.query(models.FinancialMetricCategory)
-        .order_by(models.FinancialMetricCategory.name)
-        .all()
-    )
-    selected_id: Optional[int] = None
-    metrics = all_metrics
-    if branch_profile_id is not None:
-        profile = (
-            db.query(models.FinancialMetricBranchProfile)
-            .filter(
-                models.FinancialMetricBranchProfile.id == branch_profile_id
-            )
-            .first()
-        )
-        if profile is not None:
-            allowed = {m.id for m in profile.metrics}
-            metrics = [m for m in all_metrics if m.id in allowed]
-            selected_id = branch_profile_id
-    return {
-        "metrics_by_category": group_financial_metrics_by_category(metrics),
-        "branch_profiles": profiles,
-        "selected_branch_profile_id": selected_id,
-        "displayed_metrics_count": len(metrics),
-        "metric_categories": metric_categories,
-    }
-
 
 def group_financial_metrics_by_category(
     metrics: List[FinancialMetric],
@@ -552,11 +511,11 @@ def show_saved_financial_metrics_page(
     branch_profile_id: Optional[int] = Form(None),
 ):
     try:
-        ctx = saved_financial_metrics_page_context(db, branch_profile_id)
+        # TODO
         return templates.TemplateResponse(
             request=request,
             name="show_saved_financial_metrics.html",
-            context={"request": request, **ctx},
+            context={"request": request, },
         )
     except Exception as e:
         print(e)
@@ -591,11 +550,11 @@ def create_metric(
         db.commit()
         db.refresh(metric)
 
-        ctx = saved_financial_metrics_page_context(db, None)
+        # TODO
         return templates.TemplateResponse(
             request=request,
             name="show_saved_financial_metrics.html",
-            context={"request": request, **ctx},
+            context={"request": request, },
         )
     except Exception as e:
         return templates.TemplateResponse(
@@ -635,15 +594,12 @@ async def create_branch_profile(request: Request, db: Session = Depends(get_db))
                 name="error.html",
                 context={"request": request},
             )
-        profile = models.FinancialMetricBranchProfile(name=name)
-        profile.metrics = metrics
-        db.add(profile)
-        db.commit()
-        ctx = saved_financial_metrics_page_context(db, None)
+
+        # TODO
         return templates.TemplateResponse(
             request=request,
             name="show_saved_financial_metrics.html",
-            context={"request": request, **ctx},
+            context={"request": request, },
         )
     except IntegrityError:
         db.rollback()
@@ -668,19 +624,12 @@ def delete_branch_profile(
     db: Session = Depends(get_db),
 ):
     try:
-        profile = (
-            db.query(models.FinancialMetricBranchProfile)
-            .filter(models.FinancialMetricBranchProfile.id == profile_id)
-            .first()
-        )
-        if profile:
-            db.delete(profile)
-            db.commit()
-        ctx = saved_financial_metrics_page_context(db, None)
+
+        # TODO
         return templates.TemplateResponse(
             request=request,
             name="show_saved_financial_metrics.html",
-            context={"request": request, **ctx},
+            context={"request": request, },
         )
     except Exception as e:
         db.rollback()
@@ -716,11 +665,11 @@ def update_metric(
 
         db.commit()
 
-        ctx = saved_financial_metrics_page_context(db, None)
+        # TODO
         return templates.TemplateResponse(
             request=request,
             name="show_saved_financial_metrics.html",
-            context={"request": request, **ctx},
+            context={"request": request, },
         )
     except Exception as e:
         return templates.TemplateResponse(
@@ -776,11 +725,11 @@ def delete_metrics(
 
         db.commit()
 
-        ctx = saved_financial_metrics_page_context(db, None)
+        # TODO
         return templates.TemplateResponse(
             request=request,
             name="show_saved_financial_metrics.html",
-            context={"request": request, **ctx},
+            context={"request": request, },
         )
     except Exception as e:
         return templates.TemplateResponse(
