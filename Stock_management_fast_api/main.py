@@ -751,30 +751,37 @@ def edit_metric_page(
 @app.post("/metrics/delete-multiple")
 def delete_metrics(
     request: Request,
-    metric_ids: List[int] = Form(...),
+    metric_ids: str = Form(...),
+    selected_branch_id: int = Form(1),
     db: Session = Depends(get_db)
 ):
     try:
-        metrics = db.query(FinancialMetric).filter(FinancialMetric.id.in_(metric_ids)).all()
 
-        for metric in metrics:
-            db.delete(metric)
+        if isinstance(metric_ids, str):
+            id_list = [int(i) for i in metric_ids.split(",") if i.strip()]
+        else:
+            id_list = metric_ids
+
+        if selected_branch_id == 1:
+
+            db.query(FinancialMetric).filter(FinancialMetric.id.in_(id_list)).delete(synchronize_session=False)
+        else:
+
+            db.query(ProfileMetricConfiguration).filter(
+                ProfileMetricConfiguration.profile_id == selected_branch_id,
+                ProfileMetricConfiguration.metric_id.in_(id_list)
+            ).delete(synchronize_session=False)
 
         db.commit()
 
-        # TODO
-        return templates.TemplateResponse(
-            request=request,
-            name="show_saved_financial_metrics.html",
-            context={"request": request, },
+        return RedirectResponse(
+            url=f"/show-saved-financial-metrics?branch_profile_id={selected_branch_id}",
+            status_code=303
         )
     except Exception as e:
-        return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={"request": request}
-        )
-
+        db.rollback()
+        print(f"Fehler beim Löschen: {e}")
+        return templates.TemplateResponse("error.html", {"request": request})
 @app.post("/delete-saved-companies", response_class=HTMLResponse)
 def delete_saved_companies(
         request: Request,
