@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, Form, Depends
 from sqlalchemy.exc import IntegrityError
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from collections import defaultdict
 from typing import List, Tuple, Optional
 from combining_stock_infos_llm.combine_stock import get_combination
@@ -504,7 +504,7 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
             context={"request": request}
         )
 
-@app.post("/show-saved-financial-metrics", response_class=HTMLResponse)
+@app.api_route("/show-saved-financial-metrics",methods=["GET", "POST"], response_class=HTMLResponse)
 def show_saved_financial_metrics_page(
     request: Request,
     db: Session = Depends(get_db),
@@ -661,75 +661,82 @@ def delete_branch_profile(
         )
 
 
-@app.post("/metrics/update/{metric_id}", response_class=HTMLResponse)
+@app.post("/metrics/update/{profile_id}/{metric_id}")
 def update_metric(
-    request: Request,
+    profile_id: int,
     metric_id: int,
     name: str = Form(...),
-    should_rise: bool = Form(False),
-    reference_value: int = Form(...),
     unit: str = Form(...),
     category_id: str = Form(""),
+    should_rise: bool = Form(False),
+    reference_value: int = Form(0),
     is_active: bool = Form(False),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db)
 ):
-    try:
-        metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
+    metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
+    metric.name = name
+    metric.unit = unit
+    metric.category_id = int(category_id) if category_id.strip() else None
 
-        metric.name = name
-        metric.should_rise = should_rise
-        metric.reference_value = reference_value
-        metric.unit = unit
-        raw_cid = category_id.strip() if category_id else ""
-        metric.category_id = int(raw_cid) if raw_cid else None
-        metric.is_active = is_active
+    config = db.query(ProfileMetricConfiguration).filter(
+        ProfileMetricConfiguration.profile_id == profile_id,
+        ProfileMetricConfiguration.metric_id == metric_id
+    ).first()
 
-        db.commit()
+    if not config:
+        config = ProfileMetricConfiguration(profile_id=profile_id, metric_id=metric_id)
+        db.add(config)
 
-        # TODO
-        return templates.TemplateResponse(
-            request=request,
-            name="show_saved_financial_metrics.html",
-            context={"request": request, },
-        )
-    except Exception as e:
-        return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={"request": request}
-        )
+    config.should_rise = should_rise
+    config.reference_value = reference_value
+    config.is_active = is_active
+
+    db.commit()
+
+    return RedirectResponse(
+        url=f"/show-saved-financial-metrics?branch_profile_id={profile_id}",
+        status_code=303
+    )
+
+@app.get("/metrics/edit/{profile_id}/{metric_id}", response_class=HTMLResponse)
+def edit_metric_page(
+        request: Request,
+        profile_id: int,
+        metric_id: int,
+        db: Session = Depends(get_db)
+):
+    metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
+
+    profile = db.query(IndustryProfile).filter(IndustryProfile.id == profile_id).first()
+
+    config = db.query(ProfileMetricConfiguration).filter(
+        ProfileMetricConfiguration.profile_id == profile_id,
+        ProfileMetricConfiguration.metric_id == metric_id
+    ).first()
 
 
-@app.get("/metrics/edit/{metric_id}")
-def edit_metric_page(metric_id: int, request: Request, db: Session = Depends(get_db)):
-    try:
-        metric = (
-            db.query(FinancialMetric)
-            .options(joinedload(FinancialMetric.category_rel))
-            .filter(FinancialMetric.id == metric_id)
-            .first()
-        )
-        categories = (
-            db.query(models.FinancialMetricCategory)
-            .order_by(models.FinancialMetricCategory.name)
-            .all()
+    if not config:
+        config = ProfileMetricConfiguration(
+            profile_id=profile_id,
+            metric_id=metric_id,
+            is_active=True,
+            should_rise=True,
+            reference_value=0
         )
 
-        return templates.TemplateResponse(
-            request=request,
-            name ="edit_metric.html",
-            context={
-                "request": request,
-                "metric": metric,
-                "metric_categories": categories,
-            },
-        )
-    except Exception as e:
-        return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={"request": request}
-        )
+    metric_categories = db.query(FinancialMetricCategory).all()
+
+    return templates.TemplateResponse(
+        request=request,
+        name="edit_metric.html",
+        context={
+            "request": request,
+            "metric": metric,
+            "profile": profile,
+            "config": config,
+            "metric_categories": metric_categories
+        }
+    )
 
 
 @app.post("/metrics/delete-multiple")

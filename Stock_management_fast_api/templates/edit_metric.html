@@ -1,24 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Kennzahl bearbeiten - {{ profile.name }}</title>
 </head>
 <body>
-<h1>Kennzahl bearbeiten</h1>
+<h1>Kennzahl bearbeiten für Branche: <strong>{{ profile.name }}</strong></h1>
 
-<form action="/metrics/update/{{ metric.id }}" method="post">
+<!-- Die URL enthält nun die Profile ID und die Metric ID -->
+<form action="/metrics/update/{{ profile.id }}/{{ metric.id }}" method="post">
 
-    <input type="text" name="name" value="{{ metric.name }}">
+    <h3>Stammdaten (Global)</h3>
+    <label>
+        Name:
+        <input type="text" name="name" value="{{ metric.name }}" required>
+    </label>
+    <br><br>
 
     <label>
-        Sollte steigen:
-        <input type="checkbox" name="should_rise" {% if metric.should_rise %}checked{% endif %}>
+        Einheit:
+        <input type="text" name="unit" value="{{ metric.unit }}" required>
     </label>
-
-    <input type="number" name="reference_value" value="{{ metric.reference_value }}">
-
-    <input type="text" name="unit" value="{{ metric.unit }}">
+    <br><br>
 
     <label>
         Kategorie:
@@ -30,12 +33,32 @@
         </select>
     </label>
 
+    <hr>
+    <h3>Branchenspezifische Werte (Nur {{ profile.name }})</h3>
+
     <label>
-        Ist Aktiv:
-        <input type="checkbox" name="is_active" {% if metric.is_active %}checked{% endif %}>
+        Sollte steigen:
+        <!-- Zugriff über 'config' Objekt -->
+        <input type="checkbox" name="should_rise" {% if config.should_rise %}checked{% endif %}>
+    </label>
+    <br><br>
+
+    <label>
+        Richtwert:
+        <!-- Zugriff über 'config' Objekt -->
+        <input type="number" name="reference_value" value="{{ config.reference_value }}">
+    </label>
+    <br><br>
+
+    <label>
+        Ist Aktiv in dieser Branche:
+        <!-- Zugriff über 'config' Objekt -->
+        <input type="checkbox" name="is_active" {% if config.is_active %}checked{% endif %}>
     </label>
 
-    <button type="submit">Save</button>
+    <br><br>
+    <button type="submit">Änderungen speichern</button>
+    <a href="/show-saved-financial-metrics?branch_profile_id={{ profile.id }}">Abbrechen</a>
 </form>
 </body>
 </html>

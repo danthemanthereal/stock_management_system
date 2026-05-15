@@ -159,7 +159,7 @@
                        {% if c.is_active %}checked{% endif %}>
             </td>
             <td>
-                <a href="/metrics/edit/{{ c.id }}">Bearbeiten</a>
+                <a href="/metrics/edit/{{ selected_branch_profile_id or 1 }}/{{ c.metric.id }}"> Bearbeiten </a>
             </td>
         </tr>
         {% endfor %}
