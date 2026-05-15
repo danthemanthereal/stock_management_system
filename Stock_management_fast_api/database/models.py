@@ -16,10 +16,7 @@ class FinancialMetric(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
-    should_rise = Column(Boolean, index=False)
-    reference_value = Column(Integer, index=False)
     unit = Column(String, index=False)
-    is_active = Column(Boolean, index=False, default=True)
     category_id = Column(Integer, ForeignKey("financial_metric_category.id"))
     category_rel = relationship("FinancialMetricCategory", back_populates="metrics")
     profile_configs = relationship("ProfileMetricConfiguration", back_populates="metric")
