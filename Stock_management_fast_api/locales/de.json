@@ -331,5 +331,6 @@
   "yield": "Rendite",
   "freeCashFlowToFirm": "Free Cashflow to Firm (FCFF)",
   "link_edit": "Kennzahl bearbeiten",
-  "btn_filter_all": "Alle Kennzahlen anzeigen"
+  "btn_filter_all": "Alle Kennzahlen anzeigen",
+  "should_rise": "Sollte Steigen"
 }

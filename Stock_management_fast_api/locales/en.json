@@ -331,5 +331,6 @@
   "yield": "Yield",
   "freeCashFlowToFirm": "Free Cash Flow to Firm (FCFF)",
   "link_edit": "",
-  "btn_filter_all": ""
+  "btn_filter_all": "",
+  "should_rise": ""
 }
