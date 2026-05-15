@@ -30,7 +30,7 @@
             background: #ffffff; padding: 1.5rem; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        h2, h3 { margin-top: 0; color: #222; }
+        h3 { margin-top: 0; color: #222; }
 
         /* Tabelle */
         table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; }
@@ -140,11 +140,10 @@
         </thead>
         {% for category_label, configs in metrics_by_category %}
         <tbody class="metric-category-group">
-            <tr class="category-header-row">
+            <tr class="category-heading-row">
                 <td colspan="7" class="category-header">{{ category_label }}</td>
             </tr>
             {% for c in configs %}
-            <!-- Das data-is-active Attribut liest den echten DB-Status aus -->
             <tr class="saved-metric-row" data-is-active="{{ 'true' if c.is_active else 'false' }}">
                 <td style="text-align: center;">
                     <input type="checkbox" name="delete_checkbox" value="{{ c.metric.id }}">
@@ -201,41 +200,52 @@
         this.appendChild(hiddenInput);
     });
 
-    // 2. Filter-Logik: Nur aktive Kennzahlen in der UI anzeigen/ausblenden
-    document.getElementById('toggle-active-metrics').addEventListener('click', function() {
-        const btn = this;
-        const isFiltering = btn.getAttribute('data-filtering') === 'true';
+    // 2. Zentrale Funktion zum Überprüfen und Filtern der Sichtbarkeit von Tabellenzeilen und Headern
+    function applyFilters() {
+        const btn = document.getElementById('toggle-active-metrics');
+        const isFilteringActiveOnly = btn.getAttribute('data-filtering') === 'true';
         const rows = document.querySelectorAll('.saved-metric-row');
         const groups = document.querySelectorAll('.metric-category-group');
 
-        // Zeilen filtern basierend auf dem 'data-is-active' Attribut
+        // Schritt A: Sichtbarkeit der einzelnen Daten-Zeilen bestimmen
         rows.forEach(row => {
             const isActive = row.getAttribute('data-is-active') === 'true';
-            if (!isFiltering && !isActive) {
-                row.style.display = 'none'; // Verbergen, wenn Filter aktiv wird und Zeile inaktiv ist
+            if (isFilteringActiveOnly && !isActive) {
+                row.style.display = 'none'; // Verbergen, wenn Filter aktiv und Zeile inaktiv ist
             } else {
-                row.style.display = ''; // Anzeigen
+                row.style.display = ''; // Normal anzeigen
             }
         });
 
-        // Kategorie-Überschriften ausblenden, wenn sie keine sichtbaren Zeilen mehr enthalten
+        // Schritt B: Ganze TBODY-Gruppen (inkl. Header) ausblenden, wenn sie keine sichtbaren Zeilen enthalten
         groups.forEach(group => {
             const headerRow = group.querySelector('.category-heading-row');
-            if (!isFiltering) {
-                // Prüfen, ob noch mindestens eine sichtbare Zeile existiert
-                const visibleRows = group.querySelectorAll('.saved-metric-row:not([style*="display: none"])');
-                if (visibleRows.length === 0 && headerRow) {
-                    headerRow.style.display = 'none';
-                }
-            } else if (headerRow) {
-                headerRow.style.display = '';
+            const visibleDataRows = group.querySelectorAll('.saved-metric-row:not([style*="display: none"])');
+
+            if (visibleDataRows.length === 0) {
+                // Wenn gar keine Zeile sichtbar ist (entweder weil die DB leer war oder durch den Filter), blende alles aus
+                group.style.display = 'none';
+            } else {
+                group.style.display = '';
+                if (headerRow) headerRow.style.display = '';
             }
         });
+    }
 
-        // Button-Zustand umkehren
+    // 3. Event-Listener für den Filter-Button
+    document.getElementById('toggle-active-metrics').addEventListener('click', function() {
+        const isFiltering = this.getAttribute('data-filtering') === 'true';
         const nextState = !isFiltering;
-        btn.setAttribute('data-filtering', nextState);
-        btn.textContent = nextState ? "Alle Kennzahlen anzeigen" : "Nur aktive Kennzahlen anzeigen";
+
+        this.setAttribute('data-filtering', nextState);
+        this.textContent = nextState ? "Alle Kennzahlen anzeigen" : "Nur aktive Kennzahlen anzeigen";
+
+        applyFilters();
+    });
+
+    // 4. Beim ersten Laden der Seite ausführen, um initial leere Kategorien direkt zu verstecken
+    document.addEventListener("DOMContentLoaded", function() {
+        applyFilters();
     });
 </script>
 

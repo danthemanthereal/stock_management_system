@@ -550,7 +550,9 @@ def show_saved_financial_metrics_page(
                 configs,
                 lambda x: x.metric.category_rel.name if x.metric.category_rel else "— keine —"
         ):
-            metrics_by_category.append((category_name, list(group)))
+            group_list = list(group)
+            if group_list:
+                metrics_by_category.append((category_name, group_list))
 
         return templates.TemplateResponse(
             request=request,
