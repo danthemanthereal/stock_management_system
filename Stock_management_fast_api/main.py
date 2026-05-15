@@ -29,18 +29,19 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 origins = [
-   "*"
+    "*"
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,  # oder ["*"] zum Testen
     allow_credentials=True,
-    allow_methods=["*"],     # wichtig für OPTIONS!
+    allow_methods=["*"],  # wichtig für OPTIONS!
     allow_headers=["*"],
 )
 
 templates = Jinja2Templates(directory="templates")
+
 
 def get_db():
     db = SessionLocal()
@@ -72,9 +73,8 @@ def metric_ids_for_branch_profile_from_form(form) -> List[int]:
     return sorted(found)
 
 
-
 def group_financial_metrics_by_category(
-    metrics: List[FinancialMetric],
+        metrics: List[FinancialMetric],
 ) -> List[Tuple[str, List[FinancialMetric]]]:
     try:
         groups: dict[str, List[FinancialMetric]] = defaultdict(list)
@@ -98,8 +98,8 @@ def group_financial_metrics_by_category(
 
 
 def group_financial_metrics_map_by_category(
-    financial_metrics_map: dict,
-    db: Session,
+        financial_metrics_map: dict,
+        db: Session,
 ) -> List[dict]:
     try:
         if not financial_metrics_map:
@@ -138,9 +138,10 @@ def group_financial_metrics_map_by_category(
     except Exception as e:
         return []
 
+
 def group_metric_names_by_category(
-    metric_names: List[str],
-    db: Session,
+        metric_names: List[str],
+        db: Session,
 ) -> List[Tuple[str, List[str]]]:
     try:
         if not metric_names:
@@ -169,9 +170,10 @@ def group_metric_names_by_category(
     except Exception as e:
         return []
 
+
 def build_category_pair_summary(
-    satisfied_by_category: List[Tuple[str, List[str]]],
-    unsatisfied_by_category: List[Tuple[str, List[str]]],
+        satisfied_by_category: List[Tuple[str, List[str]]],
+        unsatisfied_by_category: List[Tuple[str, List[str]]],
 ) -> List[dict]:
     try:
         sat_map = {label: len(names) for label, names in satisfied_by_category}
@@ -199,9 +201,9 @@ def build_category_pair_summary(
 
 
 def merge_financial_summary_triples(
-    combined: List[dict],
-    benchmark: List[dict],
-    development: List[dict],
+        combined: List[dict],
+        benchmark: List[dict],
+        development: List[dict],
 ) -> List[dict]:
     """Eine Zeile pro Kategorie mit allen drei Kennzahlen-Paaren + Prozent (von total)."""
 
@@ -250,8 +252,11 @@ class Company(BaseModel):
     strength: str
     weakness: str
 
+
 class DeleteCompaniesRequest(BaseModel):
     companies: List[str]
+
+
 @app.get("/")
 def read_root(request: Request):
     try:
@@ -266,6 +271,7 @@ def read_root(request: Request):
             name="error.html",
             context={"request": request},
         )
+
 
 @app.post("/get-summary", response_class=HTMLResponse)
 async def analyze(request: Request, url: str = Form(...)):
@@ -291,13 +297,15 @@ async def analyze(request: Request, url: str = Form(...)):
         )
 
 
-def extract_video_id_by_url(url: str) ->str:
+def extract_video_id_by_url(url: str) -> str:
     try:
         return extract.video_id(url)
     except Exception as e:
         return ""
+
+
 @app.post("/get-yt-transcript", response_class=HTMLResponse)
-def get_yt_transcript(request: Request, url : str = Form(...)):
+def get_yt_transcript(request: Request, url: str = Form(...)):
     try:
         video_id = extract_video_id_by_url(url)
         transcript = get_youtube_transcript_based_url(video_id)
@@ -327,14 +335,14 @@ async def receive_company(company: Company, db: Session = Depends(get_db)):
     db_company = db.query(models.StockSummary).filter_by(name=company.company_name).first()
 
     if db_company:
-         current_strengths = db_company.strength
-         current_weakness =  db_company.weakness
-         strengths, weaknesses = get_combination(current_strengths, current_weakness, company.strength, company.weakness)
-         db_company.strength = "\n".join(f"• {s}" for s in strengths)
-         db_company.weakness = "\n".join(f"• {w}" for w in weaknesses)
-         db.commit()
-         db.refresh(db_company)
-         return {"message": "Firma aktualisiert!", "id": db_company.id}
+        current_strengths = db_company.strength
+        current_weakness = db_company.weakness
+        strengths, weaknesses = get_combination(current_strengths, current_weakness, company.strength, company.weakness)
+        db_company.strength = "\n".join(f"• {s}" for s in strengths)
+        db_company.weakness = "\n".join(f"• {w}" for w in weaknesses)
+        db.commit()
+        db.refresh(db_company)
+        return {"message": "Firma aktualisiert!", "id": db_company.id}
 
     else:
         db_company = models.StockSummary(
@@ -347,10 +355,11 @@ async def receive_company(company: Company, db: Session = Depends(get_db)):
         db.refresh(db_company)
         return {"message": "Firma gespeichert!", "id": db_company.id}
 
+
 @app.get("/success", response_class=HTMLResponse)
 async def success_page(request: Request):
     return templates.TemplateResponse(
-         request=request,
+        request=request,
         name="success.html",
         context={"request": request}
     )
@@ -362,15 +371,16 @@ def show_companies(request: Request, db: Session = Depends(get_db)):
         companies = db.query(models.StockSummary).all()
 
         return templates.TemplateResponse(request=request,
-             name="saved_companies_overview.html",
-             context={"request": request, "companies": companies
-        })
+                                          name="saved_companies_overview.html",
+                                          context={"request": request, "companies": companies
+                                                   })
     except Exception as e:
         return templates.TemplateResponse(
             request=request,
             name="error.html",
             context={"request": request}
         )
+
 
 @app.post("/find-potential-stocks", response_class=HTMLResponse)
 def scrape_tradingview(request: Request):
@@ -384,14 +394,16 @@ def scrape_tradingview(request: Request):
                 "sector", "AnalystRating", "AnalystRating.tr"
             ],
             "filter": [
-                {"left": "close", "operation": "in_range", "right": [10, 100]}, # stock price filter
+                {"left": "close", "operation": "in_range", "right": [10, 100]},  # stock price filter
                 {"left": "AnalystRating", "operation": "in_range", "right": ["Buy", "StrongBuy"]},
-                {"left": "Perf.YTD", "operation": "greater", "right": 10}, # Performance of the year
-                {"left": "return_on_equity_fq", "operation": "in_range", "right": [20,30]},  # return on equity filter r
+                {"left": "Perf.YTD", "operation": "greater", "right": 10},  # Performance of the year
+                {"left": "return_on_equity_fq", "operation": "in_range", "right": [20, 30]},
+                # return on equity filter r
                 {"left": "sector", "operation": "in_range", "right": [""]},  # welche Sektroren betrachtet werden
-                {"left": "total_revenue_yoy_growth_ttm", "operation": "greater", "right": 10},  # Performance von umsatzwachstum
+                {"left": "total_revenue_yoy_growth_ttm", "operation": "greater", "right": 10},
+                # Performance von umsatzwachstum
             ],
-            "markets": ["america"], # filter für betrachtende länder
+            "markets": ["america"],  # filter für betrachtende länder
             "options": {"lang": "en"},
             "range": [0, 100],
             "sort": {"sortBy": "market_cap_basic", "sortOrder": "desc"}
@@ -426,7 +438,7 @@ def scrape_tradingview(request: Request):
         return templates.TemplateResponse(request=request,
                                           name="show-potential-stocks.html",
                                           context={"request": request, "stocks": potential_stocks
-        })
+                                                   })
     except Exception as e:
         return templates.TemplateResponse(
             request=request,
@@ -435,12 +447,13 @@ def scrape_tradingview(request: Request):
         )
 
 
-
 @app.post("/get-financial-metrics", response_class=HTMLResponse)
-def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str = Form(...), db: Session = Depends(get_db)):
+def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str = Form(...),
+                                                  db: Session = Depends(get_db)):
     try:
-        financial_metrics_map =  get_total_financial_metrics(db, company)
-        satisfied_metrics, unsatisfied_metrics, satisfied_benchmarks, unsatisfied_benchmarks, satisfied_development, unsatisfied_development = get_satisfied_and_not_satisfied_financial_metrics(financial_metrics_map, db)
+        financial_metrics_map = get_total_financial_metrics(db, company)
+        satisfied_metrics, unsatisfied_metrics, satisfied_benchmarks, unsatisfied_benchmarks, satisfied_development, unsatisfied_development = get_satisfied_and_not_satisfied_financial_metrics(
+            financial_metrics_map, db)
         years = ["2022", "2023", "2024", "2025"]
         data_by_category = group_financial_metrics_map_by_category(
             financial_metrics_map, db
@@ -504,177 +517,137 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
             context={"request": request}
         )
 
-@app.api_route("/show-saved-financial-metrics",methods=["GET", "POST"], response_class=HTMLResponse)
+
+@app.api_route("/show-saved-financial-metrics", methods=["GET", "POST"], response_class=HTMLResponse)
 def show_saved_financial_metrics_page(
-    request: Request,
-    db: Session = Depends(get_db),
+        request: Request,
+        branch_profile_id: Optional[int] = Form(None),
+        db: Session = Depends(get_db)
 ):
     try:
+        # ID aus Query (GET) oder Form (POST) bestimmen
+        selected_id = branch_profile_id
+        if request.method == "GET":
+            query_id = request.query_params.get("branch_profile_id")
+            selected_id = int(query_id) if query_id else 1
+
+        if not selected_id:
+            selected_id = 1
+
         branch_profiles = db.query(IndustryProfile).all()
-        selected_branch_id = 1
 
         configs = (
             db.query(ProfileMetricConfiguration)
             .join(FinancialMetric)
             .outerjoin(FinancialMetricCategory, FinancialMetric.category_id == FinancialMetricCategory.id)
-            .filter(ProfileMetricConfiguration.profile_id == selected_branch_id)
+            .filter(ProfileMetricConfiguration.profile_id == selected_id)
             .order_by(FinancialMetricCategory.name)
             .all()
         )
 
         metrics_by_category = []
-        for category_name, group in groupby(configs,
-                                            lambda x: x.metric.category_rel.name if x.metric.category_rel else "— keine —"):
+        for category_name, group in groupby(
+                configs,
+                lambda x: x.metric.category_rel.name if x.metric.category_rel else "— keine —"
+        ):
             metrics_by_category.append((category_name, list(group)))
 
         return templates.TemplateResponse(
             request=request,
-            name="show_saved_financial_metrics.html",
-            context={
-            "request": request,
-            "branch_profiles": branch_profiles,
-            "selected_branch_profile_id": selected_branch_id,
-            "metrics_by_category": metrics_by_category,
-            "displayed_metrics_count": len(configs)
-        })
 
-    except Exception as e:
-        print(e)
-        return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={"request": request},
+            name="show_saved_financial_metrics.html",
+            context=
+            {
+                "request": request,
+                "branch_profiles": branch_profiles,
+                "selected_branch_profile_id": selected_id,
+                "metrics_by_category": metrics_by_category,
+                "displayed_metrics_count": len(configs)
+            }
         )
+    except Exception as e:
+        print(f"Error: {e}")
+        return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
 
 
 @app.post("/metrics/create", response_class=HTMLResponse)
 def create_metric(
-        request: Request,
+        selected_branch_id: int = Form(1),
         name: str = Form(...),
         unit: str = Form(...),
         reference_value: int = Form(...),
         should_rise: bool = Form(False),
         category_id: str = Form(""),
-        selected_branch_id: Optional[int] = Form(None),
-        db: Session = Depends(get_db),
+        db: Session = Depends(get_db)
 ):
-    try:
-        new_metric = FinancialMetric(
-            name=name,
-            unit=unit
-        )
+    new_metric = FinancialMetric(
+        name=name, unit=unit
+    )
+    if category_id.strip():
+        new_metric.category_id = int(category_id)
 
-        raw_cid = category_id.strip() if category_id else ""
-        if raw_cid:
-            new_metric.category_id = int(raw_cid)
+    db.add(new_metric)
+    db.flush()
 
-        db.add(new_metric)
-        db.flush()
+    new_config = ProfileMetricConfiguration(
+        profile_id=selected_branch_id,
+        metric_id=new_metric.id,
+        should_rise=should_rise,
+        reference_value=reference_value,
+        is_active=True
+    )
+    db.add(new_config)
+    db.commit()
+    return RedirectResponse(url=f"/show-saved-financial-metrics?branch_profile_id={selected_branch_id}",
+                            status_code=303)
 
-        target_branch_id = selected_branch_id if selected_branch_id else 1
-
-        new_config = ProfileMetricConfiguration(
-            profile_id=target_branch_id,
-            metric_id=new_metric.id,
-            should_rise=should_rise,
-            reference_value=reference_value,
-            is_active=True
-        )
-
-        db.add(new_config)
-        db.commit()
-
-        return RedirectResponse(
-            url=f"/show-saved-financial-metrics?branch_profile_id={target_branch_id}",
-            status_code=303
-        )
-
-    except Exception as e:
-        db.rollback()
-        print(f"Fehler beim Erstellen: {e}")
-        return templates.TemplateResponse("error.html", {"request": request})
 
 @app.post("/metrics/branch-profiles/create", response_class=HTMLResponse)
 async def create_branch_profile(
-request: Request,
-    branch_profile_name: str = Form(...),
-    profile_selected_metric_ids: str = Form(""),
-    db: Session = Depends(get_db)
-    ):
-    try:
-        new_profile = IndustryProfile(name=branch_profile_name)
-        db.add(new_profile)
-        db.flush()
+        branch_profile_name: str = Form(...),
+        metric_ids: str = Form(""),
+        db: Session = Depends(get_db)
+):
+    new_profile = IndustryProfile(name=branch_profile_name)
+    db.add(new_profile)
+    db.flush()
 
-        if profile_selected_metric_ids:
-            metric_id_list = [int(m_id) for m_id in profile_selected_metric_ids.split(",") if m_id.strip()]
-
-            for m_id in metric_id_list:
-                base_metric = db.query(FinancialMetric).filter(FinancialMetric.id == m_id).first()
-
-                if base_metric:
-                    new_config = ProfileMetricConfiguration(
-                        profile_id=new_profile.id,
-                        metric_id=m_id,
-                        is_active=True
-                    )
-                    db.add(new_config)
-
-        db.commit()
-
-        return RedirectResponse(
-            url=f"/show-saved-financial-metrics?branch_profile_id={new_profile.id}",
-            status_code=303
-        )
-
-    except Exception as e:
-        db.rollback()
-        print(f"Fehler beim Erstellen des Profils: {e}")
-        return templates.TemplateResponse("error.html", {"request": request})
+    if metric_ids:
+        id_list = [int(m_id) for m_id in metric_ids.split(",") if m_id.strip()]
+        for m_id in id_list:
+            base = db.query(FinancialMetric).filter(FinancialMetric.id == m_id).first()
+            if base:
+                db.add(ProfileMetricConfiguration(
+                    profile_id=new_profile.id, metric_id=m_id,
+                    should_rise=base.default_should_rise,
+                    reference_value=base.default_reference_value, is_active=True
+                ))
+    db.commit()
+    return RedirectResponse(url=f"/show-saved-financial-metrics?branch_profile_id={new_profile.id}", status_code=303)
 
 
 @app.post("/metrics/branch-profiles/{profile_id}/delete", response_class=HTMLResponse)
 def delete_branch_profile(
         profile_id: int,
-        request: Request,
         db: Session = Depends(get_db),
 ):
-    try:
-        if profile_id == 1:
-            return RedirectResponse(url="/show-saved-financial-metrics?error=master_protected", status_code=303)
-
-
-        profile = db.query(IndustryProfile).filter(IndustryProfile.id == profile_id).first()
-
-        if profile:
-            db.delete(profile)
-            db.commit()
-
-        return RedirectResponse(
-            url="/show-saved-financial-metrics?branch_profile_id=1",
-            status_code=303
-        )
-
-    except Exception as e:
-        db.rollback()
-        print(f"Fehler beim Löschen des Profils: {e}")
-        return templates.TemplateResponse(
-            "error.html",
-            {"request": request}
-        )
+    if profile_id != 1:
+        db.query(IndustryProfile).filter(IndustryProfile.id == profile_id).delete()
+        db.commit()
+    return RedirectResponse(url="/show-saved-financial-metrics?branch_profile_id=1", status_code=303)
 
 
 @app.post("/metrics/update/{profile_id}/{metric_id}")
 def update_metric(
-    profile_id: int,
-    metric_id: int,
-    name: str = Form(...),
-    unit: str = Form(...),
-    category_id: str = Form(""),
-    should_rise: bool = Form(False),
-    reference_value: int = Form(0),
-    is_active: bool = Form(False),
-    db: Session = Depends(get_db)
+        profile_id: int,
+        metric_id: int,
+        name: str = Form(...),
+        unit: str = Form(...),
+        category_id: str = Form(""),
+        should_rise: bool = Form(False),
+        reference_value: int = Form(0),
+        is_active: bool = Form(False),
+        db: Session = Depends(get_db)
 ):
     metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
     metric.name = name
@@ -701,6 +674,7 @@ def update_metric(
         status_code=303
     )
 
+
 @app.get("/metrics/edit/{profile_id}/{metric_id}", response_class=HTMLResponse)
 def edit_metric_page(
         request: Request,
@@ -716,7 +690,6 @@ def edit_metric_page(
         ProfileMetricConfiguration.profile_id == profile_id,
         ProfileMetricConfiguration.metric_id == metric_id
     ).first()
-
 
     if not config:
         config = ProfileMetricConfiguration(
@@ -744,50 +717,35 @@ def edit_metric_page(
 
 @app.post("/metrics/delete-multiple")
 def delete_metrics(
-    request: Request,
-    metric_ids: str = Form(...),
-    selected_branch_id: int = Form(1),
-    db: Session = Depends(get_db)
+        metric_ids: str = Form(...),
+        selected_branch_id: int = Form(1),
+        db: Session = Depends(get_db)
 ):
-    try:
+    id_list = [int(i) for i in metric_ids.split(",") if i.strip()]
+    if selected_branch_id == 1:
+        db.query(FinancialMetric).filter(FinancialMetric.id.in_(id_list)).delete(synchronize_session=False)
+    else:
+        db.query(ProfileMetricConfiguration).filter(
+            ProfileMetricConfiguration.profile_id == selected_branch_id,
+            ProfileMetricConfiguration.metric_id.in_(id_list)
+        ).delete(synchronize_session=False)
+    db.commit()
+    return RedirectResponse(url=f"/show-saved-financial-metrics?branch_profile_id={selected_branch_id}",
+                            status_code=303)
 
-        if isinstance(metric_ids, str):
-            id_list = [int(i) for i in metric_ids.split(",") if i.strip()]
-        else:
-            id_list = metric_ids
 
-        if selected_branch_id == 1:
-
-            db.query(FinancialMetric).filter(FinancialMetric.id.in_(id_list)).delete(synchronize_session=False)
-        else:
-
-            db.query(ProfileMetricConfiguration).filter(
-                ProfileMetricConfiguration.profile_id == selected_branch_id,
-                ProfileMetricConfiguration.metric_id.in_(id_list)
-            ).delete(synchronize_session=False)
-
-        db.commit()
-
-        return RedirectResponse(
-            url=f"/show-saved-financial-metrics?branch_profile_id={selected_branch_id}",
-            status_code=303
-        )
-    except Exception as e:
-        db.rollback()
-        print(f"Fehler beim Löschen: {e}")
-        return templates.TemplateResponse("error.html", {"request": request})
 @app.post("/delete-saved-companies", response_class=HTMLResponse)
 def delete_saved_companies(
         request: Request,
-    data: DeleteCompaniesRequest,
-    db: Session = Depends(get_db)
+        data: DeleteCompaniesRequest,
+        db: Session = Depends(get_db)
 ):
     try:
         if not data.companies:
             return {"message": "Keine Companies übergeben", "deleted": 0}
 
-        db.query(models.StockSummary)\
-            .filter(models.StockSummary.name.in_(data.companies))\
+        db.query(models.StockSummary) \
+            .filter(models.StockSummary.name.in_(data.companies)) \
             .delete(synchronize_session=False)
 
         db.commit()
