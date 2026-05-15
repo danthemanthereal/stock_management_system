@@ -633,27 +633,34 @@ request: Request,
         return templates.TemplateResponse("error.html", {"request": request})
 
 
-
 @app.post("/metrics/branch-profiles/{profile_id}/delete", response_class=HTMLResponse)
 def delete_branch_profile(
-    profile_id: int,
-    request: Request,
-    db: Session = Depends(get_db),
+        profile_id: int,
+        request: Request,
+        db: Session = Depends(get_db),
 ):
     try:
+        if profile_id == 1:
+            return RedirectResponse(url="/show-saved-financial-metrics?error=master_protected", status_code=303)
 
-        # TODO
-        return templates.TemplateResponse(
-            request=request,
-            name="show_saved_financial_metrics.html",
-            context={"request": request, },
+
+        profile = db.query(IndustryProfile).filter(IndustryProfile.id == profile_id).first()
+
+        if profile:
+            db.delete(profile)
+            db.commit()
+
+        return RedirectResponse(
+            url="/show-saved-financial-metrics?branch_profile_id=1",
+            status_code=303
         )
+
     except Exception as e:
         db.rollback()
+        print(f"Fehler beim Löschen des Profils: {e}")
         return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={"request": request},
+            "error.html",
+            {"request": request}
         )
 
 
