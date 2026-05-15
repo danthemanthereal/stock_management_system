@@ -546,44 +546,53 @@ def show_saved_financial_metrics_page(
             context={"request": request},
         )
 
+
 @app.post("/metrics/create", response_class=HTMLResponse)
 def create_metric(
-    request: Request,
-    name: str = Form(...),
-    should_rise: bool = Form(False),
-    reference_value: int = Form(...),
-    unit: str = Form(...),
-    category_id: str = Form(""),
-    db: Session = Depends(get_db),
+        request: Request,
+        name: str = Form(...),
+        unit: str = Form(...),
+        reference_value: int = Form(...),
+        should_rise: bool = Form(False),
+        category_id: str = Form(""),
+        selected_branch_id: Optional[int] = Form(None),
+        db: Session = Depends(get_db),
 ):
     try:
-        metric = FinancialMetric(
+        new_metric = FinancialMetric(
             name=name,
-            should_rise=should_rise,
-            reference_value=reference_value,
-            unit=unit,
+            unit=unit
         )
+
         raw_cid = category_id.strip() if category_id else ""
         if raw_cid:
-            metric.category_id = int(raw_cid)
+            new_metric.category_id = int(raw_cid)
 
-        db.add(metric)
+        db.add(new_metric)
+        db.flush()
+
+        target_branch_id = selected_branch_id if selected_branch_id else 1
+
+        new_config = ProfileMetricConfiguration(
+            profile_id=target_branch_id,
+            metric_id=new_metric.id,
+            should_rise=should_rise,
+            reference_value=reference_value,
+            is_active=True
+        )
+
+        db.add(new_config)
         db.commit()
-        db.refresh(metric)
 
-        # TODO
-        return templates.TemplateResponse(
-            request=request,
-            name="show_saved_financial_metrics.html",
-            context={"request": request, },
+        return RedirectResponse(
+            url=f"/show-saved-financial-metrics?branch_profile_id={target_branch_id}",
+            status_code=303
         )
+
     except Exception as e:
-        return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={"request": request}
-        )
-
+        db.rollback()
+        print(f"Fehler beim Erstellen: {e}")
+        return templates.TemplateResponse("error.html", {"request": request})
 
 @app.post("/metrics/branch-profiles/create", response_class=HTMLResponse)
 async def create_branch_profile(request: Request, db: Session = Depends(get_db)):
