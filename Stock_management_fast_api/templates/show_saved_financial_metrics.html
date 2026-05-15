@@ -2,43 +2,59 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Gespeicherte Kennzahlen</title>
+    <title>Kennzahlen Management</title>
     <style>
+        body { font-family: sans-serif; line-height: 1.5; color: #333; max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        /* Branchen-Leiste */
         .branch-profile-bar {
             display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
-            margin-bottom: 1rem; padding: 0.75rem; background: #f5f5f5; border-radius: 6px;
+            margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; border: 1px solid #e0e0e0;
         }
         .profile-btn {
-            padding: 5px 10px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 4px;
+            padding: 8px 16px; cursor: pointer; border: 1px solid #ccc; background: white; border-radius: 4px; transition: all 0.2s;
         }
-        /* Deutliche Markierung der aktiven Industrie */
+        .profile-btn:hover { background: #eee; }
+
+        /* Hervorhebung der aktuellen Industrie */
         .profile-active {
             background-color: #007bff !important;
             color: white !important;
             border-color: #0056b3 !important;
             font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .delete-profile-btn {
-            background: #ff4d4d; color: white; border: none; border-radius: 50%;
-            width: 20px; height: 20px; cursor: pointer; line-height: 1; margin-left: -5px;
+
+        /* Formular-Bereiche */
+        .action-box {
+            background: #ffffff; padding: 1.5rem; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-        .metric-category-group th { text-align:left; background:#eee; padding: 8px; }
-        .save-profile-row { display: flex; align-items: center; gap: 0.5rem; margin: 1rem 0; }
+
+        h2, h3 { margin-top: 0; color: #222; }
+
+        /* Tabelle */
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        thead th { background: #f4f4f4; position: sticky; top: 0; }
+        .category-header { background: #f0f0f0; font-weight: bold; font-size: 1.1em; }
+        tr:hover { background-color: #fafafa; }
+
+        /* Buttons */
+        .btn-primary { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        .btn-danger { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        .btn-secondary { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+
+        input[type="text"], input[type="number"], select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<h1>Gespeicherte Kennzahlen</h1>
+<h1>Finanz-Kennzahlen System</h1>
 
-<!-- Info-Zeile -->
-<p id="metrics-count-row" data-total-metrics="{{ displayed_metrics_count }}">
-    Branche: <strong>{{ branch_profiles|selectattr("id", "equalto", selected_branch_profile_id)|map(attribute="name")|first or "Alle" }}</strong> |
-    Anzeige: <strong id="displayed-metrics-count">{{ displayed_metrics_count }}</strong> Kennzahl(en).
-</p>
+<!-- 1. Branchen-Auswahl -->
+<div class="branch-profile-bar" role="toolbar">
+    <span style="font-weight: bold; margin-right: 0.5rem;">Gewählte Branche:</span>
 
-<!-- Branchen Auswahl-Bar -->
-<div class="branch-profile-bar">
-    <span>Branche:</span>
     <form action="/show-saved-financial-metrics" method="post">
         <input type="hidden" name="branch_profile_id" value="1">
         <button type="submit" class="profile-btn {% if selected_branch_profile_id == 1 %}profile-active{% endif %}">
@@ -48,76 +64,92 @@
 
     {% for p in branch_profiles %}
         {% if p.id != 1 %}
-        <div style="display: flex; align-items: center; gap: 2px;">
-            <form action="/show-saved-financial-metrics" method="post">
-                <input type="hidden" name="branch_profile_id" value="{{ p.id }}">
-                <button type="submit" class="profile-btn {% if selected_branch_profile_id == p.id %}profile-active{% endif %}">
-                    {{ p.name }}
-                </button>
-            </form>
-            <form action="/metrics/branch-profiles/{{ p.id }}/delete" method="post" onsubmit="return confirm('Löschen?');">
-                <button type="submit" class="delete-profile-btn" title="Profil löschen">×</button>
-            </form>
-        </div>
+        <form action="/show-saved-financial-metrics" method="post">
+            <input type="hidden" name="branch_profile_id" value="{{ p.id }}">
+            <button type="submit" class="profile-btn {% if selected_branch_profile_id == p.id %}profile-active{% endif %}">
+                {{ p.name }}
+            </button>
+        </form>
         {% endif %}
     {% endfor %}
 </div>
 
-<button type="button" id="toggle-active-metrics">Nur aktive Kennzahlen</button>
+<!-- 2. Neue Kennzahl hinzufügen -->
+<div class="action-box">
+    <h3>Neue Kennzahl in dieser Ansicht erstellen</h3>
+    <form action="/metrics/create" method="post" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+        <input type="hidden" name="selected_branch_id" value="{{ selected_branch_profile_id }}">
 
-<hr>
+        <input type="text" name="name" placeholder="Name der Kennzahl" required>
+        <input type="text" name="unit" placeholder="Einheit (z.B. %)" required style="width: 80px;">
+        <input type="number" name="reference_value" placeholder="Richtwert" required style="width: 100px;">
 
-<!-- Kennzahl Erstellen -->
-<h3>Neue Kennzahl in dieser Branche anlegen</h3>
-<form action="/metrics/create" method="post">
+        <select name="category_id">
+            <option value="">— Kategorie wählen —</option>
+            {% for cat in metric_categories %}
+                <option value="{{ cat.id }}">{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label style="font-size: 0.9em;">
+            <input type="checkbox" name="should_rise"> Sollte steigen?
+        </label>
+
+        <button type="submit" class="btn-primary">Hinzufügen</button>
+    </form>
+</div>
+
+<!-- 3. Haupt-Tabelle mit Aktionen -->
+<form action="/metrics/delete-multiple" method="post" id="main-metrics-form">
     <input type="hidden" name="selected_branch_id" value="{{ selected_branch_profile_id }}">
-    <input type="text" name="name" placeholder="Name" required>
-    <input type="number" name="reference_value" placeholder="Richtwert" required>
-    <input type="text" name="unit" placeholder="Einheit" required>
-    <select name="category_id">
-        <option value="">— Kategorie —</option>
-        {% for c in metric_categories %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
-    </select>
-    <label><input type="checkbox" name="should_rise"> Soll steigen</label>
-    <button type="submit">Hinzufügen</button>
-</form>
 
-<hr>
-
-<!-- Tabelle und Profil-Erstellung -->
-<form action="/metrics/delete-multiple" method="post" id="saved-metrics-form">
-    <input type="hidden" name="selected_branch_id" value="{{ selected_branch_profile_id }}">
-
-    <div class="save-profile-row">
-        <input type="text" name="branch_profile_name" placeholder="Name für neues Profil...">
-        <button type="submit" formaction="/metrics/branch-profiles/create">Als neues Profil speichern</button>
+    <div class="action-box" style="border-left: 5px solid #007bff;">
+        <h3 style="color: #007bff;">Aktionen für Auswahl</h3>
+        <p style="font-size: 0.9em; color: #666;">
+            Wähle links Kennzahlen zum <strong>Löschen</strong> oder setze rechts Haken bei <strong>Aktiv</strong>, um ein neues Profil zu speichern.
+        </p>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <input type="text" name="branch_profile_name" placeholder="Name für neues Branchenprofil..." style="flex-grow: 1;">
+            <button type="submit" formaction="/metrics/branch-profiles/create" class="btn-secondary">
+                Als neues Branchenprofil speichern
+            </button>
+            <button type="submit" class="btn-danger" onclick="return confirm('Ausgewählte Kennzahlen wirklich löschen?')">
+                Markierte löschen
+            </button>
+        </div>
     </div>
 
-    <table border="1" style="width:100%; border-collapse: collapse;">
+    <table>
         <thead>
             <tr>
-                <th>Auswahl</th>
-                <th>Name</th>
-                <th>Soll steigen</th>
+                <th style="width: 40px;">Löschen</th>
+                <th>Kennzahl</th>
                 <th>Richtwert</th>
                 <th>Einheit</th>
                 <th>Kategorie</th>
-                <th>Aktiv</th>
+                <th style="text-align: center;">Ist Aktiv (für neues Profil)</th>
                 <th>Aktion</th>
             </tr>
         </thead>
         {% for category_label, configs in metrics_by_category %}
-        <tbody class="metric-category-group">
-            <tr><th colspan="8">{{ category_label }}</th></tr>
+        <tbody>
+            <tr class="category-header">
+                <td colspan="7">{{ category_label }}</td>
+            </tr>
             {% for c in configs %}
-            <tr class="saved-metric-row" data-is-active="{{ 'true' if c.is_active else 'false' }}">
-                <td><input type="checkbox" name="metric_ids" value="{{ c.metric.id }}"></td>
-                <td>{{ c.metric.name }}</td>
-                <td>{{ "Ja" if c.should_rise else "Nein" }}</td>
+            <tr>
+                <td style="text-align: center;">
+                    <input type="checkbox" name="delete_checkbox" value="{{ c.metric.id }}">
+                </td>
+                <td><strong>{{ c.metric.name }}</strong></td>
                 <td>{{ c.reference_value }}</td>
                 <td>{{ c.metric.unit }}</td>
                 <td>{{ category_label }}</td>
-                <td>{{ "✅" if c.is_active else "❌" }}</td>
+                <td style="text-align: center;">
+                    <!-- Diese Checkbox steuert, was in das neue Profil übernommen wird -->
+                    <input type="checkbox" name="active_status_checkbox" value="{{ c.metric.id }}"
+                           {% if c.is_active %}checked{% endif %}>
+                </td>
                 <td>
                     <a href="/metrics/edit/{{ selected_branch_profile_id }}/{{ c.metric.id }}">Bearbeiten</a>
                 </td>
@@ -126,37 +158,45 @@
         </tbody>
         {% endfor %}
     </table>
-
-    <p>
-        <button type="submit" onclick="return confirm('Ausgewählte löschen?')">Ausgewählte löschen</button>
-    </p>
 </form>
 
 <script>
-    // JS für Checkbox-Sammlung
-    document.getElementById('saved-metrics-form').addEventListener('formdata', function (ev) {
-        var ids = [];
-        this.querySelectorAll('input[name="metric_ids"]:checked').forEach(function (el) {
-            ids.push(el.value);
-        });
-        ev.formData.set('metric_ids', ids.join(','));
-    });
+    // Logik zum Sammeln der IDs je nach Button-Klick
+    document.getElementById('main-metrics-form').addEventListener('submit', function(e) {
+        // Welcher Button wurde gedrückt?
+        const action = e.submitter.getAttribute('formaction');
+        const isCreateProfile = action && action.includes('/branch-profiles/create');
 
-    // JS für Filter "Nur Aktive"
-    document.getElementById('toggle-active-metrics').addEventListener('click', function() {
-        var rows = document.querySelectorAll('.saved-metric-row');
-        var btn = this;
-        var isFiltering = btn.getAttribute('data-filtering') === 'true';
+        const ids = [];
 
-        rows.forEach(row => {
-            if (!isFiltering && row.getAttribute('data-is-active') !== 'true') {
-                row.style.display = 'none';
-            } else {
-                row.style.display = '';
+        if (isCreateProfile) {
+            // Falls "Profil speichern": Sammele alle IDs aus der Spalte "Ist Aktiv"
+            const activeCheckboxes = document.querySelectorAll('input[name="active_status_checkbox"]:checked');
+            activeCheckboxes.forEach(cb => ids.push(cb.value));
+
+            if (ids.length === 0) {
+                alert("Bitte wähle mindestens eine Kennzahl als 'Aktiv' aus!");
+                e.preventDefault();
+                return;
             }
-        });
-        btn.setAttribute('data-filtering', !isFiltering);
-        btn.textContent = !isFiltering ? "Alle anzeigen" : "Nur aktive Kennzahlen";
+        } else {
+            // Falls "Löschen": Sammele alle IDs aus der linken "Löschen" Spalte
+            const deleteCheckboxes = document.querySelectorAll('input[name="delete_checkbox"]:checked');
+            deleteCheckboxes.forEach(cb => ids.push(cb.value));
+
+            if (ids.length === 0) {
+                alert("Bitte markiere zuerst Kennzahlen in der linken Spalte zum Löschen.");
+                e.preventDefault();
+                return;
+            }
+        }
+
+        // Verstecktes Feld für den Versand der IDs als Komma-String hinzufügen
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'metric_ids';
+        hiddenInput.value = ids.join(',');
+        this.appendChild(hiddenInput);
     });
 </script>
 

@@ -604,27 +604,40 @@ def create_metric(
 
 @app.post("/metrics/branch-profiles/create", response_class=HTMLResponse)
 async def create_branch_profile(
+        request: Request,
         branch_profile_name: str = Form(...),
         metric_ids: str = Form(""),
         db: Session = Depends(get_db)
 ):
-    new_profile = IndustryProfile(name=branch_profile_name)
-    db.add(new_profile)
-    db.flush()
+    try:
 
-    if metric_ids:
-        id_list = [int(m_id) for m_id in metric_ids.split(",") if m_id.strip()]
-        for m_id in id_list:
-            base = db.query(FinancialMetric).filter(FinancialMetric.id == m_id).first()
-            if base:
-                db.add(ProfileMetricConfiguration(
-                    profile_id=new_profile.id, metric_id=m_id,
-                    should_rise=base.default_should_rise,
-                    reference_value=base.default_reference_value, is_active=True
-                ))
-    db.commit()
-    return RedirectResponse(url=f"/show-saved-financial-metrics?branch_profile_id={new_profile.id}", status_code=303)
+        new_profile = IndustryProfile(name=branch_profile_name)
+        db.add(new_profile)
+        db.flush()
 
+        if metric_ids:
+            id_list = [int(m_id) for m_id in metric_ids.split(",") if m_id.strip()]
+
+            for m_id in id_list:
+                base_metric = db.query(FinancialMetric).filter(FinancialMetric.id == m_id).first()
+                if base_metric:
+                    new_config = ProfileMetricConfiguration(
+                        profile_id=new_profile.id,
+                        metric_id=m_id,
+                        is_active=True
+                    )
+                    db.add(new_config)
+
+        db.commit()
+
+        return RedirectResponse(
+            url=f"/show-saved-financial-metrics?branch_profile_id={new_profile.id}",
+            status_code=303
+        )
+    except Exception as e:
+        db.rollback()
+        print(f"Fehler: {e}")
+        return templates.TemplateResponse(request=request , name="error.html",context= {"request": request})
 
 @app.post("/metrics/branch-profiles/{profile_id}/delete", response_class=HTMLResponse)
 def delete_branch_profile(
