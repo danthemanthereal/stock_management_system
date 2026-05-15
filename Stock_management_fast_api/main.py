@@ -7,7 +7,7 @@ from typing import List, Tuple, Optional
 from combining_stock_infos_llm.combine_stock import get_combination
 from financial_metric_evaluator_component.financial_metric_evaluator import \
     get_satisfied_and_not_satisfied_financial_metrics
-from database.models import FinancialMetric
+from database.models import FinancialMetric, IndustryProfile, ProfileMetricConfiguration, FinancialMetricCategory
 from financial_metric_component.financial_metric import get_total_financial_metrics
 from database.db import engine, SessionLocal
 from sqlalchemy.orm import Session, joinedload
@@ -22,6 +22,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 from pytube import extract
+from itertools import groupby
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -50,7 +51,6 @@ def get_db():
 
 
 def metric_ids_for_branch_profile_from_form(form) -> List[int]:
-    """Auswahl-Spalte metric_ids, per JS gesetztes profile_selected_metric_ids, oder Fallback is_active_<id>."""
     hidden = form.get("profile_selected_metric_ids")
     if hidden is not None and str(hidden).strip():
         parts = [x.strip() for x in str(hidden).split(",") if x.strip()]
@@ -508,15 +508,36 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
 def show_saved_financial_metrics_page(
     request: Request,
     db: Session = Depends(get_db),
-    branch_profile_id: Optional[int] = Form(None),
 ):
     try:
-        # TODO
+        branch_profiles = db.query(IndustryProfile).all()
+        selected_branch_id = 1
+
+        configs = (
+            db.query(ProfileMetricConfiguration)
+            .join(FinancialMetric)
+            .outerjoin(FinancialMetricCategory, FinancialMetric.category_id == FinancialMetricCategory.id)
+            .filter(ProfileMetricConfiguration.profile_id == selected_branch_id)
+            .order_by(FinancialMetricCategory.name)
+            .all()
+        )
+
+        metrics_by_category = []
+        for category_name, group in groupby(configs,
+                                            lambda x: x.metric.category_rel.name if x.metric.category_rel else "— keine —"):
+            metrics_by_category.append((category_name, list(group)))
+
         return templates.TemplateResponse(
             request=request,
             name="show_saved_financial_metrics.html",
-            context={"request": request, },
-        )
+            context={
+            "request": request,
+            "branch_profiles": branch_profiles,
+            "selected_branch_profile_id": selected_branch_id,
+            "metrics_by_category": metrics_by_category,
+            "displayed_metrics_count": len(configs)
+        })
+
     except Exception as e:
         print(e)
         return templates.TemplateResponse(

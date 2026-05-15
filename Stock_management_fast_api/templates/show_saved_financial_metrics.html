@@ -14,17 +14,21 @@
             background: #f5f5f5;
             border-radius: 6px;
         }
+
         .branch-profile-bar form {
             display: inline;
             margin: 0;
         }
+
         .branch-profile-bar button {
             cursor: pointer;
         }
+
         .branch-profile-bar .profile-active {
             font-weight: bold;
             box-shadow: inset 0 0 0 2px #333;
         }
+
         .save-profile-row {
             display: flex;
             flex-wrap: wrap;
@@ -39,7 +43,8 @@
 
 <p id="metrics-count-row" data-total-metrics="{{ displayed_metrics_count }}" style="margin:0.5rem 0 1rem;">
     Es werden <strong id="displayed-metrics-count">{{ displayed_metrics_count }}</strong>
-    <span id="metrics-count-word">{% if displayed_metrics_count == 1 %}Kennzahl{% else %}Kennzahlen{% endif %}</span> angezeigt.
+    <span id="metrics-count-word">{% if displayed_metrics_count == 1 %}Kennzahl{% else %}Kennzahlen{% endif %}</span>
+    angezeigt.
 </p>
 
 <div class="branch-profile-bar" role="toolbar" aria-label="Branchenprofile">
@@ -127,28 +132,34 @@
             <th>Actions</th>
         </tr>
         </thead>
-        {% for category_label, category_metrics in metrics_by_category %}
+        {% for category_label, configs in metrics_by_category %}
         <tbody class="metric-category-group">
         <tr class="category-heading-row">
             <th colspan="8" style="text-align:left;background:#eee;">{{ category_label }}</th>
         </tr>
-        {% for m in category_metrics %}
-        <tr class="saved-metric-row" data-is-active="{{ 'true' if m.is_active else 'false' }}">
+        {% for c in configs %}
+        <tr class="saved-metric-row" data-is-active="{{ 'true' if c.is_active else 'false' }}">
             <td>
-                <input type="checkbox" name="metric_ids" value="{{ m.id }}">
+                <input type="checkbox" name="metric_ids" value="{{ c.metric.id }}">
             </td>
-            <td>{{ m.name }}</td>
-            <td>{{ m.should_rise }}</td>
-            <td>{{ m.reference_value }}</td>
-            <td>{{ m.unit }}</td>
-            <td>{{ m.category_name or "—" }}</td>
+            <!-- Name kommt aus der Stammdaten-Tabelle -->
+            <td>{{ c.metric.name }}</td>
+
+            <!-- Diese Werte kommen aus der Branchen-Hilfstabelle -->
+            <td>{{ c.should_rise }}</td>
+            <td>{{ c.reference_value }}</td>
+
+            <!-- Einheit kommt wieder aus der Stammdaten-Tabelle -->
+            <td>{{ c.metric.unit }}</td>
+
+            <td>{{ category_label }}</td>
             <td>
                 <input type="checkbox"
-                       name="is_active_{{ m.id }}"
-                       {% if m.is_active %}checked{% endif %}>
+                       name="is_active_{{ c.id }}"
+                       {% if c.is_active %}checked{% endif %}>
             </td>
             <td>
-                <a href="/metrics/edit/{{ m.id }}">Bearbeiten</a>
+                <a href="/metrics/edit/{{ c.id }}">Bearbeiten</a>
             </td>
         </tr>
         {% endfor %}
@@ -165,92 +176,92 @@
 </form>
 
 <script>
-(function () {
-    var metricsForm = document.getElementById('saved-metrics-form');
-    var saveProfileBtn = document.getElementById('btn-save-branch-profile');
-    if (!metricsForm) return;
+    (function () {
+        var metricsForm = document.getElementById('saved-metrics-form');
+        var saveProfileBtn = document.getElementById('btn-save-branch-profile');
+        if (!metricsForm) return;
 
-    /* Läuft beim Zusammenbau des Request-Bodys — zuverlässiger als submit + verstecktes Feld. */
-    metricsForm.addEventListener('formdata', function (ev) {
-        var ids = [];
-        metricsForm.querySelectorAll('input[name="metric_ids"]:checked').forEach(function (el) {
-            ids.push(el.value);
+        /* Läuft beim Zusammenbau des Request-Bodys — zuverlässiger als submit + verstecktes Feld. */
+        metricsForm.addEventListener('formdata', function (ev) {
+            var ids = [];
+            metricsForm.querySelectorAll('input[name="metric_ids"]:checked').forEach(function (el) {
+                ids.push(el.value);
+            });
+            ev.formData.set('profile_selected_metric_ids', ids.join(','));
         });
-        ev.formData.set('profile_selected_metric_ids', ids.join(','));
-    });
 
-    if (saveProfileBtn) {
-        saveProfileBtn.addEventListener('click', function (ev) {
-            if (!confirm('Branchenprofil mit den ausgewählten Kennzahlen speichern?')) {
-                ev.preventDefault();
-                ev.stopPropagation();
-            }
-        }, true);
-    }
-})();
-
-(function () {
-    var btn = document.getElementById('toggle-active-metrics');
-    if (!btn) return;
-    var rows = document.querySelectorAll('tr.saved-metric-row');
-    var showOnlyActive = false;
-    var countRow = document.getElementById('metrics-count-row');
-    var countStrong = document.getElementById('displayed-metrics-count');
-    var countWord = document.getElementById('metrics-count-word');
-    var totalInView = countRow
-        ? parseInt(countRow.getAttribute('data-total-metrics'), 10)
-        : NaN;
-    if (isNaN(totalInView)) totalInView = rows.length;
-
-    function updateDisplayedCount() {
-        if (!countStrong) return;
-        var n;
-        if (!showOnlyActive) {
-            n = totalInView;
-        } else {
-            n = 0;
-            for (var k = 0; k < rows.length; k++) {
-                if (rows[k].style.display !== 'none') n++;
-            }
+        if (saveProfileBtn) {
+            saveProfileBtn.addEventListener('click', function (ev) {
+                if (!confirm('Branchenprofil mit den ausgewählten Kennzahlen speichern?')) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                }
+            }, true);
         }
-        countStrong.textContent = String(n);
-        if (countWord) {
-            countWord.textContent = n === 1 ? 'Kennzahl' : 'Kennzahlen';
-        }
-    }
+    })();
 
-    function applyFilter() {
-        for (var i = 0; i < rows.length; i++) {
-            var row = rows[i];
-            var active = row.getAttribute('data-is-active') === 'true';
-            row.style.display = showOnlyActive && !active ? 'none' : '';
-        }
-        document.querySelectorAll('tbody.metric-category-group').forEach(function (tbody) {
-            var heading = tbody.querySelector('tr.category-heading-row');
-            if (!heading) return;
+    (function () {
+        var btn = document.getElementById('toggle-active-metrics');
+        if (!btn) return;
+        var rows = document.querySelectorAll('tr.saved-metric-row');
+        var showOnlyActive = false;
+        var countRow = document.getElementById('metrics-count-row');
+        var countStrong = document.getElementById('displayed-metrics-count');
+        var countWord = document.getElementById('metrics-count-word');
+        var totalInView = countRow
+            ? parseInt(countRow.getAttribute('data-total-metrics'), 10)
+            : NaN;
+        if (isNaN(totalInView)) totalInView = rows.length;
+
+        function updateDisplayedCount() {
+            if (!countStrong) return;
+            var n;
             if (!showOnlyActive) {
-                heading.style.display = '';
-                return;
-            }
-            var dataRows = tbody.querySelectorAll('tr.saved-metric-row');
-            var anyVisible = false;
-            for (var j = 0; j < dataRows.length; j++) {
-                if (dataRows[j].style.display !== 'none') {
-                    anyVisible = true;
-                    break;
+                n = totalInView;
+            } else {
+                n = 0;
+                for (var k = 0; k < rows.length; k++) {
+                    if (rows[k].style.display !== 'none') n++;
                 }
             }
-            heading.style.display = anyVisible ? '' : 'none';
-        });
-        btn.textContent = showOnlyActive ? 'Alle Kennzahlen anzeigen' : 'Nur aktive Kennzahlen';
-        updateDisplayedCount();
-    }
+            countStrong.textContent = String(n);
+            if (countWord) {
+                countWord.textContent = n === 1 ? 'Kennzahl' : 'Kennzahlen';
+            }
+        }
 
-    btn.addEventListener('click', function () {
-        showOnlyActive = !showOnlyActive;
-        applyFilter();
-    });
-})();
+        function applyFilter() {
+            for (var i = 0; i < rows.length; i++) {
+                var row = rows[i];
+                var active = row.getAttribute('data-is-active') === 'true';
+                row.style.display = showOnlyActive && !active ? 'none' : '';
+            }
+            document.querySelectorAll('tbody.metric-category-group').forEach(function (tbody) {
+                var heading = tbody.querySelector('tr.category-heading-row');
+                if (!heading) return;
+                if (!showOnlyActive) {
+                    heading.style.display = '';
+                    return;
+                }
+                var dataRows = tbody.querySelectorAll('tr.saved-metric-row');
+                var anyVisible = false;
+                for (var j = 0; j < dataRows.length; j++) {
+                    if (dataRows[j].style.display !== 'none') {
+                        anyVisible = true;
+                        break;
+                    }
+                }
+                heading.style.display = anyVisible ? '' : 'none';
+            });
+            btn.textContent = showOnlyActive ? 'Alle Kennzahlen anzeigen' : 'Nur aktive Kennzahlen';
+            updateDisplayedCount();
+        }
+
+        btn.addEventListener('click', function () {
+            showOnlyActive = !showOnlyActive;
+            applyFilter();
+        });
+    })();
 </script>
 
 </body>
