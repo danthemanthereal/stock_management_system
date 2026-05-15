@@ -168,9 +168,8 @@
     </table>
 
     <br>
-    <button type="submit"
-            id="btn-delete-metrics"
-            onclick="return confirm('Ausgewählte Einträge löschen?')">
+    <input type="hidden" name="selected_branch_id" value="{{ selected_branch_profile_id or 1 }}">
+    <button type="submit" onclick="return confirm('Ausgewählte Einträge löschen?')">
         Ausgewählte löschen
     </button>
 </form>
@@ -187,7 +186,8 @@
             metricsForm.querySelectorAll('input[name="metric_ids"]:checked').forEach(function (el) {
                 ids.push(el.value);
             });
-            ev.formData.set('profile_selected_metric_ids', ids.join(','));
+            // Hier wird 'metric_ids' als Komma-String gesetzt
+            ev.formData.set('metric_ids', ids.join(','));
         });
 
         if (saveProfileBtn) {
