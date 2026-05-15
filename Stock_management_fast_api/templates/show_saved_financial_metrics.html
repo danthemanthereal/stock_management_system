@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{ current_locale }}">
 <head>
     <meta charset="UTF-8">
-    <title>Kennzahlen Management</title>
+    <title>{{ _('title') }}</title>
     <style>
         body { font-family: sans-serif; line-height: 1.5; color: #333; max-width: 1200px; margin: 0 auto; padding: 20px; }
 
@@ -51,16 +51,16 @@
 </head>
 <body>
 
-<h1>Finanz-Kennzahlen System</h1>
+<h1>{{ _('title') }}</h1>
 
 <!-- 1. Branchen-Auswahl -->
 <div class="branch-profile-bar" role="toolbar">
-    <span style="font-weight: bold; margin-right: 0.5rem;">Gewählte Branche:</span>
+    <span style="font-weight: bold; margin-right: 0.5rem;">{{ _('selected_branch') }}:</span>
 
     <form action="/show-saved-financial-metrics" method="post">
         <input type="hidden" name="branch_profile_id" value="1">
         <button type="submit" class="profile-btn {% if selected_branch_profile_id == 1 %}profile-active{% endif %}">
-            Alle (Master)
+            {{ _('btn_all') }}
         </button>
     </form>
 
@@ -69,7 +69,7 @@
         <form action="/show-saved-financial-metrics" method="post">
             <input type="hidden" name="branch_profile_id" value="{{ p.id }}">
             <button type="submit" class="profile-btn {% if selected_branch_profile_id == p.id %}profile-active{% endif %}">
-                {{ p.name }}
+                {{ _(p.name) }}
             </button>
         </form>
         {% endif %}
@@ -78,26 +78,26 @@
 
 <!-- 2. Neue Kennzahl hinzufügen -->
 <div class="action-box">
-    <h3>Neue Kennzahl in dieser Ansicht erstellen</h3>
+    <h3>{{ _('add_metric_title') }}</h3>
     <form action="/metrics/create" method="post" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
         <input type="hidden" name="selected_branch_id" value="{{ selected_branch_profile_id }}">
 
-        <input type="text" name="name" placeholder="Name der Kennzahl" required>
-        <input type="text" name="unit" placeholder="Einheit (z.B. %)" required style="width: 80px;">
-        <input type="number" name="reference_value" placeholder="Richtwert" required style="width: 100px;">
+        <input type="text" name="name" placeholder="{{ _('placeholder_name') }}" required>
+        <input type="text" name="unit" placeholder="{{ _('placeholder_unit') }}" required style="width: 80px;">
+        <input type="number" name="reference_value" placeholder="{{ _('placeholder_value') }}" required style="width: 100px;">
 
         <select name="category_id">
-            <option value="">— Kategorie wählen —</option>
+            <option value="">— {{ _('select_category') }} —</option>
             {% for cat in metric_categories %}
-                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                <option value="{{ cat.id }}">{{ _(cat.name) }}</option>
             {% endfor %}
         </select>
 
         <label style="font-size: 0.9em;">
-            <input type="checkbox" name="should_rise"> Sollte steigen?
+            <input type="checkbox" name="should_rise"> {{ _('should_rise') }}
         </label>
 
-        <button type="submit" class="btn-primary">Hinzufügen</button>
+        <button type="submit" class="btn-primary">{{ _('btn_add') }}</button>
     </form>
 </div>
 
@@ -106,58 +106,62 @@
     <input type="hidden" name="selected_branch_id" value="{{ selected_branch_profile_id }}">
 
     <div class="action-box" style="border-left: 5px solid #007bff;">
-        <h3 style="color: #007bff;">Aktionen für Auswahl</h3>
+        <h3 style="color: #007bff;">{{ _('actions_title') }}</h3>
         <p style="font-size: 0.9em; color: #666;">
-            Wähle links Kennzahlen zum <strong>Löschen</strong> oder setze rechts Haken bei <strong>Aktiv</strong>, um ein neues Profil zu speichern.
+            {{ _('actions_description') }}
         </p>
         <div style="display: flex; gap: 15px; align-items: center;">
-            <input type="text" name="branch_profile_name" placeholder="Name für neues Branchenprofil..." style="flex-grow: 1;">
+            <input type="text" name="branch_profile_name" placeholder="{{ _('placeholder_new_profile') }}" style="flex-grow: 1;">
             <button type="submit" formaction="/metrics/branch-profiles/create" class="btn-secondary">
-                Als neues Branchenprofil speichern
+                {{ _('btn_save_profile') }}
             </button>
-            <button type="submit" class="btn-danger" onclick="return confirm('Ausgewählte Kennzahlen wirklich löschen?')">
-                Markierte löschen
+            <button type="submit" class="btn-danger" onclick="return confirm('{{ _('confirm_delete') }}')">
+                {{ _('btn_delete_marked') }}
             </button>
         </div>
     </div>
 
     <!-- Filter Button für die Ansicht -->
     <button type="button" id="toggle-active-metrics" class="btn-filter" data-filtering="false">
-        Nur aktive Kennzahlen anzeigen
+        {{ _('btn_filter_active') }}
     </button>
 
     <table>
         <thead>
             <tr>
-                <th style="width: 40px;">Löschen</th>
-                <th>Kennzahl</th>
-                <th>Richtwert</th>
-                <th>Einheit</th>
-                <th>Kategorie</th>
-                <th style="text-align: center;">Ist Aktiv (für neues Profil)</th>
-                <th>Aktion</th>
+                <th style="width: 40px;">{{ _('table_header_delete') }}</th>
+                <th>{{ _('table_header_metric') }}</th>
+                <th>{{ _('table_header_value') }}</th>
+                <th>{{ _('table_header_unit') }}</th>
+                <th>{{ _('table_header_category') }}</th>
+                <th style="text-align: center;">{{ _('table_header_active') }}</th>
+                <th>{{ _('table_header_action') }}</th>
             </tr>
         </thead>
         {% for category_label, configs in metrics_by_category %}
         <tbody class="metric-category-group">
             <tr class="category-heading-row">
-                <td colspan="7" class="category-header">{{ category_label }}</td>
+                <td colspan="7" class="category-header">{{ _(category_label) }}</td>
             </tr>
             {% for c in configs %}
             <tr class="saved-metric-row" data-is-active="{{ 'true' if c.is_active else 'false' }}">
                 <td style="text-align: center;">
                     <input type="checkbox" name="delete_checkbox" value="{{ c.metric.id }}">
                 </td>
-                <td><strong>{{ c.metric.name }}</strong></td>
-                <td>{{ c.reference_value }}</td>
+                <!-- Übersetzungsfunktion für den dynamischen Kennzahlen-Namen angewendet -->
+                <td><strong>{{ _(c.metric.name) }}</strong></td>
+
+                <!-- Nummer-Klasse für die JavaScript-Lokalisierung hinzugefügt -->
+                <td class="number-cell" data-value="{{ c.reference_value }}">{{ c.reference_value }}</td>
+
                 <td>{{ c.metric.unit }}</td>
-                <td>{{ category_label }}</td>
+                <td>{{ _(category_label) }}</td>
                 <td style="text-align: center;">
                     <input type="checkbox" name="active_status_checkbox" value="{{ c.metric.id }}"
                            {% if c.is_active %}checked{% endif %}>
                 </td>
                 <td>
-                    <a href="/metrics/edit/{{ selected_branch_profile_id }}/{{ c.metric.id }}">Bearbeiten</a>
+                    <a href="/metrics/edit/{{ selected_branch_profile_id }}/{{ c.metric.id }}">{{ _('link_edit') }}</a>
                 </td>
             </tr>
             {% endfor %}
@@ -207,23 +211,20 @@
         const rows = document.querySelectorAll('.saved-metric-row');
         const groups = document.querySelectorAll('.metric-category-group');
 
-        // Schritt A: Sichtbarkeit der einzelnen Daten-Zeilen bestimmen
         rows.forEach(row => {
             const isActive = row.getAttribute('data-is-active') === 'true';
             if (isFilteringActiveOnly && !isActive) {
-                row.style.display = 'none'; // Verbergen, wenn Filter aktiv und Zeile inaktiv ist
+                row.style.display = 'none';
             } else {
-                row.style.display = ''; // Normal anzeigen
+                row.style.display = '';
             }
         });
 
-        // Schritt B: Ganze TBODY-Gruppen (inkl. Header) ausblenden, wenn sie keine sichtbaren Zeilen enthalten
         groups.forEach(group => {
             const headerRow = group.querySelector('.category-heading-row');
             const visibleDataRows = group.querySelectorAll('.saved-metric-row:not([style*="display: none"])');
 
             if (visibleDataRows.length === 0) {
-                // Wenn gar keine Zeile sichtbar ist (entweder weil die DB leer war oder durch den Filter), blende alles aus
                 group.style.display = 'none';
             } else {
                 group.style.display = '';
@@ -232,19 +233,37 @@
         });
     }
 
-    // 3. Event-Listener für den Filter-Button
+    // 3. Event-Listener für den Filter-Button mit dynamischem Text aus Daten-Attributen
     document.getElementById('toggle-active-metrics').addEventListener('click', function() {
         const isFiltering = this.getAttribute('data-filtering') === 'true';
         const nextState = !isFiltering;
 
         this.setAttribute('data-filtering', nextState);
-        this.textContent = nextState ? "Alle Kennzahlen anzeigen" : "Nur aktive Kennzahlen anzeigen";
+
+        // Text wechselt basierend auf Zustand (Die Beschriftung kommt über Jinja2 Keys im echten Projekt)
+        const textShowAll = "{{ _('btn_filter_all') }}";
+        const textShowActive = "{{ _('btn_filter_active') }}";
+        this.textContent = nextState ? textShowAll : textShowActive;
 
         applyFilters();
     });
 
-    // 4. Beim ersten Laden der Seite ausführen, um initial leere Kategorien direkt zu verstecken
+    // 4. Nummern-Formatierung und Initialisierung beim Laden der Seite
     document.addEventListener("DOMContentLoaded", function() {
+        const currentLocale = "{{ current_locale }}";
+
+        const numberFormatter = new Intl.NumberFormat(currentLocale === 'de' ? 'de-DE' : 'en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        document.querySelectorAll('.number-cell').forEach(td => {
+            const rawValue = parseFloat(td.getAttribute('data-value'));
+            if (!isNaN(rawValue)) {
+                td.textContent = numberFormatter.format(rawValue);
+            }
+        });
+
         applyFilters();
     });
 </script>
