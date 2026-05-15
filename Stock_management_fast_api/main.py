@@ -595,56 +595,43 @@ def create_metric(
         return templates.TemplateResponse("error.html", {"request": request})
 
 @app.post("/metrics/branch-profiles/create", response_class=HTMLResponse)
-async def create_branch_profile(request: Request, db: Session = Depends(get_db)):
+async def create_branch_profile(
+request: Request,
+    branch_profile_name: str = Form(...),
+    profile_selected_metric_ids: str = Form(""),
+    db: Session = Depends(get_db)
+    ):
     try:
-        form = await request.form()
-        raw_name = form.get("branch_profile_name")
-        name = (str(raw_name).strip() if raw_name is not None else "")
-        if not name:
-            return templates.TemplateResponse(
-                request=request,
-                name="error.html",
-                context={"request": request},
-            )
-        metric_ids = metric_ids_for_branch_profile_from_form(form)
-        if not metric_ids:
-            return templates.TemplateResponse(
-                request=request,
-                name="error.html",
-                context={"request": request},
-            )
-        metrics = (
-            db.query(models.FinancialMetric)
-            .filter(models.FinancialMetric.id.in_(metric_ids))
-            .all()
-        )
-        if len(metrics) != len(set(metric_ids)):
-            return templates.TemplateResponse(
-                request=request,
-                name="error.html",
-                context={"request": request},
-            )
+        new_profile = IndustryProfile(name=branch_profile_name)
+        db.add(new_profile)
+        db.flush()
 
-        # TODO
-        return templates.TemplateResponse(
-            request=request,
-            name="show_saved_financial_metrics.html",
-            context={"request": request, },
+        if profile_selected_metric_ids:
+            metric_id_list = [int(m_id) for m_id in profile_selected_metric_ids.split(",") if m_id.strip()]
+
+            for m_id in metric_id_list:
+                base_metric = db.query(FinancialMetric).filter(FinancialMetric.id == m_id).first()
+
+                if base_metric:
+                    new_config = ProfileMetricConfiguration(
+                        profile_id=new_profile.id,
+                        metric_id=m_id,
+                        is_active=True
+                    )
+                    db.add(new_config)
+
+        db.commit()
+
+        return RedirectResponse(
+            url=f"/show-saved-financial-metrics?branch_profile_id={new_profile.id}",
+            status_code=303
         )
-    except IntegrityError:
-        db.rollback()
-        return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={"request": request},
-        )
+
     except Exception as e:
         db.rollback()
-        return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={"request": request},
-        )
+        print(f"Fehler beim Erstellen des Profils: {e}")
+        return templates.TemplateResponse("error.html", {"request": request})
+
 
 
 @app.post("/metrics/branch-profiles/{profile_id}/delete", response_class=HTMLResponse)
