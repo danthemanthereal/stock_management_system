@@ -43,6 +43,8 @@
         .btn-primary { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
         .btn-danger { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
         .btn-secondary { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        .btn-filter { background: #17a2b8; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-bottom: 1rem; }
+        .btn-filter:hover { background: #138496; }
 
         input[type="text"], input[type="number"], select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
     </style>
@@ -119,6 +121,11 @@
         </div>
     </div>
 
+    <!-- Filter Button für die Ansicht -->
+    <button type="button" id="toggle-active-metrics" class="btn-filter" data-filtering="false">
+        Nur aktive Kennzahlen anzeigen
+    </button>
+
     <table>
         <thead>
             <tr>
@@ -132,12 +139,13 @@
             </tr>
         </thead>
         {% for category_label, configs in metrics_by_category %}
-        <tbody>
-            <tr class="category-header">
-                <td colspan="7">{{ category_label }}</td>
+        <tbody class="metric-category-group">
+            <tr class="category-header-row">
+                <td colspan="7" class="category-header">{{ category_label }}</td>
             </tr>
             {% for c in configs %}
-            <tr>
+            <!-- Das data-is-active Attribut liest den echten DB-Status aus -->
+            <tr class="saved-metric-row" data-is-active="{{ 'true' if c.is_active else 'false' }}">
                 <td style="text-align: center;">
                     <input type="checkbox" name="delete_checkbox" value="{{ c.metric.id }}">
                 </td>
@@ -146,7 +154,6 @@
                 <td>{{ c.metric.unit }}</td>
                 <td>{{ category_label }}</td>
                 <td style="text-align: center;">
-                    <!-- Diese Checkbox steuert, was in das neue Profil übernommen wird -->
                     <input type="checkbox" name="active_status_checkbox" value="{{ c.metric.id }}"
                            {% if c.is_active %}checked{% endif %}>
                 </td>
@@ -161,16 +168,13 @@
 </form>
 
 <script>
-    // Logik zum Sammeln der IDs je nach Button-Klick
+    // 1. Logik zum Sammeln der IDs je nach Button-Klick (Löschen vs. Profil erstellen)
     document.getElementById('main-metrics-form').addEventListener('submit', function(e) {
-        // Welcher Button wurde gedrückt?
         const action = e.submitter.getAttribute('formaction');
         const isCreateProfile = action && action.includes('/branch-profiles/create');
-
         const ids = [];
 
         if (isCreateProfile) {
-            // Falls "Profil speichern": Sammele alle IDs aus der Spalte "Ist Aktiv"
             const activeCheckboxes = document.querySelectorAll('input[name="active_status_checkbox"]:checked');
             activeCheckboxes.forEach(cb => ids.push(cb.value));
 
@@ -180,7 +184,6 @@
                 return;
             }
         } else {
-            // Falls "Löschen": Sammele alle IDs aus der linken "Löschen" Spalte
             const deleteCheckboxes = document.querySelectorAll('input[name="delete_checkbox"]:checked');
             deleteCheckboxes.forEach(cb => ids.push(cb.value));
 
@@ -191,12 +194,48 @@
             }
         }
 
-        // Verstecktes Feld für den Versand der IDs als Komma-String hinzufügen
         const hiddenInput = document.createElement('input');
         hiddenInput.type = 'hidden';
         hiddenInput.name = 'metric_ids';
         hiddenInput.value = ids.join(',');
         this.appendChild(hiddenInput);
+    });
+
+    // 2. Filter-Logik: Nur aktive Kennzahlen in der UI anzeigen/ausblenden
+    document.getElementById('toggle-active-metrics').addEventListener('click', function() {
+        const btn = this;
+        const isFiltering = btn.getAttribute('data-filtering') === 'true';
+        const rows = document.querySelectorAll('.saved-metric-row');
+        const groups = document.querySelectorAll('.metric-category-group');
+
+        // Zeilen filtern basierend auf dem 'data-is-active' Attribut
+        rows.forEach(row => {
+            const isActive = row.getAttribute('data-is-active') === 'true';
+            if (!isFiltering && !isActive) {
+                row.style.display = 'none'; // Verbergen, wenn Filter aktiv wird und Zeile inaktiv ist
+            } else {
+                row.style.display = ''; // Anzeigen
+            }
+        });
+
+        // Kategorie-Überschriften ausblenden, wenn sie keine sichtbaren Zeilen mehr enthalten
+        groups.forEach(group => {
+            const headerRow = group.querySelector('.category-heading-row');
+            if (!isFiltering) {
+                // Prüfen, ob noch mindestens eine sichtbare Zeile existiert
+                const visibleRows = group.querySelectorAll('.saved-metric-row:not([style*="display: none"])');
+                if (visibleRows.length === 0 && headerRow) {
+                    headerRow.style.display = 'none';
+                }
+            } else if (headerRow) {
+                headerRow.style.display = '';
+            }
+        });
+
+        // Button-Zustand umkehren
+        const nextState = !isFiltering;
+        btn.setAttribute('data-filtering', nextState);
+        btn.textContent = nextState ? "Alle Kennzahlen anzeigen" : "Nur aktive Kennzahlen anzeigen";
     });
 </script>
 
