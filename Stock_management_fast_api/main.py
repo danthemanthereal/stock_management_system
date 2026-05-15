@@ -559,7 +559,7 @@ def show_saved_financial_metrics_page(
         db: Session = Depends(get_db)
 ):
     try:
-        # ID aus Query (GET) oder Form (POST) bestimmen
+
         selected_id = branch_profile_id
         if request.method == "GET":
             query_id = request.query_params.get("branch_profile_id")
