@@ -20,6 +20,7 @@ class FinancialMetric(Base):
     category_id = Column(Integer, ForeignKey("financial_metric_category.id"))
     category_rel = relationship("FinancialMetricCategory", back_populates="metrics")
     profile_configs = relationship("ProfileMetricConfiguration", back_populates="metric")
+    display_name_reference = Column(String)
 
     @property
     def category_name(self) -> str:
