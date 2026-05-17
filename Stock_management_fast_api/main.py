@@ -6,7 +6,8 @@ from typing import List, Tuple, Optional
 from combining_stock_infos_llm.combine_stock import get_combination
 from financial_metric_evaluator_component.financial_metric_evaluator import \
     get_satisfied_and_not_satisfied_financial_metrics
-from database.models import FinancialMetric, IndustryProfile, ProfileMetricConfiguration, FinancialMetricCategory
+from database.models import FinancialMetric, IndustryProfile, ProfileMetricConfiguration, FinancialMetricCategory, \
+    BoughtStock
 from financial_metric_component.financial_metric import get_total_financial_metrics
 from database.db import engine, SessionLocal
 from sqlalchemy.orm import Session, joinedload
@@ -824,3 +825,48 @@ def delete_saved_companies(
             name="error.html",
             context={"request": request}
         )
+
+
+@app.get("/portfolio", response_class=HTMLResponse)
+async def get_portfolio_page(request: Request, db: Session = Depends(get_db)):
+    try:
+        bought_stocks = db.query(BoughtStock).order_by(BoughtStock.ticker).all()
+
+        return render_localized(
+             template_name="show_saved_bought_stocks.html",
+             request=request,
+            context={
+                "request": request,
+                "bought_stocks": bought_stocks,
+            }
+            )
+
+    except Exception as e:
+        print(f"Fehler beim Laden des Portfolios: {e}")
+        return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
+
+
+@app.post("/portfolio/create")
+async def create_portfolio_entry(
+        name: str = Form(...),
+        ticker: str = Form(...),
+        bought_price: float = Form(...),
+        amount: float = Form(...),
+        db: Session = Depends(get_db)
+):
+    try:
+        new_stock = BoughtStock(
+            name=name.strip(),
+            ticker=ticker.strip().upper(),
+            bought_price=bought_price,
+            amount=amount
+        )
+        db.add(new_stock)
+        db.commit()
+
+        return RedirectResponse(url="/portfolio", status_code=303)
+
+    except Exception as e:
+        db.rollback()
+        print(f"Fehler beim Speichern der Aktie: {e}")
+        return RedirectResponse(url="/portfolio", status_code=303)
