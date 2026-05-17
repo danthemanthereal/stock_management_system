@@ -240,7 +240,6 @@ def merge_financial_summary_triples(
         benchmark: List[dict],
         development: List[dict],
 ) -> List[dict]:
-    """Eine Zeile pro Kategorie mit allen drei Kennzahlen-Paaren + Prozent (von total)."""
 
     def to_map(rows: List[dict]) -> dict:
         return {r["category"]: dict(r) for r in rows}
@@ -546,6 +545,7 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
                 ),
             })
     except Exception as e:
+        print(e)
         return templates.TemplateResponse(
             request=request,
             name="error.html",
@@ -874,8 +874,8 @@ async def create_portfolio_entry(
 
 @app.post("/portfolio/update-multiple")
 async def update_multiple_portfolio_entries(
-        delete_ids: str = Form(""),  # Enthält kommagetrennt z.B. "2,5"
-        update_triplets: str = Form(""),  # Enthält z.B. "1|120.50|10,3|45.00|15.5"
+        delete_ids: str = Form(""),
+        update_triplets: str = Form(""),
         db: Session = Depends(get_db)
 ):
     try:
