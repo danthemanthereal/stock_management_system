@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Mein Aktien-Portfolio</title>
-    <!-- Chart.js für das Kreisdiagramm laden -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -29,7 +28,6 @@
             margin-top: 0;
         }
 
-        /* Formularstyling */
         .stock-form {
             display: flex;
             flex-wrap: wrap;
@@ -58,7 +56,20 @@
             background: #218838;
         }
 
-        /* Layout-Aufteilung: Tabelle links, Chart rechts */
+        .btn-secondary {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-secondary:hover {
+            background: #0056b3;
+        }
+
         .portfolio-layout {
             display: flex;
             gap: 2.5rem;
@@ -81,7 +92,6 @@
             align-items: center;
         }
 
-        /* Tabellenstyling */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -127,61 +137,137 @@
 <!-- Hauptinhalt: Tabelle und Chart -->
 <div class="action-box">
     {% if bought_stocks %}
-    <div class="portfolio-layout">
+    <!-- Umgebendes Formular für die Inline-Updates und das Löschen -->
+    <form action="/portfolio/update-multiple" method="post" id="portfolio-update-form">
 
-        <!-- Linken Seite: Tabelle -->
-        <div class="table-section">
-            <h3>Deine Positionen</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Ticker</th>
-                        <th>Name</th>
-                        <th class="text-right">Kaufpreis</th>
-                        <th class="text-right">Anzahl</th>
-                        <th class="text-right">Gesamtwert</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for stock in bought_stocks %}
-                    <tr>
-                        <td><strong>{{ stock.ticker }}</strong></td>
-                        <td>{{ stock.name }}</td>
-                        <td class="number-cell text-right" data-value="{{ stock.bought_price }}">{{ stock.bought_price }}</td>
-                        <td class="text-right">{{ stock.amount }}</td>
-                        <!-- Anteilswert: Kaufpreis * Menge -->
-                        <td class="number-cell text-right" style="font-weight: bold;" data-value="{{ stock.bought_price * stock.amount }}">
-                            {{ stock.bought_price * stock.amount }}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="portfolio-layout">
+
+            <!-- Linke Seite: Tabelle mit Inputs -->
+            <div class="table-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3>Deine Positionen</h3>
+                    <button type="submit" class="btn-secondary">Änderungen speichern</button>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40px; text-align: center;">Löschen</th>
+                            <th>Ticker</th>
+                            <th>Name</th>
+                            <th class="text-right">Kaufpreis</th>
+                            <th class="text-right">Anzahl</th>
+                            <th class="text-right">Gesamtwert</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock in bought_stocks %}
+                        <tr class="stock-row" data-stock-id="{{ stock.id }}">
+                            <!-- CHECKBOX ZUM LÖSCHEN -->
+                            <td style="text-align: center;">
+                                <input type="checkbox" class="delete-stock-checkbox" value="{{ stock.id }}">
+                            </td>
+
+                            <td><strong>{{ stock.ticker }}</strong></td>
+                            <td>{{ stock.name }}</td>
+
+                            <!-- INLINE-INPUT FÜR KAUFPREIS -->
+                            <td class="text-right">
+                                <input type="number"
+                                       class="inline-stock-price"
+                                       data-stock-id="{{ stock.id }}"
+                                       value="{{ stock.bought_price }}"
+                                       step="0.01"
+                                       min="0.01"
+                                       style="width: 90px; padding: 4px; border: 1px dashed #ccc; border-radius: 4px; text-align: right;">
+                            </td>
+
+                            <!-- INLINE-INPUT FÜR ANZAHL -->
+                            <td class="text-right">
+                                <input type="number"
+                                       class="inline-stock-amount"
+                                       data-stock-id="{{ stock.id }}"
+                                       value="{{ stock.amount }}"
+                                       step="0.0001"
+                                       min="0.0001"
+                                       style="width: 80px; padding: 4px; border: 1px dashed #ccc; border-radius: 4px; text-align: right;">
+                            </td>
+
+                            <!-- Gesamtwert-Zelle -->
+                            <td class="number-cell text-right" style="font-weight: bold;" data-value="{{ stock.bought_price * stock.amount }}">
+                                {{ stock.bought_price * stock.amount }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Rechte Seite: Kreisdiagramm -->
+            <div class="chart-section">
+                <h3>Aufteilung (Wert in €)</h3>
+                <canvas id="portfolioPieChart" width="320" height="320"></canvas>
+            </div>
+
         </div>
-
-        <!-- Rechte Seite: Kreisdiagramm -->
-        <div class="chart-section">
-            <h3>Aufteilung (Wert in €)</h3>
-            <canvas id="portfolioPieChart" width="320" height="320"></canvas>
-        </div>
-
-    </div>
+    </form>
     {% else %}
     <p style="color: #666; text-align: center; padding: 2rem;">Noch keine Aktien im Portfolio vorhanden. Füge oben deine erste Position hinzu!</p>
     {% endif %}
 </div>
 
 <script>
+    // JS-Logik zum Sammeln der Updates und Löschanweisungen beim Button-Klick
+    if (document.getElementById('portfolio-update-form')) {
+        document.getElementById('portfolio-update-form').addEventListener('submit', function (e) {
+
+            // 1. Markierte IDs zum Löschen sammeln
+            const deleteCheckboxes = document.querySelectorAll('.delete-stock-checkbox:checked');
+            const idsToDelete = [];
+            deleteCheckboxes.forEach(cb => idsToDelete.push(cb.value));
+
+            // 2. Aktualisierte Live-Daten für alle Zeilen sammeln (sofern sie nicht gelöscht werden)
+            const stockRows = document.querySelectorAll('.stock-row');
+            const updateTriplets = [];
+
+            stockRows.forEach(row => {
+                const stockId = row.getAttribute('data-stock-id');
+
+                // Falls diese Zeile gelöscht werden soll, überspringen wir das Update dafür
+                if (idsToDelete.includes(stockId)) return;
+
+                const priceInput = document.querySelector(`.inline-stock-price[data-stock-id="${stockId}"]`);
+                const amountInput = document.querySelector(`.inline-stock-amount[data-stock-id="${stockId}"]`);
+
+                const price = priceInput ? parseFloat(priceInput.value) || 0 : 0;
+                const amount = amountInput ? parseFloat(amountInput.value) || 0 : 0;
+
+                // Format: ID|KAUFPREIS|ANZAHL
+                updateTriplets.push(`${stockId}|${price}|${amount}`);
+            });
+
+            // 3. Versteckte Input-Felder dynamisch generieren und an das Formular hängen
+            const hiddenDeleteInput = document.createElement('input');
+            hiddenDeleteInput.type = 'hidden';
+            hiddenDeleteInput.name = 'delete_ids';
+            hiddenDeleteInput.value = idsToDelete.join(',');
+            this.appendChild(hiddenDeleteInput);
+
+            const hiddenUpdateInput = document.createElement('input');
+            hiddenUpdateInput.type = 'hidden';
+            hiddenUpdateInput.name = 'update_triplets';
+            hiddenUpdateInput.value = updateTriplets.join(',');
+            this.appendChild(hiddenUpdateInput);
+        });
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         const currentLocale = "{{ current_locale }}";
-
-        // Währungs- und Zahlenformatierer initialisieren
         const numberFormatter = new Intl.NumberFormat(currentLocale === 'de' ? 'de-DE' : 'en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
 
-        // Tabelleneinträge formatieren
         document.querySelectorAll('.number-cell').forEach(td => {
             const rawValue = parseFloat(td.getAttribute('data-value'));
             if (!isNaN(rawValue)) {
@@ -189,11 +275,10 @@
             }
         });
 
-        // --- CHART.JS LOGIK ---
+        // --- CHART.JS ---
         const labels = [];
         const values = [];
 
-        // Daten aus Jinja2 in JavaScript Arrays pushen
         {% if bought_stocks %}
             {% for stock in bought_stocks %}
                 labels.push("{{ stock.ticker }}");
@@ -219,9 +304,7 @@
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: {
-                            position: 'bottom'
-                        },
+                        legend: { position: 'bottom' },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {

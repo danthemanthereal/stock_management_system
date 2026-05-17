@@ -870,3 +870,41 @@ async def create_portfolio_entry(
         db.rollback()
         print(f"Fehler beim Speichern der Aktie: {e}")
         return RedirectResponse(url="/portfolio", status_code=303)
+
+
+@app.post("/portfolio/update-multiple")
+async def update_multiple_portfolio_entries(
+        delete_ids: str = Form(""),  # Enthält kommagetrennt z.B. "2,5"
+        update_triplets: str = Form(""),  # Enthält z.B. "1|120.50|10,3|45.00|15.5"
+        db: Session = Depends(get_db)
+):
+    try:
+        if delete_ids:
+            id_list_to_delete = [int(stock_id) for stock_id in delete_ids.split(",") if stock_id.strip()]
+            if id_list_to_delete:
+                db.query(BoughtStock).filter(BoughtStock.id.in_(id_list_to_delete)).delete(synchronize_session=False)
+
+        if update_triplets:
+            triplet_list = [t.strip() for t in update_triplets.split(",") if t.strip()]
+
+            for triplet in triplet_list:
+                if "|" in triplet:
+                    parts = triplet.split("|")
+                    if len(parts) == 3:
+                        stock_id = int(parts[0])
+                        new_price = float(parts[1])
+                        new_amount = float(parts[2])
+
+                        stock_entry = db.query(BoughtStock).filter(BoughtStock.id == stock_id).first()
+                        if stock_entry:
+                            stock_entry.bought_price = new_price
+                            stock_entry.amount = new_amount
+
+        db.commit()
+
+        return RedirectResponse(url="/portfolio", status_code=303)
+
+    except Exception as e:
+        db.rollback()
+        print(f"Fehler bei der Massenverarbeitung des Portfolios: {e}")
+        return RedirectResponse(url="/portfolio", status_code=303)
