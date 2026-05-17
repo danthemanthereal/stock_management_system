@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, Float
 from sqlalchemy.orm import relationship
 from .db import Base
 
@@ -65,3 +65,12 @@ class ProfileMetricConfiguration(Base):
     metric = relationship("FinancialMetric", back_populates="profile_configs")
 
     __table_args__ = (UniqueConstraint('profile_id', 'metric_id', name='_profile_metric_uc'),)
+
+
+class BoughtStock(Base):
+    __tablename__ = "bought_stock"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+    ticker = Column(String, unique=True, index=True)
+    bought_price = Column(Float)
+    amount = Column(Float)
