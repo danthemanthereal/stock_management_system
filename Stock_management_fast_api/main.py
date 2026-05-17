@@ -640,27 +640,38 @@ def create_metric(
 async def create_branch_profile(
         request: Request,
         branch_profile_name: str = Form(...),
-        metric_ids: str = Form(""),
+        # Wir fangen hier das Triplett-Feld aus dem JavaScript ab
+        metric_data_triplets: str = Form(""),
         db: Session = Depends(get_db)
 ):
     try:
-
         new_profile = IndustryProfile(name=branch_profile_name)
         db.add(new_profile)
         db.flush()
 
-        if metric_ids:
-            id_list = [int(m_id) for m_id in metric_ids.split(",") if m_id.strip()]
+        if metric_data_triplets:
 
-            for m_id in id_list:
-                base_metric = db.query(FinancialMetric).filter(FinancialMetric.id == m_id).first()
-                if base_metric:
-                    new_config = ProfileMetricConfiguration(
-                        profile_id=new_profile.id,
-                        metric_id=m_id,
-                        is_active=True
-                    )
-                    db.add(new_config)
+            triplet_list = [t.strip() for t in metric_data_triplets.split(",") if t.strip()]
+
+            for triplet in triplet_list:
+                if "|" in triplet:
+                    parts = triplet.split("|")
+
+                    if len(parts) == 3:
+                        m_id = int(parts[0])
+
+                        ref_value = int(parts[1]) if parts[1].isdigit() else 0
+
+                        base_metric = db.query(FinancialMetric).filter(FinancialMetric.id == m_id).first()
+
+                        if base_metric:
+                            new_config = ProfileMetricConfiguration(
+                                profile_id=new_profile.id,
+                                metric_id=m_id,
+                                reference_value=ref_value,
+                                is_active=True
+                            )
+                            db.add(new_config)
 
         db.commit()
 
@@ -668,11 +679,15 @@ async def create_branch_profile(
             url=f"/show-saved-financial-metrics?branch_profile_id={new_profile.id}",
             status_code=303
         )
+
     except Exception as e:
         db.rollback()
-        print(f"Fehler: {e}")
-        return templates.TemplateResponse(request=request , name="error.html",context= {"request": request})
-
+        print(f"Fehler beim Erstellen des Branchenprofils: {e}")
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request}
+        )
 @app.post("/metrics/branch-profiles/{profile_id}/delete", response_class=HTMLResponse)
 def delete_branch_profile(
         profile_id: int,

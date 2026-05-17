@@ -180,9 +180,9 @@
         <select name="financial_metric_id" required style="min-width: 250px;">
             <option value="">— {{ _('select_metric') }} —</option>
             {% for metric in all_available_metrics %}
-                <option value="{{ metric.id }}">
-                    {{ _(metric.name) }} {% if metric.unit %}({{ metric.unit }}){% endif %}
-                </option>
+            <option value="{{ metric.id }}">
+                {{ _(metric.name) }} {% if metric.unit %}({{ metric.unit }}){% endif %}
+            </option>
             {% endfor %}
         </select>
 
@@ -247,8 +247,24 @@
                 <input type="checkbox" name="delete_checkbox" value="{{ c.metric.id }}">
             </td>
             <td><strong>{{ _(c.metric.name) }}</strong></td>
-            <td class="number-cell" data-value="{{ c.reference_value }}">{{ c.reference_value }}</td>
-            <td>{{ c.metric.unit }}</td>
+
+            <!-- INLINE-INPUT FÜR NATÜRLICHE ZAHLEN (RICHTWERT) -->
+            <td>
+                <input type="number"
+                       class="inline-metric-value"
+                       data-metric-id="{{ c.metric.id }}"
+                       value="{{ c.reference_value | int }}"
+                       min="0"
+                       step="1"
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                       style="width: 90px; padding: 4px; border: 1px dashed #ccc; border-radius: 4px; text-align: right;">
+            </td>
+
+            <!-- JETZT AUCH ALS INLINE-INPUT FÜR DIE EINHEIT -->
+            <td>
+                {{_(c.metric.unit)}}
+            </td>
+
             <td>{{ _(category_label) }}</td>
             <td style="text-align: center;">
                 <input type="checkbox" name="active_status_checkbox" value="{{ c.metric.id }}"
@@ -272,14 +288,36 @@
         const ids = [];
 
         if (isCreateProfile) {
+            // Nur die aktuell AKTIVEN (gecheckten) Zeilen holen
             const activeCheckboxes = document.querySelectorAll('input[name="active_status_checkbox"]:checked');
-            activeCheckboxes.forEach(cb => ids.push(cb.value));
+            const triplets = [];
 
-            if (ids.length === 0) {
+            activeCheckboxes.forEach(cb => {
+                const metricId = cb.value;
+
+                // Live-Werte aus den Eingabefeldern genau dieser Zeile ziehen
+                const valueInput = document.querySelector(`.inline-metric-value[data-metric-id="${metricId}"]`);
+                const unitInput = document.querySelector(`.inline-metric-unit[data-metric-id="${metricId}"]`);
+
+                const value = valueInput ? parseInt(valueInput.value, 10) || 0 : 0;
+                const unit = unitInput ? unitInput.value.trim() : '';
+
+                // String-Format: "ID|WERT|EINHEIT" zusammenbauen
+                triplets.push(`${metricId}|${value}|${unit}`);
+            });
+
+            if (triplets.length === 0) {
                 alert("Bitte wähle mindestens eine Kennzahl als 'Aktiv' aus!");
                 e.preventDefault();
                 return;
             }
+
+            // NEU: Verknüpft das Ganze mit dem korrekten Namen für dein neues Backend
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'metric_data_triplets';
+            hiddenInput.value = triplets.join(',');
+            this.appendChild(hiddenInput);
         } else {
             const deleteCheckboxes = document.querySelectorAll('input[name="delete_checkbox"]:checked');
             deleteCheckboxes.forEach(cb => ids.push(cb.value));
