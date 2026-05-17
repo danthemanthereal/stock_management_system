@@ -559,7 +559,6 @@ def show_saved_financial_metrics_page(
         db: Session = Depends(get_db)
 ):
     try:
-
         selected_id = branch_profile_id
         if request.method == "GET":
             query_id = request.query_params.get("branch_profile_id")
@@ -588,6 +587,8 @@ def show_saved_financial_metrics_page(
             if group_list:
                 metrics_by_category.append((category_name, group_list))
 
+        all_available_metrics = db.query(FinancialMetric).order_by(FinancialMetric.name).all()
+
         return render_localized(
             template_name="show_saved_financial_metrics.html",
             request=request,
@@ -595,13 +596,13 @@ def show_saved_financial_metrics_page(
                 "branch_profiles": branch_profiles,
                 "selected_branch_profile_id": selected_id,
                 "metrics_by_category": metrics_by_category,
-                "displayed_metrics_count": len(configs)
+                "displayed_metrics_count": len(configs),
+                "all_available_metrics": all_available_metrics
             }
         )
     except Exception as e:
         print(f"Error: {e}")
         return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
-
 
 @app.post("/metrics/create", response_class=HTMLResponse)
 def create_metric(
