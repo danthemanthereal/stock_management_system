@@ -524,9 +524,9 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
             unsatisfied_development_by_category,
         )
 
-        return templates.TemplateResponse(
+        return render_localized(
             request=request,
-            name="show_financial_metrics.html",
+            template_name="show_financial_metrics.html",
             context=
             {
                 "request": request,

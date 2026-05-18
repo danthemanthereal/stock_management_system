@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <title>Financial Metrics</title>
@@ -176,6 +176,7 @@
 <div id="charts"></div>
 
 <script>
+    // Erkennt automatisch das alte Format [10, 20, 30] oder das neue Format {"display_name": "...", "values": [...]}
     const groups = {{ data_by_category | tojson }};
     const years = {{ years | tojson }};
 
@@ -188,76 +189,95 @@
         container.appendChild(catHeading);
 
         Object.keys(group.metrics).forEach(function (key) {
-        const series = group.metrics[key];
+            const rawData = group.metrics[key];
+            let series = [];
+            let displayName = key;
 
-        const wrapper = document.createElement("div");
-        wrapper.id = "chart-" + key;
-        wrapper.style.marginBottom = "50px";
+            // HIER DIE RETTUNG: Prüfen, ob die Daten vom Backend neu oder alt strukturiert sind
+            if (rawData && typeof rawData === 'object' && !Array.isArray(rawData)) {
+                // Neues Format mit Translation
+                series = rawData.values || [];
+                displayName = rawData.display_name || key;
+            } else {
+                // Altes Format (Direkt das Array mit Zahlen)
+                series = Array.isArray(rawData) ? rawData : [];
+                displayName = key;
+            }
 
-        // UP button
-        const upBtn = document.createElement("button");
-        upBtn.innerText = "⬆️ Hoch";
-        upBtn.className = "nav-btn";
-        upBtn.onclick = () => {
-            scrollToCharts();
-        };
+            const wrapper = document.createElement("div");
+            wrapper.id = "chart-" + key;
+            wrapper.style.marginBottom = "50px";
 
-        // canvas
-        const canvas = document.createElement("canvas");
+            // UP button
+            const upBtn = document.createElement("button");
+            upBtn.innerText = "⬆️ Hoch";
+            upBtn.className = "nav-btn";
+            upBtn.onclick = () => {
+                scrollToCharts();
+            };
 
-        // DOWN button
-        const downBtn = document.createElement("button");
-        downBtn.innerText = "⬇️ Runter";
-        downBtn.className = "nav-btn";
-        downBtn.onclick = () => {
-            scrollToContainer();
-        };
+            // canvas
+            const canvas = document.createElement("canvas");
 
-        wrapper.appendChild(upBtn);
-        wrapper.appendChild(canvas);
-        wrapper.appendChild(downBtn);
+            // DOWN button
+            const downBtn = document.createElement("button");
+            downBtn.innerText = "⬇️ Runter";
+            downBtn.className = "nav-btn";
+            downBtn.onclick = () => {
+                scrollToContainer();
+            };
 
-        container.appendChild(wrapper);
+            wrapper.appendChild(upBtn);
+            wrapper.appendChild(canvas);
+            wrapper.appendChild(downBtn);
 
-        new Chart(canvas, {
-            type: 'bar',
-            data: {
-                labels: years,
-                datasets: [{
-                    label: key,
-                    data: series,
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: key
+            container.appendChild(wrapper);
+
+            // Chart initialisieren
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: displayName,
+                        data: series,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)', // Optionale Farbe für die Balken
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: displayName
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true // Verhindert Anzeigefehler bei Achsen
+                        }
                     }
                 }
-            }
-        });
+            });
         });
     });
 
-
+    // Navigations-Funktionen
     function scrollToContainer() {
-        document.querySelector(".container").scrollIntoView({
-            behavior: "smooth"
-        });
+        const target = document.querySelector(".container");
+        if (target) target.scrollIntoView({ behavior: "smooth" });
     }
 
     function scrollToCharts() {
-        document.getElementById("charts").scrollIntoView({
-            behavior: "smooth"
-        });
+        const target = document.getElementById("charts");
+        if (target) target.scrollIntoView({ behavior: "smooth" });
     }
 
     function scrollToChartByName() {
         const value = document.getElementById("searchInput").value;
         const target = document.getElementById("chart-" + value);
-
         if (target) {
             target.scrollIntoView({behavior: "smooth"});
         } else {
@@ -282,7 +302,6 @@
         }
         alert("Kategorie nicht gefunden!");
     }
-
 </script>
 
 <div class="container">
@@ -293,6 +312,7 @@
         </button>
     </div>
 
+    <!-- HIER GEÄNDERT: Bei allen Boxen wird erwartet, dass "metrics" nun Objekte/Tupel mit .display_name sind -->
     <div class="box">
         <h2>Erfüllen Entwicklung und Richtwert</h2>
         {% for category_label, metrics in satisfied_metrics_by_category %}
@@ -300,7 +320,7 @@
             <h3>{{ category_label }}</h3>
             {% for metric in metrics %}
             <div class="satisfied">
-                {{ metric }}
+                {{ metric.display_name }} <!-- HIER GEÄNDERT -->
             </div>
             {% endfor %}
         </div>
@@ -314,7 +334,7 @@
             <h3>{{ category_label }}</h3>
             {% for metric in metrics %}
             <div class="unsatisfied">
-                {{ metric }}
+                {{ metric.display_name }} <!-- HIER GEÄNDERT -->
             </div>
             {% endfor %}
         </div>
@@ -328,7 +348,7 @@
             <h3>{{ category_label }}</h3>
             {% for metric in metrics %}
             <div class="satisfied">
-                {{ metric }}
+                {{ metric.display_name }} <!-- HIER GEÄNDERT -->
             </div>
             {% endfor %}
         </div>
@@ -342,7 +362,7 @@
             <h3>{{ category_label }}</h3>
             {% for metric in metrics %}
             <div class="unsatisfied">
-                {{ metric }}
+                {{ metric.display_name }} <!-- HIER GEÄNDERT -->
             </div>
             {% endfor %}
         </div>
@@ -356,7 +376,7 @@
             <h3>{{ category_label }}</h3>
             {% for metric in metrics %}
             <div class="satisfied">
-                {{ metric }}
+                {{ metric.display_name }} <!-- HIER GEÄNDERT -->
             </div>
             {% endfor %}
         </div>
@@ -370,7 +390,7 @@
             <h3>{{ category_label }}</h3>
             {% for metric in metrics %}
             <div class="unsatisfied">
-                {{ metric }}
+                {{ metric.display_name }} <!-- HIER GEÄNDERT -->
             </div>
             {% endfor %}
         </div>
@@ -379,6 +399,7 @@
 
 </div>
 
+<!-- Der Summary-Block bleibt unverändert, da er Kategorien zusammenfasst, nicht Metriken einzeln -->
 <div class="results-summary">
     <h2>Zusammenfassung nach Kategorie</h2>
 
