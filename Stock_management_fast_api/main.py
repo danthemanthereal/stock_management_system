@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form, Depends
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, status
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from collections import defaultdict
@@ -25,6 +25,14 @@ from pytube import extract
 from itertools import groupby
 
 models.Base.metadata.create_all(bind=engine)
+
+class BoughtStockCreate(BaseModel):
+    name: str
+    amount: float
+    bought_price: float
+
+    class Config:
+        from_attributes = True
 
 app = FastAPI()
 
@@ -908,3 +916,32 @@ async def update_multiple_portfolio_entries(
         db.rollback()
         print(f"Fehler bei der Massenverarbeitung des Portfolios: {e}")
         return RedirectResponse(url="/portfolio", status_code=303)
+
+
+@app.post("/api/bought-stocks", status_code=status.HTTP_201_CREATED)
+def create_bought_stock(stock_data: BoughtStockCreate, db: Session = Depends(get_db)):
+    existing_stock = db.query(BoughtStock).filter(BoughtStock.name == stock_data.name).first()
+
+    if existing_stock:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Die Aktie '{stock_data.name}' wurde bereits eingebucht!"
+        )
+
+    generated_ticker = stock_data.name.replace(" ", "").upper()[:5]
+
+    db_bought_stock = BoughtStock(
+        name=stock_data.name,
+        ticker=generated_ticker,
+        amount=stock_data.amount,
+        bought_price=stock_data.bought_price
+    )
+
+    try:
+        db.add(db_bought_stock)
+        db.commit()
+        db.refresh(db_bought_stock)
+        return {"status": "success", "message": "Aktie erfolgreich eingebucht", "data": db_bought_stock}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Datenbankfehler: {str(e)}")
