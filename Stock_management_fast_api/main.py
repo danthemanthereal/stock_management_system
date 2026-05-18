@@ -7,7 +7,7 @@ from combining_stock_infos_llm.combine_stock import get_combination
 from financial_metric_evaluator_component.financial_metric_evaluator import \
     get_satisfied_and_not_satisfied_financial_metrics
 from database.models import FinancialMetric, IndustryProfile, ProfileMetricConfiguration, FinancialMetricCategory, \
-    BoughtStock
+    BoughtStock, StockSummary
 from financial_metric_component.financial_metric import get_total_financial_metrics
 from database.db import engine, SessionLocal
 from sqlalchemy.orm import Session, joinedload
@@ -939,6 +939,7 @@ def create_bought_stock(stock_data: BoughtStockCreate, db: Session = Depends(get
 
     try:
         db.add(db_bought_stock)
+        db.query(StockSummary).filter(StockSummary.name == stock_data.name).delete(synchronize_session=False)
         db.commit()
         db.refresh(db_bought_stock)
         return {"status": "success", "message": "Aktie erfolgreich eingebucht", "data": db_bought_stock}
