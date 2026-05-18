@@ -1,8 +1,9 @@
 import requests
-from database.models import FinancialMetric
+from database.models import FinancialMetric, ProfileMetricConfiguration
 from playwright.async_api import async_playwright
 import json
 from sqlalchemy import and_
+
 
 
 def get_total_financial_metrics(db, company_name: str)->dict:
@@ -33,18 +34,24 @@ def get_financial_metrics_by_guro_focus(db, financial_metric_map: dict)->dict:
     with open("/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/financial_metric_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
         financial_metrics = json.load(financial_metrics_file)
 
-
+    selected_profile_id = 1
     annuals = financial_metrics.get("annual", [])
     for current_year_map in annuals:
         for key, value in current_year_map.items():
             if key == "date":
                 continue
-            financial_metric_object = db.query(FinancialMetric).filter(
-            and_(
-                FinancialMetric.name == key,
-                FinancialMetric.is_active == True
+            financial_metric_object = (
+                db.query(FinancialMetric)
+                .join(ProfileMetricConfiguration, ProfileMetricConfiguration.metric_id == FinancialMetric.id)
+                .filter(
+                    and_(
+                        FinancialMetric.name == key,
+                        ProfileMetricConfiguration.profile_id == selected_profile_id,
+                        ProfileMetricConfiguration.is_active == True
+                    )
+                )
+                .first()
             )
-            ).first()
             if not financial_metric_object:
                 continue
             financial_metric_map.setdefault(key, []).append(value)
@@ -57,17 +64,24 @@ def get_financial_metrics_with_alpha_ventage_api(db, financial_metric_map, compa
     url = f'https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol={company_name}&apikey={alpha_vantage_api_key}'
     r = requests.get(url)
     financial_metric_to_get = ["costOfRevenue"]
+    selected_profile_id = 1
     ## 22, 23, 24, 25
     annual_reports = list(reversed(r.json()['annualReports']))[-4:]
     for annual_report in annual_reports:
         for (key, value) in annual_report.items():
             if key in financial_metric_to_get:
-                financial_metric_object = db.query(FinancialMetric).filter(
+                financial_metric_object = (
+                db.query(FinancialMetric)
+                .join(ProfileMetricConfiguration, ProfileMetricConfiguration.metric_id == FinancialMetric.id)
+                .filter(
                     and_(
                         FinancialMetric.name == key,
-                        FinancialMetric.is_active == True
+                        ProfileMetricConfiguration.profile_id == selected_profile_id,
+                        ProfileMetricConfiguration.is_active == True
                     )
-                ).first()
+                )
+                .first()
+            )
                 if not financial_metric_object:
                     continue
                 financial_metric_map.setdefault(key, []).append(value)
@@ -122,16 +136,22 @@ def get_financial_metrics_with_fmp_api(db, financial_metric_map, company_name):
     r = requests.get(url)
     ## 22, 23, 24, 25
     annual_reports = list(reversed(r.json()))[-4:]
-
+    selected_profile_id = 1
     for annual_report in annual_reports:
         for (key, value) in annual_report.items():
             if key in key_metrics_to_consider:
-                financial_metric_object = db.query(FinancialMetric).filter(
+                financial_metric_object = (
+                db.query(FinancialMetric)
+                .join(ProfileMetricConfiguration, ProfileMetricConfiguration.metric_id == FinancialMetric.id)
+                .filter(
                     and_(
                         FinancialMetric.name == key,
-                        FinancialMetric.is_active == True
+                        ProfileMetricConfiguration.profile_id == selected_profile_id,
+                        ProfileMetricConfiguration.is_active == True
                     )
-                ).first()
+                )
+                .first()
+            )
                 if not financial_metric_object:
                     continue
                 financial_metric_map.setdefault(key, []).append(value)
@@ -145,12 +165,18 @@ def get_financial_metrics_with_fmp_api(db, financial_metric_map, company_name):
     for annual_report in annual_reports_because_of_ratio:
         for (key, value) in annual_report.items():
             if key in ratio_metrics_to_consider:
-                financial_metric_object = db.query(FinancialMetric).filter(
+                financial_metric_object = (
+                db.query(FinancialMetric)
+                .join(ProfileMetricConfiguration, ProfileMetricConfiguration.metric_id == FinancialMetric.id)
+                .filter(
                     and_(
                         FinancialMetric.name == key,
-                        FinancialMetric.is_active == True
+                        ProfileMetricConfiguration.profile_id == selected_profile_id,
+                        ProfileMetricConfiguration.is_active == True
                     )
-                ).first()
+                )
+                .first()
+            )
                 if not financial_metric_object:
                     continue
                 financial_metric_map.setdefault(key, []).append(value)
@@ -196,24 +222,37 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
     total_assets = needed_financial_metrics_map.get("total_assets", [])
     total_good_will = needed_financial_metrics_map.get("good_will", [])
 
-    revenue_per_employee_object = db.query(FinancialMetric).filter(
-        and_(
-            FinancialMetric.name == "revenue_per_employee",
-            FinancialMetric.is_active == True
-        )
-    ).first()
+    selected_profile_id = 1
+    revenue_per_employee_object = (
+                db.query(FinancialMetric)
+                .join(ProfileMetricConfiguration, ProfileMetricConfiguration.metric_id == FinancialMetric.id)
+                .filter(
+                    and_(
+                        FinancialMetric.name == "revenue_per_employee",
+                        ProfileMetricConfiguration.profile_id == selected_profile_id,
+                        ProfileMetricConfiguration.is_active == True
+                    )
+                )
+                .first()
+            )
     if len(employee_numbers) == len(revenues) and revenue_per_employee_object:
         for idx, employee_number in enumerate(employee_numbers):
             revenue = revenues[idx]
             value = revenue / employee_number
-            financial_metric_map.setdefault("total_employee_number", []).append(value)
+            financial_metric_map.setdefault("revenue_per_employee", []).append(value)
 
-    gearing_object = db.query(FinancialMetric).filter(
-        and_(
-            FinancialMetric.name == "gearing",
-            FinancialMetric.is_active == True
+    gearing_object = (
+        db.query(FinancialMetric)
+        .join(ProfileMetricConfiguration, ProfileMetricConfiguration.metric_id == FinancialMetric.id)
+        .filter(
+            and_(
+                FinancialMetric.name == "gearing",
+                ProfileMetricConfiguration.profile_id == selected_profile_id,
+                ProfileMetricConfiguration.is_active == True
+            )
         )
-    ).first()
+        .first()
+    )
 
     if len(total_equity) == len(total_liabilities) and len(total_liabilities) == len(cash_and_cash_equivalents) and gearing_object:
         for idx, current_equity_in_year in enumerate(total_equity):
@@ -223,13 +262,20 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
             value = net_debt / current_equity_in_year
             financial_metric_map.setdefault("gearing", []).append(value)
 
-    dynamic_debt_degree_object = db.query(FinancialMetric).filter(
-        and_(
-            FinancialMetric.name == "dynamic debt degree",
-            FinancialMetric.is_active == True
+
+    dynamic_debt_degree_object = (
+        db.query(FinancialMetric)
+        .join(ProfileMetricConfiguration, ProfileMetricConfiguration.metric_id == FinancialMetric.id)
+        .filter(
+            and_(
+                FinancialMetric.name == "dynamic debt degree",
+                ProfileMetricConfiguration.profile_id == selected_profile_id,
+                ProfileMetricConfiguration.is_active == True
+            )
         )
-    ).first()
-    if len(total_free_cash_flows) == len(total_liabilities) and len(total_liabilities) == len(cash_and_cash_equivalents) and dynamic_debt_degree_object:
+        .first()
+    )
+    if len(total_equity) == len(total_liabilities) and len(total_liabilities) == len(cash_and_cash_equivalents) and dynamic_debt_degree_object:
         for idx, current_equity_in_year in enumerate(total_equity):
             current_total_liability = total_liabilities[idx]
             current_cash_and_cash_equivalent = cash_and_cash_equivalents[idx]
@@ -237,12 +283,19 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
             value = net_debt / current_equity_in_year
             financial_metric_map.setdefault("dynamic debt degree", []).append(value)
 
-    current_asset_intensity_object = db.query(FinancialMetric).filter(
-        and_(
-            FinancialMetric.name == "current_asset_intensity",
-            FinancialMetric.is_active == True
+
+    current_asset_intensity_object = (
+        db.query(FinancialMetric)
+        .join(ProfileMetricConfiguration, ProfileMetricConfiguration.metric_id == FinancialMetric.id)
+        .filter(
+            and_(
+                FinancialMetric.name == "current_asset_intensity",
+                ProfileMetricConfiguration.profile_id == selected_profile_id,
+                ProfileMetricConfiguration.is_active == True
+            )
         )
-    ).first()
+        .first()
+    )
 
     if len(total_current_assets) == len(total_assets) and current_asset_intensity_object:
         for idx, current_total_asset in enumerate(total_assets):
@@ -252,25 +305,37 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
 
 
 
-
-    non_current_asset_intensity_object = db.query(FinancialMetric).filter(
-        and_(
-            FinancialMetric.name == "non_current_asset_intensity",
-            FinancialMetric.is_active == True
+    non_current_asset_intensity_object =  (
+        db.query(FinancialMetric)
+        .join(ProfileMetricConfiguration, ProfileMetricConfiguration.metric_id == FinancialMetric.id)
+        .filter(
+            and_(
+                FinancialMetric.name == "non_current_asset_intensity",
+                ProfileMetricConfiguration.profile_id == selected_profile_id,
+                ProfileMetricConfiguration.is_active == True
+            )
         )
-    ).first()
+        .first()
+    )
     if len(total_non_current_assets) == len(total_assets) and non_current_asset_intensity_object:
         for idx, current_total_asset in enumerate(total_assets):
             current_non_current_asset = total_non_current_assets[idx]
             value = current_non_current_asset / current_total_asset
             financial_metric_map.setdefault("non_current_asset_intensity", []).append(value)
 
-    asset_cover_degree_one_object = db.query(FinancialMetric).filter(
-        and_(
-            FinancialMetric.name == "asset_cover_ratio_one",
-            FinancialMetric.is_active == True
+
+    asset_cover_degree_one_object =    (
+        db.query(FinancialMetric)
+        .join(ProfileMetricConfiguration, ProfileMetricConfiguration.metric_id == FinancialMetric.id)
+        .filter(
+            and_(
+                FinancialMetric.name == "asset_cover_ratio_one",
+                ProfileMetricConfiguration.profile_id == selected_profile_id,
+                ProfileMetricConfiguration.is_active == True
+            )
         )
-    ).first()
+        .first()
+    )
 
     if len(total_equity) == len(total_assets) and asset_cover_degree_one_object:
         for idx, current_equity_in_year in enumerate(total_equity):
@@ -278,14 +343,20 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
             value = current_equity_in_year / current_total_asset
             financial_metric_map.setdefault("asset_cover_ratio_one", []).append(value)
 
-    asset_cover_degree_two_object = db.query(FinancialMetric).filter(
-        and_(
-            FinancialMetric.name == "asset_cover_ratio_two",
-            FinancialMetric.is_active == True
+    asset_cover_degree_two_object =  (
+        db.query(FinancialMetric)
+        .join(ProfileMetricConfiguration, ProfileMetricConfiguration.metric_id == FinancialMetric.id)
+        .filter(
+            and_(
+                FinancialMetric.name == "asset_cover_ratio_two",
+                ProfileMetricConfiguration.profile_id == selected_profile_id,
+                ProfileMetricConfiguration.is_active == True
+            )
         )
-    ).first()
+        .first()
+    )
 
-    if len(total_equity) == len(total_assets) and len(total_assets) == len(total_liabilities) and len(total_current_liabilities) and asset_cover_degree_two_object:
+    if len(total_equity) == len(total_assets) and len(total_assets) == len(total_liabilities) and asset_cover_degree_two_object:
         for idx, current_equity_in_year in enumerate(total_equity):
             current_total_asset = total_assets[idx]
             current_long_term_liabilities = total_liabilities[idx] - total_current_liabilities[idx]
@@ -293,12 +364,19 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
             financial_metric_map.setdefault("asset_cover_ratio_two", []).append(value)
 
 
-    good_will_object = db.query(FinancialMetric).filter(
-        and_(
-            FinancialMetric.name == "good_will_ratio",
-            FinancialMetric.is_active == True
+    good_will_object =   (
+        db.query(FinancialMetric)
+        .join(ProfileMetricConfiguration, ProfileMetricConfiguration.metric_id == FinancialMetric.id)
+        .filter(
+            and_(
+                FinancialMetric.name == "good_will_ratio",
+                ProfileMetricConfiguration.profile_id == selected_profile_id,
+                ProfileMetricConfiguration.is_active == True
+            )
         )
-    ).first()
+        .first()
+    )
+
 
     if len(total_good_will) == len(total_equity) and good_will_object:
         for idx, current_equity_in_year in enumerate(total_equity):
