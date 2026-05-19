@@ -216,7 +216,6 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
     total_liabilities = needed_financial_metrics_map.get("total_liabilities", [])
     total_current_liabilities = needed_financial_metrics_map.get("total_current_liabilities", [])
     cash_and_cash_equivalents = needed_financial_metrics_map.get("cash_and_cash_equivalents", [])
-    total_free_cash_flows = needed_financial_metrics_map.get("total_free_cash_flow", [])
     total_current_assets = needed_financial_metrics_map.get("total_current_assets", [])
     total_non_current_assets = needed_financial_metrics_map.get("total_non_current_assets", [])
     total_assets = needed_financial_metrics_map.get("total_assets", [])

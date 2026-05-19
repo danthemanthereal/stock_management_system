@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form, Depends, HTTPException, status
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, status, Query
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from collections import defaultdict
@@ -23,6 +23,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import requests
 from pytube import extract
 from itertools import groupby
+from datetime import datetime, timedelta
+from gnews import GNews
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -946,3 +948,34 @@ def create_bought_stock(stock_data: BoughtStockCreate, db: Session = Depends(get
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Datenbankfehler: {str(e)}")
+
+
+@app.get("/get-news")
+def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...)):
+    finhub_api_key = "cqe2g6pr01qgmug3gjogcqe2g6pr01qgmug3gjp0"
+    today = datetime.utcnow().date()
+    two_days_ago = today - timedelta(days=2)
+    url = f"https://finnhub.io/api/v1/company-news?symbol={stock}&from={two_days_ago}&to={today}&token={finhub_api_key}"
+    news = []
+    response = requests.get(url)
+    data = response.json()
+
+    print(data[0].keys())
+
+    google_news = GNews(language='de', country='DE', period='1d')
+
+    meine_news = google_news.get_news(f'{stock} news')
+
+    for artikel in meine_news:
+        print(f"Titel: {artikel['title']}")
+        print(f"Link: {artikel['url']}")
+        print(f"Quelle: {artikel['publisher']['title']}")
+        print("-" * 30)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={
+            "news": news
+        }
+    )

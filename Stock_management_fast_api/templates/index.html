@@ -6,37 +6,45 @@
 </head>
 <body>
 <h1> Aktien Zusammenfassung</h1>
-    <form action="/get-summary" method="post">
-        <input type="text" name="url" placeholder="Gib eine URL ein um eine Aktienzusammenfassung..." style="width: 300px;"
-               required>
-        <button type="submit">Absenden</button>
-    </form>
+<form action="/get-summary" method="post">
+    <input type="text" name="url" placeholder="Gib eine URL ein um eine Aktienzusammenfassung..." style="width: 300px;"
+           required>
+    <button type="submit">Absenden</button>
+</form>
 
-    <form action="/get-yt-transcript" method="post">
-        <input type="text" name="url" placeholder="Gib eine Video Url für Skript..." style="width: 300px;" required>
-        <button type="submit">Absenden</button>
-    </form>
-    <br><br>
-    <form action="/saved-companies" method="get">
-        <button type="submit">Alle gespeicherten Aktien Watchlist anzeigen</button>
-    </form>
-    <br><br>
+<form action="/get-yt-transcript" method="post">
+    <input type="text" name="url" placeholder="Gib eine Video Url für Skript..." style="width: 300px;" required>
+    <button type="submit">Absenden</button>
+</form>
+<br><br>
+<form action="/saved-companies" method="get">
+    <button type="submit">Alle gespeicherten Aktien Watchlist anzeigen</button>
+</form>
+<br><br>
 
-    <form action="/find-potential-stocks" method="post">
-        <button type="submit">potenzielle Aktien finden </button>
-    </form>
-    <form action="/get-financial-metrics" method="post">
-                <input type="text" name="company" placeholder="Aktie für die man Kennzahlen will" required>
-                <button type="submit">Absenden</button>
-    </form>
-    <form action="/show-saved-financial-metrics" method="post">
-        <button type="submit">Alle gespeicherten Kennzahlen anzeigen </button>
-    </form>
-    <form action="/portfolio" method="get">
-        <button type="submit" style="font-weight: bold; background-color: #28a745; color: white; border: 1px solid #218838; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
-            Mein Aktien-Portfolio (Depot-Wert) anzeigen
-        </button>
-    </form>
-    <br><br>
+<form action="/find-potential-stocks" method="post">
+    <button type="submit">potenzielle Aktien finden</button>
+</form>
+<form action="/get-financial-metrics" method="post">
+    <input type="text" name="company" placeholder="Aktie für die man Kennzahlen will" required>
+    <button type="submit">Absenden</button>
+</form>
+<form action="/show-saved-financial-metrics" method="post">
+    <button type="submit">Alle gespeicherten Kennzahlen anzeigen</button>
+</form>
+<form action="/portfolio" method="get">
+    <button type="submit"
+            style="font-weight: bold; background-color: #28a745; color: white; border: 1px solid #218838; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+        Mein Aktien-Portfolio (Depot-Wert) anzeigen
+    </button>
+</form>
+<br><br>
+<form action="/get-news" method="get">
+    <input type="text" name="stock" placeholder="Ticker eingeben (z.B. AAPL)">
+    <button type="submit">
+        News von der Aktie bekommen
+    </button>
+</form>
+<br><br>
 </body>
 </html>
