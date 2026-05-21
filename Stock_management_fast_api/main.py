@@ -391,8 +391,8 @@ async def receive_company(company: Company, db: Session = Depends(get_db)):
         db_company.weakness = "\n".join(f"• {w}" for w in weaknesses)
         db.commit()
         db.refresh(db_company)
-        trajectory, reasoning, recommendation = evaluate_new_information(current_strengths, company.strength,
-                                                                         current_weakness, company.weakness)
+        trajectory, reasoning, recommendation = evaluate_new_information(current_strengths, company.strength,current_weakness, company.weakness)
+        print("retrun in if")
         return {
             "message": "Firma aktualisiert!",
             "id": db_company.id,
@@ -402,6 +402,7 @@ async def receive_company(company: Company, db: Session = Depends(get_db)):
         }
 
     else:
+        print("in else ")
         db_company = models.StockSummary(
             name=company.company_name,
             strength=company.strength,

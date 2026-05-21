@@ -64,7 +64,10 @@
 <script>
 async function sendCompanyData(button) {
     // 1. Variablen aus dem Button auslesen
-    const companyName = button.getAttribute('data-name');
+    const companyCard = button.closest('.company');
+
+    // 2. Greife den AKTUELLEN Text aus dem editierbaren <h2> Feld
+    const companyName = companyCard.querySelector('.editable-name').innerText.trim();
     const strength = button.getAttribute('data-strength');
     const weakness = button.getAttribute('data-weakness');
 
