@@ -63,11 +63,21 @@
 
 <script>
 async function sendCompanyData(button) {
+    // 1. Variablen aus dem Button auslesen
+    const companyName = button.getAttribute('data-name');
+    const strength = button.getAttribute('data-strength');
+    const weakness = button.getAttribute('data-weakness');
+
     const data = {
-        company_name: button.dataset.name,
-        strength: button.dataset.strength,
-        weakness: button.dataset.weakness
+        company_name: companyName,
+        strength: strength,
+        weakness: weakness
     };
+
+    // Temporären Lade-Status anzeigen (damit der User sieht, dass etwas passiert)
+    button.disabled = true;
+    const originalText = button.innerText;
+    button.innerText = "Speichere und analysiere...";
 
     try {
         const response = await fetch("http://localhost:8000/companies", {
@@ -78,15 +88,51 @@ async function sendCompanyData(button) {
             body: JSON.stringify(data)
         });
 
-        if (response.ok) {
+        if (!response.ok) throw new Error('Server-Fehler beim Speichern');
 
-        window.location.href = "/success";
-    }
+        // 2. Antwort des Backends parsen (hier stecken deine 3 Variablen drin!)
+        const result = await response.json();
 
+        button.innerText = `✓ ${result.message}`;
+        button.style.backgroundColor = "#6c757d";
+        button.style.cursor = "not-allowed";
+
+        // 3. Eindeutige ID für die Info-Box generieren
+        const safeId = `eval-${companyName.replace(/\s+/g, '-')}`;
+        let evalDiv = document.getElementById(safeId);
+
+        if (!evalDiv) {
+            evalDiv = document.createElement('div');
+            evalDiv.id = safeId;
+            evalDiv.style.marginTop = "15px";
+            evalDiv.style.padding = "15px";
+            evalDiv.style.border = "1px solid #ddd";
+            evalDiv.style.borderRadius = "5px";
+            evalDiv.style.backgroundColor = "#f9f9f9";
+
+            // Platziert die Box direkt unter dem Button im DOM
+            button.parentNode.appendChild(evalDiv);
+        }
+
+        // 4. Farbe basierend auf Trajectory bestimmen
+        let trajectoryColor = 'orange';
+        if (result.trajectory === 'Improved') trajectoryColor = 'green';
+        if (result.trajectory === 'Worsened') trajectoryColor = 'red';
+
+        // 5. Daten ins HTML schreiben
+        evalDiv.innerHTML = `
+            <h4 style="margin-top: 0; color: #333;">KI-Analyse für ${companyName}</h4>
+            <p style="margin: 5px 0;"><strong>Tendenz:</strong> <span style="color: ${trajectoryColor}; font-weight: bold;">${result.trajectory}</span></p>
+            <p style="margin: 5px 0;"><strong>Begründung:</strong> ${result.reasoning}</p>
+            <p style="margin: 5px 0;"><strong>Empfehlung:</strong> ${result.recommendation}</p>
+        `;
 
     } catch (error) {
         console.error(error);
-        alert("Netzwerkfehler");
+        alert("Fehler beim Verarbeiten der Daten: " + error.message);
+        // Button bei Fehler wieder reaktivieren
+        button.disabled = false;
+        button.innerText = originalText;
     }
 }
 </script>

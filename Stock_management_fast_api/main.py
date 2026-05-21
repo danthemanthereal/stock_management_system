@@ -3,6 +3,8 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from collections import defaultdict
 from typing import List, Tuple, Optional
+
+from evaluation_component.evaluation import evaluate_new_information
 from combining_stock_infos_llm.combine_stock import get_combination
 from financial_metric_evaluator_component.financial_metric_evaluator import \
     get_satisfied_and_not_satisfied_financial_metrics
@@ -389,7 +391,15 @@ async def receive_company(company: Company, db: Session = Depends(get_db)):
         db_company.weakness = "\n".join(f"• {w}" for w in weaknesses)
         db.commit()
         db.refresh(db_company)
-        return {"message": "Firma aktualisiert!", "id": db_company.id}
+        trajectory, reasoning, recommendation = evaluate_new_information(current_strengths, company.strength,
+                                                                         current_weakness, company.weakness)
+        return {
+            "message": "Firma aktualisiert!",
+            "id": db_company.id,
+            "trajectory": trajectory,
+            "reasoning": reasoning,
+            "recommendation": recommendation
+        }
 
     else:
         db_company = models.StockSummary(
