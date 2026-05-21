@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form action="/get-summary" method="post">
+    <input type="text" name="url" placeholder="Gib eine URL ein um eine Aktienzusammenfassung..." style="width: 300px;"
+           required>
+    <button type="submit">Absenden</button>
+</form>
+<br><br>
+<form action="/get-yt-transcript" method="post">
+    <input type="text" name="url" placeholder="Gib eine Video Url für Skript..." style="width: 300px;" required>
+    <button type="submit">Absenden</button>
+</form>
+<br>
+<form action="/find-potential-stocks" method="post">
+    <button type="submit">potenzielle Aktien finden</button>
+</form>
+<form action="/get-financial-metrics" method="post">
+    <input type="text" name="company" placeholder="Aktie für die man Kennzahlen will" required>
+    <button type="submit">Absenden</button>
+</form>
+<br>
+
+<form action="/show-saved-financial-metrics" method="post">
+    <button type="submit">Alle gespeicherten Kennzahlen anzeigen</button>
+</form>
+
+<form action="/get-news" method="get">
+    <input type="text" name="stock" placeholder="Ticker eingeben (z.B. AAPL)">
+    <button type="submit">
+        News von der Aktie bekommen
+    </button>
+</form>
+
+{% if news %}
+<h2>Aktuelle News</h2>
+<ul style="list-style-type: none; padding-left: 0;">
+    {% for artikel in news %}
+    <li style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+
+            <!-- 1. Nur der Titel, KEIN Link -->
+            <span style="font-weight: bold; font-size: 1.1em; flex-grow: 1;">
+                            {{ artikel.headline }}
+                        </span>
+
+            <!-- 2. Der Button für das JavaScript -->
+            <button type="button"
+                    onclick="loadSummary('{{ artikel.url }}', 'summary-{{ loop.index }}')"
+                    style="cursor: pointer; padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px;">
+                Stärken und Schwächen erhalten
+            </button>
+        </div>
+
+        <!-- 3. Der Container für die Antwort (Standardmäßig unsichtbar: display: none) -->
+        <div id="summary-{{ loop.index }}"
+             style="display: none; margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #007bff; font-family: sans-serif; line-height: 1.5;">
+            <button>In Watchlist übernehmen</button>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+</body>
+</html>

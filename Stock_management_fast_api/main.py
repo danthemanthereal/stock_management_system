@@ -1009,3 +1009,12 @@ async def get_summary_api(payload: SummaryRequest):
     ergebnis_text = get_summary_of_gemini_with_url_context(target_url)
 
     return {"summary": ergebnis_text}
+
+@app.get("/watchlist")
+def watch_list(request: Request, db: Session = Depends(get_db)):
+    watch_list_stocks = companies = db.query(models.StockSummary).filter(models.StockSummary.is_on_watch_list == True).all()
+    return templates.TemplateResponse(request=request,
+                                      name="watchlist.html",
+                                      context={"request": request,
+                                               "watch_list_stocks": watch_list_stocks
+                                               })
