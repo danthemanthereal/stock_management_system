@@ -857,7 +857,7 @@ async def get_portfolio_page(request: Request, db: Session = Depends(get_db)):
         bought_stocks = db.query(BoughtStock).order_by(BoughtStock.ticker).all()
 
         return render_localized(
-             template_name="show_saved_bought_stocks.html",
+             template_name="portfolio.html",
              request=request,
             context={
                 "request": request,
