@@ -415,7 +415,7 @@ async def success_page(request: Request):
 @app.get("/saved-companies", response_class=HTMLResponse)
 def show_companies(request: Request, db: Session = Depends(get_db)):
     try:
-        companies = db.query(models.StockSummary).all()
+        companies = db.query(models.StockSummary).filter(models.StockSummary.is_on_watch_list == True).all()
 
         return templates.TemplateResponse(request=request,
                                           name="saved_companies_overview.html",
@@ -944,7 +944,8 @@ def create_bought_stock(stock_data: BoughtStockCreate, db: Session = Depends(get
 
     try:
         db.add(db_bought_stock)
-        db.query(StockSummary).filter(StockSummary.name == stock_data.name).delete(synchronize_session=False)
+        current_stock = db.query(StockSummary).filter(StockSummary.name == stock_data.name).first()
+        current_stock.is_on_watch_list = False
         db.commit()
         db.refresh(db_bought_stock)
         return {"status": "success", "message": "Aktie erfolgreich eingebucht", "data": db_bought_stock}
@@ -973,7 +974,7 @@ def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...)):
 
     google_news = GNews(language='de', country='DE', period='1d')
 
-    meine_news = google_news.get_news(f'{stock} news')
+    meine_news = google_news.get_news(f'{stock}  Aktie news')
 
     for artikel in meine_news:
         headline_url.append({

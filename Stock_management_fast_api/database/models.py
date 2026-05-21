@@ -10,6 +10,7 @@ class StockSummary(Base):
     name = Column(String,unique=True, index=True)
     strength = Column(String, index=True)
     weakness = Column(String, index=True)
+    is_on_watch_list = Column(Boolean)
 
 class FinancialMetric(Base):
     __tablename__ = "financial_metric"
