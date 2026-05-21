@@ -1012,9 +1012,16 @@ async def get_summary_api(payload: SummaryRequest):
 
 @app.get("/watchlist")
 def watch_list(request: Request, db: Session = Depends(get_db)):
-    watch_list_stocks = companies = db.query(models.StockSummary).filter(models.StockSummary.is_on_watch_list == True).all()
+    watch_list_stocks = db.query(models.StockSummary).filter(models.StockSummary.is_on_watch_list == True).all()
     return templates.TemplateResponse(request=request,
                                       name="watchlist.html",
                                       context={"request": request,
                                                "watch_list_stocks": watch_list_stocks
                                                })
+
+@app.get("/analysis")
+def analysis(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="analysis.html",
+        context={"request": request})
