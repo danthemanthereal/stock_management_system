@@ -3,6 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        .strength {
+            color: green;
+        }
+
+        .weakness {
+            color: red;
+        }
+
+        .company-box {
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
 <h1> Aktien Zusammenfassung</h1>
@@ -46,5 +61,151 @@
     </button>
 </form>
 <br><br>
+<!-- Überprüfen, ob die Liste existiert und nicht leer ist -->
+{% if news %}
+<h2>Aktuelle News</h2>
+<ul style="list-style-type: none; padding-left: 0;">
+    {% for artikel in news %}
+    <li style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+
+            <!-- 1. Nur der Titel, KEIN Link -->
+            <span style="font-weight: bold; font-size: 1.1em; flex-grow: 1;">
+                            {{ artikel.headline }}
+                        </span>
+
+            <!-- 2. Der Button für das JavaScript -->
+            <button type="button"
+                    onclick="loadSummary('{{ artikel.url }}', 'summary-{{ loop.index }}')"
+                    style="cursor: pointer; padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px;">
+                Stärken und Schwächen erhalten
+            </button>
+        </div>
+
+        <!-- 3. Der Container für die Antwort (Standardmäßig unsichtbar: display: none) -->
+        <div id="summary-{{ loop.index }}"
+             style="display: none; margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #007bff; font-family: sans-serif; line-height: 1.5;">
+            <button>In Watchlist übernehmen</button>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<script>
+    async function loadSummary(url, containerId) {
+        const container = document.getElementById(containerId);
+        container.style.display = "block";
+        container.innerHTML = "<em>Lade Zusammenfassung... Bitte warten.</em>";
+
+        try {
+            const response = await fetch('/api/get-summary', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({url: url})
+            });
+
+            if (!response.ok) throw new Error(`HTTP-Fehler! Status: ${response.status}`);
+
+            const data = await response.json();
+
+// 2. Den JSON-String aus dem "summary"-Feld parsen
+// Danach hast du ein echtes JavaScript-Objekt
+            const parsedData = JSON.parse(data.summary);
+
+// 3. Sicherstellen, dass wir an das Array rankommen
+            let companies = [];
+
+            if (Array.isArray(parsedData)) {
+                // Wenn parsedData direkt das Array ist (z.B. [ {company_name: ...}, ... ])
+                companies = parsedData;
+            } else if (typeof parsedData === "object" && parsedData !== null) {
+                // Wenn parsedData ein Dictionary ist, das das Array in einem Key versteckt (z.B. { "companies": [...] })
+                // Hier prüfen wir die typischen Keys ab oder nehmen das Objekt selbst als einziges Element in die Liste auf
+                companies = parsedData.companies || parsedData.items || [parsedData];
+            }
+            let htmlContent = "";
+
+            companies.forEach((company, index) => {
+                const formattedStrength = company.strength.replaceAll('•', '<br>');
+                const formattedWeakness = company.weakness.replaceAll('•', '<br>');
+
+                // Jedes Unternehmen bekommt seine eigene Box samt individuellem Speicher-Button
+                // Wir verstecken die Rohdaten in data-Attributen, damit Zeilenumbrüche kein JS zerstören
+                htmlContent += `
+                <div class="company-result-item" style="margin-bottom: 25px; border-bottom: 1px dashed #ccc; padding-bottom: 15px;">
+                    <h2 style="margin-top: 0;">${company.company_name}</h2>
+
+                    <h3 class="strength">Stärken</h3>
+                    <p style="line-height: 1.6;">${formattedStrength}</p>
+
+                    <h3 class="weakness">Schwächen</h3>
+                    <p style="line-height: 1.6;">${formattedWeakness}</p>
+
+                    <!-- Der Speicher-Button für diese spezifische Firma -->
+                    <button type="button"
+                            class="save-btn"
+                            data-name="${company.company_name.replace(/"/g, '&quot;')}"
+                            data-strength="${company.strength.replace(/"/g, '&quot;')}"
+                            data-weakness="${company.weakness.replace(/"/g, '&quot;')}"
+                            onclick="saveToWatchlist(this)"
+                            style="cursor: pointer; padding: 6px 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-weight: bold;">
+                        In Watchlist übernehmen
+                    </button>
+                    <span class="status-msg" style="margin-left: 10px; font-weight: 500;"></span>
+                </div>
+            `;
+            });
+
+            container.innerHTML = htmlContent;
+
+        } catch (error) {
+            container.innerHTML = `<span style="color: red;">Fehler beim Laden der Zusammenfassung: ${error.message}</span>`;
+        }
+    }
+
+    async function saveToWatchlist(buttonElement) {
+        const companyName = buttonElement.getAttribute('data-name');
+        const strength = buttonElement.getAttribute('data-strength');
+        const weakness = buttonElement.getAttribute('data-weakness');
+
+        const statusSpan = buttonElement.nextElementSibling;
+        statusSpan.style.color = "#555";
+        statusSpan.innerText = "Speichere...";
+
+        const payload = {
+            company_name: companyName,
+            strength: strength,
+            weakness: weakness
+        };
+
+        try {
+            const response = await fetch('/companies', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error('Server-Fehler beim Speichern');
+
+            const result = await response.json();
+
+            statusSpan.style.color = "green";
+            statusSpan.innerText = `✓ ${result.message}`;
+
+            buttonElement.disabled = true;
+            buttonElement.style.backgroundColor = "#6c757d";
+            buttonElement.style.cursor = "not-allowed";
+
+        } catch (error) {
+            statusSpan.style.color = "red";
+            statusSpan.innerText = "❌ Fehler beim Speichern";
+            console.error("Fehler bei saveToWatchlist:", error);
+        }
+    }
+</script>
+
 </body>
 </html>

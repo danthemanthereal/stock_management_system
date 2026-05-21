@@ -36,6 +36,9 @@ class BoughtStockCreate(BaseModel):
     class Config:
         from_attributes = True
 
+
+class SummaryRequest(BaseModel):
+    url: str
 app = FastAPI()
 
 origins = [
@@ -956,26 +959,41 @@ def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...)):
     today = datetime.utcnow().date()
     two_days_ago = today - timedelta(days=2)
     url = f"https://finnhub.io/api/v1/company-news?symbol={stock}&from={two_days_ago}&to={today}&token={finhub_api_key}"
-    news = []
     response = requests.get(url)
     data = response.json()
 
-    print(data[0].keys())
+    headline_url = []
+
+    for news in data:
+        headline_url.append({
+            "headline": news["headline"],
+            "url": news["url"],
+        })
+
 
     google_news = GNews(language='de', country='DE', period='1d')
 
     meine_news = google_news.get_news(f'{stock} news')
 
     for artikel in meine_news:
-        print(f"Titel: {artikel['title']}")
-        print(f"Link: {artikel['url']}")
-        print(f"Quelle: {artikel['publisher']['title']}")
-        print("-" * 30)
+        headline_url.append({
+            "headline": artikel['title'],
+            "url": artikel['url']
+        })
 
     return templates.TemplateResponse(
         request=request,
         name="index.html",
         context={
-            "news": news
+            "news": headline_url
         }
     )
+
+
+@app.post("/api/get-summary")
+async def get_summary_api(payload: SummaryRequest):
+    target_url = payload.url
+
+    ergebnis_text = get_summary_of_gemini_with_url_context(target_url)
+
+    return {"summary": ergebnis_text}
