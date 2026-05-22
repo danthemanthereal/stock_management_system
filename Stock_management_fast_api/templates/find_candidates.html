@@ -12,12 +12,14 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
+        .hint { font-size: 0.85em; color: #666; margin-left: 5px; }
     </style>
 </head>
 <body>
 
 <h2>Finviz Stock Screener</h2>
-<p>Nur aktivierte und gültige Filter werden gesendet.</p>
+<p>Nur aktivierte und gültige Filter werden gesendet. <br>
+<small>Zahlen bitte <strong>ohne Einheit</strong> eingeben – % wird automatisch ergänzt, wo nötig.</small></p>
 
 <div id="filters-container"></div>
 
@@ -31,7 +33,6 @@
 
 <script>
 // ✅ 1. Definition der Kennzahlen & Mapping auf das KORREKTE Filterformat
-//    Quelle: https://github.com/knicola/finviz-screener/blob/master/docs/API.md
 const filterDefinitions = [
     { name: "P/E",               finvizKey: "P/E",                      format: "ratio" },
     { name: "Forward P/E",       finvizKey: "Forward P/E",              format: "ratio" },
@@ -81,35 +82,45 @@ filterDefinitions.forEach((def, index) => {
     opSelect.id = `op-${index}`;
     opSelect.innerHTML = '<option value="Over">Over</option><option value="Under">Under</option>';
 
+    // ➤ Eingabefeld: NUR Zahlen, ohne Einheit
     const valInput = document.createElement("input");
     valInput.type = "text";
+    valInput.inputMode = "decimal";           // mobile: numerische Tastatur
+    valInput.pattern = "[0-9]*[.]?[0-9]*";    // einfache Validierung für Dezimalzahlen
     valInput.id = `val-${index}`;
-    valInput.placeholder = def.format === 'ratio' ? "z.B. 10" : "z.B. 15%";
+    valInput.placeholder = "z.B. 15";         // kein % mehr
+    valInput.style.width = "80px";
+
+    // Optionaler Hinweis, welche Einheit automatisch ergänzt wird
+    const unitHint = document.createElement("span");
+    unitHint.className = "hint";
+    unitHint.textContent = def.format === "ratio" ? "" : "(%)";
 
     row.appendChild(cb);
     row.appendChild(label);
     row.appendChild(opSelect);
     row.appendChild(valInput);
+    row.appendChild(unitHint);
     container.appendChild(row);
 });
 
-// 3. Hilfsfunktion zum Generieren des gültigen Filter-Strings
+// 3. Filter-String bauen – Einheit wird hier automatisch ergänzt
 function buildFilterString(operator, value, format) {
-    // Entfernt ggf. ein bereits vorhandenes %-Zeichen
-    const cleanValue = value.replace('%', '');
+    // Entfernt eventuell doch eingegebene % oder Leerzeichen
+    const cleanValue = value.replace(/[%\s]/g, '');
+
+    // Falls nach der Bereinigung nichts übrig bleibt (z.B. nur %), leere String zurückgeben
+    if (cleanValue === "") return "";
 
     switch (format) {
         case 'pct_plus':
-            // Benötigt zwingend ein Pluszeichen: "Over +15%"
             return operator === "Over" ? `Over +${cleanValue}%` : `Under ${cleanValue}%`;
         case 'pct_no_plus':
-            // Kein Pluszeichen: "Over 15%"
             return operator === "Over" ? `Over ${cleanValue}%` : `Under ${cleanValue}%`;
         case 'ratio':
-            // Für Verhältniszahlen wie P/E, Debt/Equity etc. Kein %-Zeichen.
             return operator === "Over" ? `Over ${cleanValue}` : `Under ${cleanValue}`;
         default:
-            return `${operator} ${value}`; // Fallback
+            return `${operator} ${value}`;
     }
 }
 
@@ -126,6 +137,8 @@ async function runScreen() {
         if (value === "") return;
 
         const filterString = buildFilterString(operator, value, def.format);
+        if (filterString === "") return;   // ungültiger Wert überspringen
+
         filters[def.finvizKey] = filterString;
     });
 
@@ -134,7 +147,6 @@ async function runScreen() {
         return;
     }
 
-    // Zu Debugging-Zwecken: zeigt die gesendeten Filter an
     console.log("Gesendete Filter:", filters);
 
     try {

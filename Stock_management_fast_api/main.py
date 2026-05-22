@@ -1014,6 +1014,7 @@ def screen(filters: dict):
     finally:
         util.web_scrap = original_web_scrap
 
+
     df = df.astype(object)
 
     df = df.where(pd.notnull(df) & ~df.isin([np.inf, -np.inf]), None)
