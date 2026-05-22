@@ -4,7 +4,6 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from collections import defaultdict
 from typing import List, Tuple, Optional
 from finvizfinance.screener.overview import Overview
-from passlib.context import CryptContext
 from evaluation_component.evaluation import evaluate_new_information
 import traceback
 from combining_stock_infos_llm.combine_stock import get_combination

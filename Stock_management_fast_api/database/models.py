@@ -12,10 +12,17 @@ class StockSummary(Base):
     __tablename__ = "stock_summary"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     name = Column(String,unique=True, index=True)
     strength = Column(String, index=True)
     weakness = Column(String, index=True)
     is_on_watch_list = Column(Boolean)
+
+    user = relationship("User", back_populates="stock_summary")
+    __table_args__ = (
+        UniqueConstraint("user_id", "name", name="uq_user_stock_ticker"),  # sicherer
+    )
+
 
 class FinancialMetric(Base):
     __tablename__ = "financial_metric"
@@ -54,6 +61,13 @@ class IndustryProfile(Base):
     name = Column(String, unique=True, index=True)
 
     metric_configs = relationship("ProfileMetricConfiguration", back_populates="profile", cascade="all, delete-orphan")
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+
+    user = relationship("User", back_populates="industry_profiles")
+    __table_args__ = (
+        UniqueConstraint("user_id", "name", name="uq_user_stock_ticker"),  # sicherer
+    )
+
 
 class ProfileMetricConfiguration(Base):
 
@@ -76,10 +90,18 @@ class ProfileMetricConfiguration(Base):
 class BoughtStock(Base):
     __tablename__ = "bought_stock"
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+
     name = Column(String, unique=True, index=True)
     ticker = Column(String, unique=True, index=True)
     bought_price = Column(Float)
     amount = Column(Float)
+
+    user = relationship("User", back_populates="bought_stocks")
+    __table_args__ = (
+        UniqueConstraint("user_id", "name", name="uq_user_stock_ticker"),  # sicherer
+    )
+
 
 class User(Base):
     __tablename__ = "users"
@@ -92,6 +114,11 @@ class User(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now())
+
+    bought_stocks = relationship("BoughtStock", back_populates="user", cascade="all, delete-orphan")
+    industry_profiles = relationship("IndustryProfile", back_populates="user", cascade="all, delete-orphan")
+    stock_summary = relationship("StockSummary", back_populates="user", cascade="all, delete-orphan")
+
 
 class RefreshToken(Base):
     __tablename__ = "refresh_token"
