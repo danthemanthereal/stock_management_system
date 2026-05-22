@@ -34,12 +34,12 @@
 {% for company in companies %}
 <div class="company">
     <h2
-    contenteditable="true"
-    class="editable-name"
-    data-original="{{ company.company_name }}"
->
-    {{ company.company_name }}
-</h2>
+            contenteditable="true"
+            class="editable-name"
+            data-original="{{ company.company_name }}"
+    >
+        {{ company.company_name }}
+    </h2>
 
     <h3 class="strength">Stärken</h3>
     <p>{{ company.strength.replace('•', '<br>') | safe }}</p>
@@ -62,82 +62,83 @@
 {% endif %}
 
 <script>
-async function sendCompanyData(button) {
-    // 1. Variablen aus dem Button auslesen
-    const companyCard = button.closest('.company');
+    async function sendCompanyData(button) {
+        // 1. Variablen aus dem Button auslesen
+        const companyCard = button.closest('.company');
 
-    // 2. Greife den AKTUELLEN Text aus dem editierbaren <h2> Feld
-    const companyName = companyCard.querySelector('.editable-name').innerText.trim();
-    const strength = button.getAttribute('data-strength');
-    const weakness = button.getAttribute('data-weakness');
+        // 2. Greife den AKTUELLEN Text aus dem editierbaren <h2> Feld
+        const companyName = companyCard.querySelector('.editable-name').innerText.trim();
+        const strength = button.getAttribute('data-strength');
+        const weakness = button.getAttribute('data-weakness');
 
-    const data = {
-        company_name: companyName,
-        strength: strength,
-        weakness: weakness
-    };
+        const data = {
+            company_name: companyName,
+            strength: strength,
+            weakness: weakness
+        };
 
-    // Temporären Lade-Status anzeigen (damit der User sieht, dass etwas passiert)
-    button.disabled = true;
-    const originalText = button.innerText;
-    button.innerText = "Speichere und analysiere...";
+        // Temporären Lade-Status anzeigen (damit der User sieht, dass etwas passiert)
+        button.disabled = true;
+        const originalText = button.innerText;
+        button.innerText = "Speichere und analysiere...";
 
-    try {
-        const response = await fetch("http://localhost:8000/companies", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        });
+        try {
+            const response = await fetch("/companies", {
+                method: "POST",
+                credentials: "same-origin",   // ← diese Zeile neu
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
 
-        if (!response.ok) throw new Error('Server-Fehler beim Speichern');
+            if (!response.ok) throw new Error('Server-Fehler beim Speichern');
 
-        // 2. Antwort des Backends parsen (hier stecken deine 3 Variablen drin!)
-        const result = await response.json();
+            // 2. Antwort des Backends parsen (hier stecken deine 3 Variablen drin!)
+            const result = await response.json();
 
-        button.innerText = `✓ ${result.message}`;
-        button.style.backgroundColor = "#6c757d";
-        button.style.cursor = "not-allowed";
+            button.innerText = `✓ ${result.message}`;
+            button.style.backgroundColor = "#6c757d";
+            button.style.cursor = "not-allowed";
 
-        // 3. Eindeutige ID für die Info-Box generieren
-        const safeId = `eval-${companyName.replace(/\s+/g, '-')}`;
-        let evalDiv = document.getElementById(safeId);
+            // 3. Eindeutige ID für die Info-Box generieren
+            const safeId = `eval-${companyName.replace(/\s+/g, '-')}`;
+            let evalDiv = document.getElementById(safeId);
 
-        if (!evalDiv) {
-            evalDiv = document.createElement('div');
-            evalDiv.id = safeId;
-            evalDiv.style.marginTop = "15px";
-            evalDiv.style.padding = "15px";
-            evalDiv.style.border = "1px solid #ddd";
-            evalDiv.style.borderRadius = "5px";
-            evalDiv.style.backgroundColor = "#f9f9f9";
+            if (!evalDiv) {
+                evalDiv = document.createElement('div');
+                evalDiv.id = safeId;
+                evalDiv.style.marginTop = "15px";
+                evalDiv.style.padding = "15px";
+                evalDiv.style.border = "1px solid #ddd";
+                evalDiv.style.borderRadius = "5px";
+                evalDiv.style.backgroundColor = "#f9f9f9";
 
-            // Platziert die Box direkt unter dem Button im DOM
-            button.parentNode.appendChild(evalDiv);
-        }
+                // Platziert die Box direkt unter dem Button im DOM
+                button.parentNode.appendChild(evalDiv);
+            }
 
-        // 4. Farbe basierend auf Trajectory bestimmen
-        let trajectoryColor = 'orange';
-        if (result.trajectory === 'Improved') trajectoryColor = 'green';
-        if (result.trajectory === 'Worsened') trajectoryColor = 'red';
+            // 4. Farbe basierend auf Trajectory bestimmen
+            let trajectoryColor = 'orange';
+            if (result.trajectory === 'Improved') trajectoryColor = 'green';
+            if (result.trajectory === 'Worsened') trajectoryColor = 'red';
 
-        // 5. Daten ins HTML schreiben
-        evalDiv.innerHTML = `
+            // 5. Daten ins HTML schreiben
+            evalDiv.innerHTML = `
             <h4 style="margin-top: 0; color: #333;">KI-Analyse für ${companyName}</h4>
             <p style="margin: 5px 0;"><strong>Tendenz:</strong> <span style="color: ${trajectoryColor}; font-weight: bold;">${result.trajectory}</span></p>
             <p style="margin: 5px 0;"><strong>Begründung:</strong> ${result.reasoning}</p>
             <p style="margin: 5px 0;"><strong>Empfehlung:</strong> ${result.recommendation}</p>
         `;
 
-    } catch (error) {
-        console.error(error);
-        alert("Fehler beim Verarbeiten der Daten: " + error.message);
-        // Button bei Fehler wieder reaktivieren
-        button.disabled = false;
-        button.innerText = originalText;
+        } catch (error) {
+            console.error(error);
+            alert("Fehler beim Verarbeiten der Daten: " + error.message);
+            // Button bei Fehler wieder reaktivieren
+            button.disabled = false;
+            button.innerText = originalText;
+        }
     }
-}
 </script>
 </body>
 </html>

@@ -4,8 +4,6 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from collections import defaultdict
 from typing import List, Tuple, Optional
 from finvizfinance.screener.overview import Overview
-from sqlalchemy.sql.functions import current_user
-
 from evaluation_component.evaluation import evaluate_new_information
 import traceback
 from combining_stock_infos_llm.combine_stock import get_combination
@@ -62,13 +60,13 @@ origins = [
     "*"
 ]
 
-
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("SECRET_KEY"),
     session_cookie="sid",
     max_age=86400,
     same_site="lax",
+    https_only=False
 )
 app.add_middleware(
     CORSMiddleware,
@@ -331,8 +329,10 @@ class DeleteCompaniesRequest(BaseModel):
 
 ph = PasswordHasher()
 
+
 def hash_password(password: str) -> str:
     return ph.hash(password)
+
 
 def verify_password(plain_password: str, hashed: str) -> bool:
     try:
@@ -340,36 +340,39 @@ def verify_password(plain_password: str, hashed: str) -> bool:
     except VerifyMismatchError:
         return False
 
+
 async def get_current_user(
-    request: Request,
-    db: Session = Depends(get_db)
+        request: Request,
+        db: Session = Depends(get_db)
 ) -> Optional[User]:
     user_id = request.session.get("user_id")
     if user_id is None:
         return None
     return db.query(User).filter(User.id == user_id).first()
 
+
 async def get_current_user_id(request: Request) -> Optional[int]:
     return request.session.get("user_id")
+
+
 @app.get("/")
 async def read_root(request: Request, user: Optional[str] = Depends(get_current_user)):
-
     try:
-
 
         return templates.TemplateResponse(
             request=request,
             name="index.html", context={
-            "request": request,
-            "user": user
-        })
+                "request": request,
+                "user": user
+            })
     except Exception as e:
         print(e)
 
+
 from fastapi import Request
 
-
 from fastapi import Depends
+
 
 async def get_current_user(request: Request):
     username = request.session.get("user")
@@ -377,31 +380,32 @@ async def get_current_user(request: Request):
         return None
     return username
 
+
 @app.get("/register")
 async def register_form(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="register.html", context={
-        "request": request
-    })
+            "request": request
+        })
+
+
 @app.post("/register")
 async def register(
-    request: Request,
-    username: str = Form(...),
-    password: str = Form(...),
-    db: Session = Depends(get_db)
+        request: Request,
+        username: str = Form(...),
+        password: str = Form(...),
+        db: Session = Depends(get_db)
 ):
     existing = db.query(User).filter(User.user_name == username).first()
     if existing:
         return templates.TemplateResponse(
             request=request,
             name="register.html", context={
-            "request": request,
-            "error": "Benutzername bereits vergeben"
-        })
+                "request": request,
+                "error": "Benutzername bereits vergeben"
+            })
 
-    print("pwd")
-    print(password)
     hashed = hash_password(password)
 
     new_user = User(user_name=username, password_hash=hashed)
@@ -412,12 +416,13 @@ async def register(
     request.session["user"] = new_user.user_name
     return RedirectResponse(url="/", status_code=303)
 
+
 @app.post("/login")
 async def login(
-    request: Request,
-    username: str = Form(...),
-    password: str = Form(...),
-    db: Session = Depends(get_db)
+        request: Request,
+        username: str = Form(...),
+        password: str = Form(...),
+        db: Session = Depends(get_db)
 ):
     user = db.query(User).filter(User.user_name == username).first()
     if not user:
@@ -427,13 +432,9 @@ async def login(
             context={"request": request, "user": None, "error": "Falscher Benutzername oder Passwort"}
         )
 
-
-
     try:
-        print("user pwd hash")
-        print(user.password_hash)
+
         verify_result = ph.verify(user.password_hash, password)
-        print(verify_result)
     except VerifyMismatchError as e:
         return templates.TemplateResponse(
             request=request,
@@ -458,6 +459,7 @@ async def login(
     request.session["user_id"] = user.id
 
     return RedirectResponse(url="/", status_code=303)
+
 
 @app.get("/logout")
 async def logout(request: Request):
@@ -523,10 +525,11 @@ def get_yt_transcript(request: Request, url: str = Form(...)):
 
 
 @app.post("/companies")
-async def receive_company(request: Request,
-    company: Company,
-    db: Session = Depends(get_db),
-    current_user_id: int = Depends(get_current_user_id) ):
+async def receive_company(
+        company: Company,
+        db: Session = Depends(get_db),
+        current_user_id: int = Depends(get_current_user),
+):
     db_company = db.query(models.StockSummary).filter_by(
         name=company.company_name,
         user_id=current_user_id
@@ -556,6 +559,7 @@ async def receive_company(request: Request,
             name=company.company_name,
             strength=company.strength,
             weakness=company.weakness,
+            is_on_watch_list=True,
             user_id=current_user_id
         )
         db.add(db_company)
@@ -574,7 +578,7 @@ async def success_page(request: Request):
 
 
 @app.get("/saved-companies", response_class=HTMLResponse)
-def show_companies(request: Request, db: Session = Depends(get_db),current_user_id: int = Depends(get_current_user_id)):
+def show_companies(request: Request, db: Session = Depends(get_db), current_user_id: int = Depends(get_current_user)):
     try:
         companies = db.query(models.StockSummary).filter(
             models.StockSummary.is_on_watch_list == True,
@@ -687,7 +691,7 @@ def show_saved_financial_metrics_page(
         request: Request,
         branch_profile_id: Optional[int] = Form(None),
         db: Session = Depends(get_db),
-        current_user_id:int = Depends(get_current_user_id),
+        current_user_id: int = Depends(get_current_user),
 ):
     try:
         selected_id = branch_profile_id
@@ -698,7 +702,7 @@ def show_saved_financial_metrics_page(
         if not selected_id:
             selected_id = 1
 
-        branch_profiles = db.query(IndustryProfile).filter(IndustryProfile.user_id ==current_user_id).all()
+        branch_profiles = db.query(IndustryProfile).filter(IndustryProfile.user_id == current_user_id).all()
 
         configs = (
             db.query(ProfileMetricConfiguration)
@@ -774,7 +778,7 @@ async def create_branch_profile(
         branch_profile_name: str = Form(...),
         metric_data_triplets: str = Form(""),
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user_id),
+        current_user_id: int = Depends(get_current_user),
 ):
     try:
         new_profile = IndustryProfile(name=branch_profile_name, user_id=current_user_id)
@@ -826,10 +830,11 @@ async def create_branch_profile(
 def delete_branch_profile(
         profile_id: int,
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user_id),
+        current_user_id: int = Depends(get_current_user),
 ):
     if profile_id != 1:
-        db.query(IndustryProfile).filter(IndustryProfile.id == profile_id, IndustryProfile.user_id == current_user_id).delete()
+        db.query(IndustryProfile).filter(IndustryProfile.id == profile_id,
+                                         IndustryProfile.user_id == current_user_id).delete()
         db.commit()
     return RedirectResponse(url="/show-saved-financial-metrics?branch_profile_id=1", status_code=303)
 
@@ -878,11 +883,12 @@ def edit_metric_page(
         profile_id: int,
         metric_id: int,
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user_id),
+        current_user_id: int = Depends(get_current_user),
 ):
     metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
 
-    profile = db.query(IndustryProfile).filter(IndustryProfile.id == profile_id, IndustryProfile.user_id == current_user_id).first()
+    profile = db.query(IndustryProfile).filter(IndustryProfile.id == profile_id,
+                                               IndustryProfile.user_id == current_user_id).first()
 
     config = db.query(ProfileMetricConfiguration).filter(
         ProfileMetricConfiguration.profile_id == profile_id,
@@ -937,8 +943,8 @@ def delete_saved_companies(
         request: Request,
         data: DeleteCompaniesRequest,
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user_id)
-    ):
+        current_user_id: int = Depends(get_current_user)
+):
     try:
         if not data.companies:
             return {"message": "Keine Companies übergeben", "deleted": 0}
@@ -963,9 +969,11 @@ def delete_saved_companies(
 
 
 @app.get("/portfolio", response_class=HTMLResponse)
-async def get_portfolio_page(request: Request, db: Session = Depends(get_db), current_user_id: int = Depends(get_current_user)):
+async def get_portfolio_page(request: Request, db: Session = Depends(get_db),
+                             current_user_id: int = Depends(get_current_user)):
     try:
-        bought_stocks = db.query(BoughtStock).filter(BoughtStock.user_id == current_user_id).order_by(BoughtStock.ticker).all()
+        bought_stocks = db.query(BoughtStock).filter(BoughtStock.user_id == current_user_id).order_by(
+            BoughtStock.ticker).all()
 
         return render_localized(
             template_name="portfolio.html",
@@ -1020,7 +1028,8 @@ async def update_multiple_portfolio_entries(
         if delete_ids:
             id_list_to_delete = [int(stock_id) for stock_id in delete_ids.split(",") if stock_id.strip()]
             if id_list_to_delete:
-                db.query(BoughtStock).filter(BoughtStock.id.in_(id_list_to_delete), BoughtStock.user_id == current_user_id).delete(synchronize_session=False)
+                db.query(BoughtStock).filter(BoughtStock.id.in_(id_list_to_delete),
+                                             BoughtStock.user_id == current_user_id).delete(synchronize_session=False)
 
         if update_triplets:
             triplet_list = [t.strip() for t in update_triplets.split(",") if t.strip()]
@@ -1033,7 +1042,8 @@ async def update_multiple_portfolio_entries(
                         new_price = float(parts[1])
                         new_amount = float(parts[2])
 
-                        stock_entry = db.query(BoughtStock).filter(BoughtStock.id == stock_id, BoughtStock.user_id == current_user_id).first()
+                        stock_entry = db.query(BoughtStock).filter(BoughtStock.id == stock_id,
+                                                                   BoughtStock.user_id == current_user_id).first()
                         if stock_entry:
                             stock_entry.bought_price = new_price
                             stock_entry.amount = new_amount
@@ -1049,8 +1059,10 @@ async def update_multiple_portfolio_entries(
 
 
 @app.post("/api/bought-stocks", status_code=status.HTTP_201_CREATED)
-def create_bought_stock(stock_data: BoughtStockCreate, db: Session = Depends(get_db), current_user_id: int = Depends(get_current_user_id)):
-    existing_stock = db.query(BoughtStock).filter(BoughtStock.name == stock_data.name,BoughtStock.user_id == current_user_id).first()
+def create_bought_stock(stock_data: BoughtStockCreate, db: Session = Depends(get_db),
+                        current_user_id: int = Depends(get_current_user)):
+    existing_stock = db.query(BoughtStock).filter(BoughtStock.name == stock_data.name,
+                                                  BoughtStock.user_id == current_user_id).first()
 
     if existing_stock:
         raise HTTPException(
@@ -1070,7 +1082,8 @@ def create_bought_stock(stock_data: BoughtStockCreate, db: Session = Depends(get
 
     try:
         db.add(db_bought_stock)
-        current_stock = db.query(StockSummary).filter(StockSummary.name == stock_data.name, StockSummary.user_id==current_user_id).first()
+        current_stock = db.query(StockSummary).filter(StockSummary.name == stock_data.name,
+                                                      StockSummary.user_id == current_user_id).first()
         current_stock.is_on_watch_list = False
         db.commit()
         db.refresh(db_bought_stock)
@@ -1126,8 +1139,9 @@ async def get_summary_api(payload: SummaryRequest):
 
 
 @app.get("/watchlist")
-def watch_list(request: Request, db: Session = Depends(get_db), current_user_id: int = Depends(get_current_user_id)):
-    watch_list_stocks = db.query(models.StockSummary).filter(models.StockSummary.is_on_watch_list == True, models.StockSummary.user_id==current_user_id).all()
+def watch_list(request: Request, db: Session = Depends(get_db), current_user_id: int = Depends(get_current_user)):
+    watch_list_stocks = db.query(models.StockSummary).filter(models.StockSummary.is_on_watch_list == True,
+                                                             models.StockSummary.user_id == current_user_id).all()
     return templates.TemplateResponse(request=request,
                                       name="watchlist.html",
                                       context={"request": request,
