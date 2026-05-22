@@ -1,47 +1,112 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-    .menu-grid {
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-        margin-top: 40px;
-    }
-    .card {
-        background: #ecf0f1;
-        padding: 30px;
-        border-radius: 8px;
-        text-align: center;
-        width: 30%;
-        text-decoration: none; /* Wichtig für Links */
-        color: #2c3e50;
-        transition: transform 0.2s;
-    }
-    .card:hover {
-        transform: translateY(-5px);
-        background: #dfe6e9;
-    }
-</style>
+{% if user %}
+    <!-- ========== Eingeloggt: Normales Dashboard ========== -->
+    <style>
+        .menu-grid {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        .card {
+            background: #ecf0f1;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            width: 30%;
+            text-decoration: none;
+            color: #2c3e50;
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            background: #dfe6e9;
+        }
+    </style>
 
-<h1 style="text-align: center;">Willkommen im Dashboard</h1>
-<p style="text-align: center;">Bitte wähle einen Bereich aus:</p>
+    <h1 style="text-align: center;">Willkommen im Dashboard, {{ user.username }}!</h1>
+    <p style="text-align: center;">Bitte wähle einen Bereich aus:</p>
 
-<div class="menu-grid">
-    <!-- Links zu deinen neuen Seiten -->
-    <a href="/watchlist" class="card">
-        <h3>👀 Watchlist</h3>
-        <p>Alle beobachteten Aktien anzeigen</p>
-    </a>
+    <div class="menu-grid">
+        <a href="/watchlist" class="card">
+            <h3>👀 Watchlist</h3>
+            <p>Alle beobachteten Aktien anzeigen</p>
+        </a>
+        <a href="/portfolio" class="card">
+            <h3>💼 Portfolio</h3>
+            <p>Gekaufte Aktien verwalten</p>
+        </a>
+        <a href="/analysis" class="card">
+            <h3>🧠 Analyse & News</h3>
+            <p>Finanzkennzahlen auswerten & KI-News</p>
+        </a>
+    </div>
 
-    <a href="/portfolio" class="card">
-        <h3>💼 Portfolio</h3>
-        <p>Gekaufte Aktien verwalten</p>
-    </a>
+{% else %}
+    <!-- ========== Nicht eingeloggt: Login‑Formular ========== -->
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .login-container h2 {
+            margin-bottom: 20px;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .login-container button:hover {
+            background: #2980b9;
+        }
+        .register-link {
+            display: block;
+            margin-top: 15px;
+            color: #3498db;
+            text-decoration: none;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
 
-    <a href="/analysis" class="card">
-        <h3>🧠 Analyse & News</h3>
-        <p>Finanzkennzahlen auswerten & KI-News</p>
-    </a>
-</div>
+    <div class="login-container">
+        <h2>🔐 Bitte melde dich an</h2>
+
+        {% if error %}
+            <p class="error-message">{{ error }}</p>
+        {% endif %}
+
+        <form action="/login" method="post">
+            <input type="text" name="username" placeholder="Benutzername" autocomplete="off" required>
+            <input type="password" name="password" placeholder="Passwort" autocomplete="new-password"required>
+            <button type="submit">Anmelden</button>
+        </form>
+
+        <a href="/register" class="register-link">Noch keinen Account? Jetzt registrieren</a>
+    </div>
+{% endif %}
 {% endblock %}

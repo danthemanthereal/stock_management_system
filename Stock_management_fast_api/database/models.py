@@ -3,6 +3,9 @@ from sqlalchemy.orm import relationship
 from .db import Base
 from datetime import datetime, timezone
 from sqlalchemy.sql import func
+from pydantic import BaseModel as PydanticBase, Field
+from uuid import uuid4
+from datetime import datetime
 
 
 class StockSummary(Base):
@@ -81,7 +84,7 @@ class BoughtStock(Base):
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
+    user_name = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -114,3 +117,8 @@ class RefreshToken(Base):
     )
 
     user = relationship("User", backref="refresh_tokens")
+
+
+class BaseModel(PydanticBase):
+    id: str = Field(default_factory=lambda: str(uuid4()))
+    created_at: datetime = Field(default_factory=datetime.utcnow)

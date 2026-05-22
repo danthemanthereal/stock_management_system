@@ -4,13 +4,14 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from collections import defaultdict
 from typing import List, Tuple, Optional
 from finvizfinance.screener.overview import Overview
+from passlib.context import CryptContext
 from evaluation_component.evaluation import evaluate_new_information
 import traceback
 from combining_stock_infos_llm.combine_stock import get_combination
 from financial_metric_evaluator_component.financial_metric_evaluator import \
     get_satisfied_and_not_satisfied_financial_metrics
 from database.models import FinancialMetric, IndustryProfile, ProfileMetricConfiguration, FinancialMetricCategory, \
-    BoughtStock, StockSummary
+    BoughtStock, StockSummary, User
 from financial_metric_component.financial_metric import get_total_financial_metrics
 from database.db import engine, SessionLocal
 from sqlalchemy.orm import Session, joinedload
@@ -21,6 +22,7 @@ from summary_llm_component.gemini_llm_component import get_summary_of_gemini_wit
     get_summary_of_gemini_of_transcript
 import json
 import re
+from starlette.middleware.sessions import SessionMiddleware
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel
@@ -30,8 +32,15 @@ from pytube import extract
 from itertools import groupby
 from datetime import datetime, timedelta
 from gnews import GNews
+from dotenv import load_dotenv
+import os
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
+
+load_dotenv()
 
 models.Base.metadata.create_all(bind=engine)
+
 
 class BoughtStockCreate(BaseModel):
     name: str
@@ -44,17 +53,27 @@ class BoughtStockCreate(BaseModel):
 
 class SummaryRequest(BaseModel):
     url: str
+
+
 app = FastAPI()
 
 origins = [
     "*"
 ]
 
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv("SECRET_KEY"),
+    session_cookie="sid",
+    max_age=86400,
+    same_site="lax",
+)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # oder ["*"] zum Testen
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # wichtig für OPTIONS!
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
@@ -79,6 +98,7 @@ def render_localized(template_name: str, request: Request, context: dict):
     context["current_locale"] = locale
 
     return templates.TemplateResponse(request, template_name, context)
+
 
 def get_locale(request: Request) -> str:
     lang = request.query_params.get("lang")
@@ -258,7 +278,6 @@ def merge_financial_summary_triples(
         benchmark: List[dict],
         development: List[dict],
 ) -> List[dict]:
-
     def to_map(rows: List[dict]) -> dict:
         return {r["category"]: dict(r) for r in rows}
 
@@ -309,20 +328,133 @@ class DeleteCompaniesRequest(BaseModel):
     companies: List[str]
 
 
-@app.get("/")
-def read_root(request: Request):
+ph = PasswordHasher()
+
+def hash_password(password: str) -> str:
+    return ph.hash(password)
+
+def verify_password(plain_password: str, hashed: str) -> bool:
     try:
+        print("verify ")
+        print(ph.verify(hashed, plain_password))
+        return ph.verify(hashed, plain_password)
+    except VerifyMismatchError:
+        print("in verfiy exception")
+        return False
+
+async def get_current_user(request: Request):
+    return request.session.get("user")
+@app.get("/")
+async def read_root(request: Request, user: Optional[str] = Depends(get_current_user)):
+
+    try:
+        session_user = request.session.get("user")
+        print(f"📄 Root-Route aufgerufen")
+        print(f"   session_user direkt: {session_user}")
+        print(f"   get_current_user liefert: {user}")
+
+        return templates.TemplateResponse(
+            request=request,
+            name="index.html", context={
+            "request": request,
+            "user": user
+        })
+    except Exception as e:
+        print(e)
+
+from fastapi import Request
+
+
+from fastapi import Depends
+
+async def get_current_user(request: Request):
+    username = request.session.get("user")
+    if not username:
+        return None
+    return username
+
+@app.get("/register")
+async def register_form(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="register.html", context={
+        "request": request
+    })
+@app.post("/register")
+async def register(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    existing = db.query(User).filter(User.user_name == username).first()
+    if existing:
+        return templates.TemplateResponse(
+            request=request,
+            name="register.html", context={
+            "request": request,
+            "error": "Benutzername bereits vergeben"
+        })
+
+    print("pwd")
+    print(password)
+    hashed = hash_password(password)
+
+    new_user = User(user_name=username, password_hash=hashed)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    request.session["user"] = new_user.user_name
+    return RedirectResponse(url="/", status_code=303)
+
+@app.post("/login")
+async def login(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(User.user_name == username).first()
+    if not user:
         return templates.TemplateResponse(
             request=request,
             name="index.html",
-            context={}
+            context={"request": request, "user": None, "error": "Falscher Benutzername oder Passwort"}
+        )
+
+
+
+    try:
+        verify_result = ph.verify(user.password_hash, password)
+    except VerifyMismatchError as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="index.html",
+            context={"request": request, "user": None, "error": "Falscher Benutzername oder Passwort"}
         )
     except Exception as e:
         return templates.TemplateResponse(
             request=request,
-            name="error.html",
-            context={"request": request},
+            name="index.html",
+            context={"request": request, "user": None, "error": "Ein Fehler ist aufgetreten."}
         )
+
+    if not verify_result:
+        return templates.TemplateResponse(
+            request=request,
+            name="index.html",
+            context={"request": request, "user": None, "error": "Falscher Benutzername oder Passwort"}
+        )
+
+    request.session["user"] = user.user_name
+
+    return RedirectResponse(url="/", status_code=303)
+
+@app.get("/logout")
+async def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse(url="/", status_code=303)
 
 
 @app.post("/get-summary", response_class=HTMLResponse)
@@ -394,7 +526,8 @@ async def receive_company(company: Company, db: Session = Depends(get_db)):
         db_company.weakness = "\n".join(f"• {w}" for w in weaknesses)
         db.commit()
         db.refresh(db_company)
-        trajectory, reasoning, recommendation = evaluate_new_information(current_strengths, company.strength,current_weakness, company.weakness)
+        trajectory, reasoning, recommendation = evaluate_new_information(current_strengths, company.strength,
+                                                                         current_weakness, company.weakness)
         print("retrun in if")
         return {
             "message": "Firma aktualisiert!",
@@ -446,7 +579,6 @@ def show_companies(request: Request, db: Session = Depends(get_db)):
 @app.post("/find-potential-stocks", response_class=HTMLResponse)
 def scrape_tradingview(request: Request):
     try:
-
 
         return templates.TemplateResponse(request=request,
                                           name="find_candidates.html",
@@ -585,6 +717,7 @@ def show_saved_financial_metrics_page(
         print(f"Error: {e}")
         return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
 
+
 @app.post("/metrics/create", response_class=HTMLResponse)
 def create_metric(
         selected_branch_id: int = Form(1),
@@ -669,6 +802,8 @@ async def create_branch_profile(
             name="error.html",
             context={"request": request}
         )
+
+
 @app.post("/metrics/branch-profiles/{profile_id}/delete", response_class=HTMLResponse)
 def delete_branch_profile(
         profile_id: int,
@@ -813,13 +948,13 @@ async def get_portfolio_page(request: Request, db: Session = Depends(get_db)):
         bought_stocks = db.query(BoughtStock).order_by(BoughtStock.ticker).all()
 
         return render_localized(
-             template_name="portfolio.html",
-             request=request,
+            template_name="portfolio.html",
+            request=request,
             context={
                 "request": request,
                 "bought_stocks": bought_stocks,
             }
-            )
+        )
 
     except Exception as e:
         print(f"Fehler beim Laden des Portfolios: {e}")
@@ -938,7 +1073,6 @@ def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...)):
             "url": news["url"],
         })
 
-
     google_news = GNews(language='de', country='DE', period='1d')
 
     meine_news = google_news.get_news(f'{stock}  Aktie news')
@@ -966,6 +1100,7 @@ async def get_summary_api(payload: SummaryRequest):
 
     return {"summary": ergebnis_text}
 
+
 @app.get("/watchlist")
 def watch_list(request: Request, db: Session = Depends(get_db)):
     watch_list_stocks = db.query(models.StockSummary).filter(models.StockSummary.is_on_watch_list == True).all()
@@ -974,6 +1109,7 @@ def watch_list(request: Request, db: Session = Depends(get_db)):
                                       context={"request": request,
                                                "watch_list_stocks": watch_list_stocks
                                                })
+
 
 @app.get("/analysis")
 def analysis(request: Request):
@@ -993,7 +1129,6 @@ def screen(filters: dict):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept-Language': 'en-US,en;q=0.9',
     })
-
 
     import finvizfinance.util as util
     original_web_scrap = util.web_scrap
@@ -1016,7 +1151,6 @@ def screen(filters: dict):
         df = f.screener_view()
     finally:
         util.web_scrap = original_web_scrap
-
 
     df = df.astype(object)
 
