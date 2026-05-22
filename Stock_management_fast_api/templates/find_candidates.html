@@ -6,45 +6,67 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 900px;
             margin: 40px auto;
         }
+
         .filter-row {
             display: flex;
             align-items: center;
             gap: 10px;
             margin: 8px 0;
         }
+
         .filter-row label {
             width: 220px;
             font-weight: bold;
         }
+
         .filter-row select, .filter-row input {
             width: 100px;
         }
+
         button {
             margin-top: 15px;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
+
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
+
         th {
             background-color: #f2f2f2;
         }
+
         .hint {
             font-size: 0.85em;
             color: #666;
             margin-left: 5px;
+        }
+
+        .analyse-btn {
+            padding: 4px 10px;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        #metrics-result {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background: #fafafa;
+            min-height: 50px;
         }
     </style>
 </head>
@@ -63,6 +85,9 @@
     <thead></thead>
     <tbody></tbody>
 </table>
+
+<!-- Bereich für Finanzmetriken -->
+<div id="metrics-result"></div>
 
 <script>
     // ✅ 1. Definition der Kennzahlen & Mapping auf das KORREKTE Filterformat
@@ -97,7 +122,7 @@
         {name: "Institutional Ownership", finvizKey: "InstitutionalOwnership", format: "pct_no_plus"}
     ];
 
-    // 2. UI aufbauen (einmalig, korrekt)
+    // 2. UI aufbauen
     const container = document.getElementById("filters-container");
     filterDefinitions.forEach((def, index) => {
         const row = document.createElement("div");
@@ -135,11 +160,10 @@
         container.appendChild(row);
     });
 
-    // 3. Filter-String bauen – Einheit wird hier automatisch ergänzt
+    // 3. Filter-String bauen
     function buildFilterString(operator, value, format) {
         const cleanValue = value.replace(/[%\s]/g, '');
         if (cleanValue === "") return "";
-
         switch (format) {
             case 'pct_plus':
                 return operator === "Over" ? `Over +${cleanValue}%` : `Under ${cleanValue}%`;
@@ -194,10 +218,16 @@
                 return;
             }
 
+            // Vorhandene Spalten aus den Daten
             const columns = Object.keys(result.data[0]);
+
+            // Zusätzliche Spalte "Analyse" anhängen
+            const allColumns = [...columns, "Analyse"];
+
+            // Kopfzeile
             const thead = document.createElement("thead");
             const headerRow = document.createElement("tr");
-            columns.forEach(col => {
+            allColumns.forEach(col => {
                 const th = document.createElement("th");
                 th.textContent = col;
                 headerRow.appendChild(th);
@@ -205,14 +235,38 @@
             thead.appendChild(headerRow);
             table.appendChild(thead);
 
+            // Datenzeilen aufbauen
             const tbody = document.createElement("tbody");
             result.data.forEach(row => {
                 const tr = document.createElement("tr");
+
+                // Vorhandene Datenzellen
                 columns.forEach(col => {
                     const td = document.createElement("td");
                     td.textContent = row[col] ?? "";
                     tr.appendChild(td);
                 });
+
+                // Analyse‑Formular
+                const tdAnalyse = document.createElement("td");
+                const form = document.createElement("form");
+                form.action = "/get-financial-metrics";
+                form.method = "post";
+
+                const hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = "company";
+                hiddenInput.value = row.Ticker;   // ← ggf. anpassen (z. B. row.Ticker || row.Symbol)
+
+                const btn = document.createElement("button");
+                btn.type = "submit";
+                btn.textContent = "Analyse";
+
+                form.appendChild(hiddenInput);
+                form.appendChild(btn);
+                tdAnalyse.appendChild(form);
+                tr.appendChild(tdAnalyse);
+
                 tbody.appendChild(tr);
             });
             table.appendChild(tbody);
@@ -222,6 +276,8 @@
             alert("Fehler beim Abrufen: " + err.message);
         }
     }
+
+
 </script>
 
 </body>

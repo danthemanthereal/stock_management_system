@@ -5,6 +5,7 @@ from collections import defaultdict
 from typing import List, Tuple, Optional
 from finvizfinance.screener.overview import Overview
 from evaluation_component.evaluation import evaluate_new_information
+import traceback
 from combining_stock_infos_llm.combine_stock import get_combination
 from financial_metric_evaluator_component.financial_metric_evaluator import \
     get_satisfied_and_not_satisfied_financial_metrics
@@ -462,6 +463,7 @@ def scrape_tradingview(request: Request):
 def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str = Form(...),
                                                   db: Session = Depends(get_db)):
     try:
+
         financial_metrics_map = get_total_financial_metrics(db, company)
         satisfied_metrics, unsatisfied_metrics, satisfied_benchmarks, unsatisfied_benchmarks, satisfied_development, unsatisfied_development = get_satisfied_and_not_satisfied_financial_metrics(
             financial_metrics_map, db)
@@ -500,7 +502,7 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
             satisfied_development_by_category,
             unsatisfied_development_by_category,
         )
-
+        print("return  von get metric")
         return render_localized(
             request=request,
             template_name="show_financial_metrics.html",
@@ -523,6 +525,7 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
             })
     except Exception as e:
         print(e)
+        print("".join(traceback.format_exc()))
         return templates.TemplateResponse(
             request=request,
             name="error.html",

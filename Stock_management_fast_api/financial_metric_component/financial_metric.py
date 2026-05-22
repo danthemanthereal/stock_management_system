@@ -10,7 +10,7 @@ def get_total_financial_metrics(db, company_name: str)->dict:
     total_financial_metric_map = {}
     total_financial_metric_map = get_financial_metrics_by_guro_focus(db, total_financial_metric_map)
     total_financial_metric_map = get_financial_metrics_with_alpha_ventage_api(db, total_financial_metric_map, company_name)
-    total_financial_metric_map = get_financial_metrics_with_fmp_api(db, total_financial_metric_map, company_name)
+    #total_financial_metric_map = get_financial_metrics_with_fmp_api(db, total_financial_metric_map, company_name)
     total_financial_metric_map = get_calculated_metrics(db, total_financial_metric_map, company_name)
     return  total_financial_metric_map
 
@@ -65,8 +65,12 @@ def get_financial_metrics_with_alpha_ventage_api(db, financial_metric_map, compa
     r = requests.get(url)
     financial_metric_to_get = ["costOfRevenue"]
     selected_profile_id = 1
+
+
     ## 22, 23, 24, 25
-    annual_reports = list(reversed(r.json()['annualReports']))[-4:]
+
+    data = r.json()
+    annual_reports = list(reversed(data.get('annualReports', [])))[-4:]
     for annual_report in annual_reports:
         for (key, value) in annual_report.items():
             if key in financial_metric_to_get:
@@ -135,7 +139,8 @@ def get_financial_metrics_with_fmp_api(db, financial_metric_map, company_name):
     url = f"https://financialmodelingprep.com/stable/key-metrics?symbol={company_name}&apikey={fmp_api_key}"
     r = requests.get(url)
     ## 22, 23, 24, 25
-    annual_reports = list(reversed(r.json()))[-4:]
+    data = r.json()
+    annual_reports = list(reversed(data.get('annualReports', [])))[-4:]
     selected_profile_id = 1
     for annual_report in annual_reports:
         for (key, value) in annual_report.items():
@@ -160,7 +165,7 @@ def get_financial_metrics_with_fmp_api(db, financial_metric_map, company_name):
     ratio_url = f"https://financialmodelingprep.com/stable/ratios?symbol={company_name}&apikey={fmp_api_key}"
     ratio_response = requests.get(ratio_url)
     ## 22, 23, 24, 25
-    annual_reports_because_of_ratio = list(reversed(ratio_response.json()))[-4:]
+    annual_reports_because_of_ratio = list(reversed(ratio_response.get('annualReports', [])))[-4:]
 
     for annual_report in annual_reports_because_of_ratio:
         for (key, value) in annual_report.items():
