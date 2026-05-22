@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Screener</title>
+</head>
+<body>
+
+<h2>Stock Screener</h2>
+
+<label>ROE > </label>
+<input id="roe" value="10">
+
+<label>Debt/Equity < </label>
+<input id="debt" value="0.5">
+
+<button onclick="runScreen()">Run</button>
+
+<h3>Results</h3>
+<table id="table"></table>
+
+<script>
+async function runScreen() {
+
+    const roe = document.getElementById("roe").value;
+    const debt = document.getElementById("debt").value;
+
+    const filters = {
+        "Return on Equity": `Over +${roe}%`,
+        "Debt/Equity": `Under ${debt}`
+    };
+
+    const res = await fetch("http://localhost:8000/find-candidates", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(filters)
+    });
+
+    const data = await res.json();
+
+    const table = document.getElementById("table");
+    table.innerHTML = "";
+
+    data.data.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${row.Ticker}</td><td>${row['Company']}</td>`;
+        table.appendChild(tr);
+    });
+}
+</script>
+
+</body>
+</html>

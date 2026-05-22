@@ -3,7 +3,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from collections import defaultdict
 from typing import List, Tuple, Optional
-
+from finvizfinance.screener.overview import Overview
 from evaluation_component.evaluation import evaluate_new_information
 from combining_stock_infos_llm.combine_stock import get_combination
 from financial_metric_evaluator_component.financial_metric_evaluator import \
@@ -20,6 +20,8 @@ from summary_llm_component.gemini_llm_component import get_summary_of_gemini_wit
     get_summary_of_gemini_of_transcript
 import json
 import re
+import numpy as np
+import pandas as pd
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import requests
@@ -443,60 +445,11 @@ def show_companies(request: Request, db: Session = Depends(get_db)):
 @app.post("/find-potential-stocks", response_class=HTMLResponse)
 def scrape_tradingview(request: Request):
     try:
-        url = "https://scanner.tradingview.com/america/scan?label-product=screener-stock"
 
-        payload = {
-            "columns": [
-                "ticker-view", "close", "market_cap_basic",
-                "price_earnings_ttm", "market",
-                "sector", "AnalystRating", "AnalystRating.tr"
-            ],
-            "filter": [
-                {"left": "close", "operation": "in_range", "right": [10, 100]},  # stock price filter
-                {"left": "AnalystRating", "operation": "in_range", "right": ["Buy", "StrongBuy"]},
-                {"left": "Perf.YTD", "operation": "greater", "right": 10},  # Performance of the year
-                {"left": "return_on_equity_fq", "operation": "in_range", "right": [20, 30]},
-                # return on equity filter r
-                {"left": "sector", "operation": "in_range", "right": [""]},  # welche Sektroren betrachtet werden
-                {"left": "total_revenue_yoy_growth_ttm", "operation": "greater", "right": 10},
-                # Performance von umsatzwachstum
-            ],
-            "markets": ["america"],  # filter für betrachtende länder
-            "options": {"lang": "en"},
-            "range": [0, 100],
-            "sort": {"sortBy": "market_cap_basic", "sortOrder": "desc"}
-        }
-
-        response = requests.post(url, json=payload)
-        data = response.json()
-
-        potential_stocks = []
-        for item in data["data"]:
-            current_stock_info = item["d"]
-
-            name = current_stock_info[0]["description"]
-            price = current_stock_info[1]
-            market_cap = current_stock_info[2]
-            p_e_rating = current_stock_info[3]
-            country = current_stock_info[4]
-            sector = current_stock_info[5]
-            analyst_rating = current_stock_info[6]
-            analyst_rating_tr = current_stock_info[7]
-            potential_stocks.append({
-                'name': name,
-                'price': price,
-                'market_cap': market_cap,
-                'sector': sector,
-                'country': country,
-                'p_e_rating': p_e_rating,
-                'analyst_rating': analyst_rating,
-                'analyst_rating_tr': analyst_rating_tr
-            })
 
         return templates.TemplateResponse(request=request,
-                                          name="show-potential-stocks.html",
-                                          context={"request": request, "stocks": potential_stocks
-                                                   })
+                                          name="find_candidates.html",
+                                          context={})
     except Exception as e:
         return templates.TemplateResponse(
             request=request,
@@ -1025,3 +978,20 @@ def analysis(request: Request):
         request=request,
         name="analysis.html",
         context={"request": request})
+
+
+@app.post("/find-candidates")
+def screen(filters: dict):
+    f = Overview()
+    f.set_filter(filters_dict=filters)
+
+    df = f.screener_view()
+
+    df = df.astype(object)
+
+    df = df.where(pd.notnull(df) & ~df.isin([np.inf, -np.inf]), None)
+
+    return {
+        "count": len(df),
+        "data": df.to_dict(orient="records")
+    }
