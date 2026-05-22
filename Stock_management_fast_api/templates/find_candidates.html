@@ -1,50 +1,186 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Stock Screener</title>
+    <meta charset="UTF-8">
+    <title>Finviz Stock Screener</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; }
+        .filter-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+        .filter-row label { width: 220px; font-weight: bold; }
+        .filter-row select, .filter-row input { width: 100px; }
+        button { margin-top: 15px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
 </head>
 <body>
 
-<h2>Stock Screener</h2>
+<h2>Finviz Stock Screener</h2>
+<p>Nur aktivierte und gültige Filter werden gesendet.</p>
 
-<label>ROE > </label>
-<input id="roe" value="10">
-
-<label>Debt/Equity < </label>
-<input id="debt" value="0.5">
+<div id="filters-container"></div>
 
 <button onclick="runScreen()">Run</button>
 
 <h3>Results</h3>
-<table id="table"></table>
+<table id="table">
+    <thead></thead>
+    <tbody></tbody>
+</table>
 
 <script>
+// ✅ 1. Definition der Kennzahlen & Mapping auf das KORREKTE Filterformat
+//    Quelle: https://github.com/knicola/finviz-screener/blob/master/docs/API.md
+const filterDefinitions = [
+    { name: "P/E",               finvizKey: "P/E",                      format: "ratio" },
+    { name: "Forward P/E",       finvizKey: "Forward P/E",              format: "ratio" },
+    { name: "PEG",               finvizKey: "PEG",                      format: "ratio" },
+    { name: "P/S",               finvizKey: "P/S",                      format: "ratio" },
+    { name: "P/B",               finvizKey: "P/B",                      format: "ratio" },
+    { name: "Price/Cash",        finvizKey: "Price/Cash",               format: "ratio" },
+    { name: "Price/Free Cash Flow", finvizKey: "Price/Free Cash Flow",  format: "ratio" },
+    { name: "Dividend Yield",    finvizKey: "Dividend Yield",           format: "pct_no_plus" },
+    { name: "Return on Assets",  finvizKey: "Return on Assets",         format: "pct_plus" },
+    { name: "Return on Equity",  finvizKey: "Return on Equity",         format: "pct_plus" },
+    { name: "Return on Investment", finvizKey: "Return on Investment",  format: "pct_plus" },
+    { name: "EPS growth this year", finvizKey: "EPS growththis year",   format: "pct_no_plus" },
+    { name: "EPS growth next year", finvizKey: "EPS growthnext year",   format: "pct_no_plus" },
+    { name: "EPS growth past 5 years", finvizKey: "EPS growthpast 5 years", format: "pct_no_plus" },
+    { name: "EPS growth next 5 years", finvizKey: "EPS growthnext 5 years", format: "pct_no_plus" },
+    { name: "Sales growth past 5 years", finvizKey: "Sales growthpast 5 years", format: "pct_no_plus" },
+    { name: "Gross Margin",      finvizKey: "Gross Margin",             format: "pct_no_plus" },
+    { name: "Operating Margin",  finvizKey: "Operating Margin",         format: "pct_no_plus" },
+    { name: "Net Profit Margin", finvizKey: "Net Profit Margin",        format: "pct_no_plus" },
+    { name: "Debt/Equity",       finvizKey: "Debt/Equity",              format: "ratio" },
+    { name: "LT Debt/Equity",    finvizKey: "LT Debt/Equity",           format: "ratio" },
+    { name: "Current Ratio",     finvizKey: "Current Ratio",            format: "ratio" },
+    { name: "Quick Ratio",       finvizKey: "Quick Ratio",              format: "ratio" },
+    { name: "Market Cap.",       finvizKey: "Market Cap.",              format: "special" },
+    { name: "Float Short",       finvizKey: "Float Short",              format: "pct_no_plus" },
+    { name: "Short Ratio",       finvizKey: "Short Ratio",              format: "ratio" },
+    { name: "Insider Ownership", finvizKey: "InsiderOwnership",         format: "pct_no_plus" },
+    { name: "Institutional Ownership", finvizKey: "InstitutionalOwnership", format: "pct_no_plus" }
+];
+
+// 2. UI aufbauen
+const container = document.getElementById("filters-container");
+filterDefinitions.forEach((def, index) => {
+    const row = document.createElement("div");
+    row.className = "filter-row";
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.id = `cb-${index}`;
+
+    const label = document.createElement("label");
+    label.htmlFor = `cb-${index}`;
+    label.textContent = def.name;
+
+    const opSelect = document.createElement("select");
+    opSelect.id = `op-${index}`;
+    opSelect.innerHTML = '<option value="Over">Over</option><option value="Under">Under</option>';
+
+    const valInput = document.createElement("input");
+    valInput.type = "text";
+    valInput.id = `val-${index}`;
+    valInput.placeholder = def.format === 'ratio' ? "z.B. 10" : "z.B. 15%";
+
+    row.appendChild(cb);
+    row.appendChild(label);
+    row.appendChild(opSelect);
+    row.appendChild(valInput);
+    container.appendChild(row);
+});
+
+// 3. Hilfsfunktion zum Generieren des gültigen Filter-Strings
+function buildFilterString(operator, value, format) {
+    // Entfernt ggf. ein bereits vorhandenes %-Zeichen
+    const cleanValue = value.replace('%', '');
+
+    switch (format) {
+        case 'pct_plus':
+            // Benötigt zwingend ein Pluszeichen: "Over +15%"
+            return operator === "Over" ? `Over +${cleanValue}%` : `Under ${cleanValue}%`;
+        case 'pct_no_plus':
+            // Kein Pluszeichen: "Over 15%"
+            return operator === "Over" ? `Over ${cleanValue}%` : `Under ${cleanValue}%`;
+        case 'ratio':
+            // Für Verhältniszahlen wie P/E, Debt/Equity etc. Kein %-Zeichen.
+            return operator === "Over" ? `Over ${cleanValue}` : `Under ${cleanValue}`;
+        default:
+            return `${operator} ${value}`; // Fallback
+    }
+}
+
+// 4. Hauptfunktion für den API-Aufruf
 async function runScreen() {
+    const filters = {};
 
-    const roe = document.getElementById("roe").value;
-    const debt = document.getElementById("debt").value;
+    filterDefinitions.forEach((def, index) => {
+        const checked = document.getElementById(`cb-${index}`).checked;
+        if (!checked) return;
 
-    const filters = {
-        "Return on Equity": `Over +${roe}%`,
-        "Debt/Equity": `Under ${debt}`
-    };
+        const operator = document.getElementById(`op-${index}`).value;
+        let value = document.getElementById(`val-${index}`).value.trim();
+        if (value === "") return;
 
-    const res = await fetch("http://localhost:8000/find-candidates", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(filters)
+        const filterString = buildFilterString(operator, value, def.format);
+        filters[def.finvizKey] = filterString;
     });
 
-    const data = await res.json();
+    if (Object.keys(filters).length === 0) {
+        alert("Bitte mindestens einen Filter aktivieren und ausfüllen.");
+        return;
+    }
 
-    const table = document.getElementById("table");
-    table.innerHTML = "";
+    // Zu Debugging-Zwecken: zeigt die gesendeten Filter an
+    console.log("Gesendete Filter:", filters);
 
-    data.data.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${row.Ticker}</td><td>${row['Company']}</td>`;
-        table.appendChild(tr);
-    });
+    try {
+        const res = await fetch("http://localhost:8000/find-candidates", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(filters)
+        });
+
+        const result = await res.json();
+
+        const table = document.getElementById("table");
+        table.innerHTML = "";
+
+        if (!result.data || result.data.length === 0) {
+            table.innerHTML = "<tr><td>Keine Ergebnisse</td></tr>";
+            return;
+        }
+
+        const columns = Object.keys(result.data[0]);
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        columns.forEach(col => {
+            const th = document.createElement("th");
+            th.textContent = col;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        result.data.forEach(row => {
+            const tr = document.createElement("tr");
+            columns.forEach(col => {
+                const td = document.createElement("td");
+                td.textContent = row[col] ?? "";
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+
+    } catch (err) {
+        console.error(err);
+        alert("Fehler beim Abrufen: " + err.message);
+    }
 }
 </script>
 
