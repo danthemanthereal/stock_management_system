@@ -6,7 +6,6 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from collections import defaultdict
 from typing import List, Tuple, Optional
 from finvizfinance.screener.overview import Overview
-
 import traceback
 from src.combining_stock_infos_llm.combine_stock import get_combination
 from src.evaluation_component.evaluation import evaluate_new_information
@@ -41,6 +40,7 @@ from src.authenticator_component.authenticator import get_current_user_id
 from src.core.rate_limit import configure_rate_limit
 from src.database.db import get_db
 from src.portfolio_component.views import portfolio_router
+from src.watchlist_component.views import watchlist_router
 
 load_dotenv()
 
@@ -81,6 +81,7 @@ templates = Jinja2Templates(directory="templates")
 
 app.include_router(authentication_router)
 app.include_router(portfolio_router)
+app.include_router(watchlist_router)
 
 configure_rate_limit(app)
 
@@ -677,44 +678,6 @@ def delete_saved_companies(
         )
 
 
-
-
-
-@app.post("/api/bought-stocks", status_code=status.HTTP_201_CREATED)
-def create_bought_stock(stock_data: BoughtStockCreate, db: Session = Depends(get_db),
-                        current_user_id: UUID = Depends(get_current_user_id)):
-    existing_stock = db.query(BoughtStock).filter(BoughtStock.name == stock_data.name,
-                                                  BoughtStock.user_id == current_user_id).first()
-
-    if existing_stock:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Die Aktie '{stock_data.name}' wurde bereits eingebucht!"
-        )
-
-    generated_ticker = stock_data.name.replace(" ", "").upper()[:5]
-
-    db_bought_stock = BoughtStock(
-        name=stock_data.name,
-        ticker=generated_ticker,
-        amount=stock_data.amount,
-        bought_price=stock_data.bought_price,
-        user_id=current_user_id
-    )
-
-    try:
-        db.add(db_bought_stock)
-        current_stock = db.query(StockSummary).filter(StockSummary.name == stock_data.name,
-                                                      StockSummary.user_id == current_user_id).first()
-        current_stock.is_on_watch_list = False
-        db.commit()
-        db.refresh(db_bought_stock)
-        return {"status": "success", "message": "Aktie erfolgreich eingebucht", "data": db_bought_stock}
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Datenbankfehler: {str(e)}")
-
-
 @app.get("/get-news")
 def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...)):
     finhub_api_key = "cqe2g6pr01qgmug3gjogcqe2g6pr01qgmug3gjp0"
@@ -758,18 +721,6 @@ async def get_summary_api(payload: SummaryRequest):
     ergebnis_text = get_summary_of_gemini_with_url_context(target_url)
 
     return {"summary": ergebnis_text}
-
-
-@app.get("/watchlist")
-def watch_list(request: Request, db: Session = Depends(get_db), current_user_id: UUID = Depends(get_current_user_id)):
-    watch_list_stocks = db.query(models.StockSummary).filter(models.StockSummary.is_on_watch_list == True,
-                                                             models.StockSummary.user_id == current_user_id).all()
-    return templates.TemplateResponse(request=request,
-                                      name="watchlist.html",
-                                      context={"request": request,
-                                               "watch_list_stocks": watch_list_stocks
-                                               })
-
 
 @app.get("/analysis")
 def analysis(request: Request):

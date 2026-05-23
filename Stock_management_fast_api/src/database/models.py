@@ -126,7 +126,7 @@ class RefreshToken(Base):
     __tablename__ = "refresh_token"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(
-        Integer,
+        String,
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,

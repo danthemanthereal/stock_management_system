@@ -123,7 +123,7 @@ async function saveBoughtStock(rowId) {
     };
 
     try {
-        const response = await fetch('/api/bought-stocks', {
+        const response = await fetch('/watchlist/buy-stock-from-watchlist', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)

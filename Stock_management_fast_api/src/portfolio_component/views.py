@@ -1,5 +1,4 @@
 from uuid import UUID
-
 from fastapi import APIRouter, Request, Depends, Form
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
@@ -11,7 +10,7 @@ from src.utils.utils import render_localized
 
 templates = Jinja2Templates(directory="templates")
 
-portfolio_router = APIRouter(prefix="/portfolio", tags=["auth"])
+portfolio_router = APIRouter(prefix="/portfolio", tags=["portfolio"])
 
 @portfolio_router.get("/", response_class=HTMLResponse)
 async def get_portfolio_page(request: Request,
