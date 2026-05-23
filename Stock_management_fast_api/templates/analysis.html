@@ -107,7 +107,7 @@
     <div class="action-card card-metrics">
         <h3 style="margin-top: 0;">📊 Finanzkennzahlen</h3>
 
-        <form action="/get-financial-metrics" method="post" class="form-group">
+        <form action="/analysis/get-financial-metrics" method="post" class="form-group">
             <input type="text" name="company" placeholder="Ticker (z.B. MSFT)" required>
             <button type="submit" class="btn">Berechnen</button>
         </form>
@@ -116,7 +116,7 @@
             <button type="submit" class="btn btn-outline btn-block">Alle gespeicherten Kennzahlen anzeigen</button>
         </form>
 
-        <form action="/find-potential-stocks" method="post">
+        <form action="/analysis/find-potential-stocks" method="post">
             <button type="submit" class="btn btn-outline btn-block">Potenzielle Aktien finden</button>
         </form>
     </div>

@@ -1,6 +1,5 @@
 import requests
 from src.database.models import FinancialMetric, ProfileMetricConfiguration
-from playwright.async_api import async_playwright
 import json
 from sqlalchemy import and_
 
@@ -31,7 +30,7 @@ def get_financial_metrics_by_guro_focus(db, financial_metric_map: dict)->dict:
         await browser.close()
         return data"""
 
-    with open("/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/financial_metric_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
+    with open("/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/financial_metric_analysis_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
         financial_metrics = json.load(financial_metrics_file)
 
     selected_profile_id = 1
@@ -201,7 +200,7 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
                                     "total_assets",
                                     "good_will"]
 
-    with open("/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/financial_metric_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
+    with open("/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/financial_metric_analysis_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
         financial_metrics = json.load(financial_metrics_file)
 
     annuals = financial_metrics.get("annual", [])
@@ -390,3 +389,51 @@ def get_calculated_metrics(db, financial_metric_map, company_name):
 
 
     return financial_metric_map
+
+
+def merge_financial_summary_triples(
+        combined: List[dict],
+        benchmark: List[dict],
+        development: List[dict],
+) -> List[dict]:
+    def to_map(rows: List[dict]) -> dict:
+        return {r["category"]: dict(r) for r in rows}
+
+    def enrich(row: Optional[dict]) -> dict:
+        base = {"satisfied": 0, "unsatisfied": 0, "total": 0}
+        if row:
+            base.update(
+                {
+                    "satisfied": int(row.get("satisfied", 0)),
+                    "unsatisfied": int(row.get("unsatisfied", 0)),
+                    "total": int(row.get("total", 0)),
+                }
+            )
+        t = base["total"]
+        s, u = base["satisfied"], base["unsatisfied"]
+        base["satisfied_pct"] = round(100.0 * s / t, 1) if t else None
+        base["unsatisfied_pct"] = round(100.0 * u / t, 1) if t else None
+        return base
+
+    c_map = to_map(combined)
+    b_map = to_map(benchmark)
+    d_map = to_map(development)
+    all_labels = set(c_map) | set(b_map) | set(d_map)
+    ordered = sorted(
+        all_labels,
+        key=lambda L: (1 if L == "Ohne Kategorie" else 0, L.casefold()),
+    )
+    out: List[dict] = []
+    for L in ordered:
+        out.append(
+            {
+                "category": L,
+                "combined": enrich(c_map.get(L)),
+                "benchmark": enrich(b_map.get(L)),
+                "development": enrich(d_map.get(L)),
+            }
+        )
+    return out
+
+
+
