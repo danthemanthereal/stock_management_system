@@ -58,7 +58,7 @@ class IndustryProfile(Base):
     __tablename__ = "industry_profile"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
+    name = Column(String)
 
     metric_configs = relationship("ProfileMetricConfiguration", back_populates="profile", cascade="all, delete-orphan")
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

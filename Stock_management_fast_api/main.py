@@ -697,21 +697,25 @@ def show_saved_financial_metrics_page(
         selected_id = branch_profile_id
         if request.method == "GET":
             query_id = request.query_params.get("branch_profile_id")
-            selected_id = int(query_id) if query_id else 1
+
+        user_id = db.query(User).filter(User.user_name == current_user_id).first().id
 
         if not selected_id:
-            selected_id = 1
-
+            selected_id = db.query(IndustryProfile).join(User).filter(User.id == user_id).first().id
+        print("sel id", selected_id)
         branch_profiles = db.query(IndustryProfile).filter(IndustryProfile.user_id == current_user_id).all()
 
         configs = (
             db.query(ProfileMetricConfiguration)
             .join(FinancialMetric)
+            .join(IndustryProfile)
             .outerjoin(FinancialMetricCategory, FinancialMetric.category_id == FinancialMetricCategory.id)
-            .filter(ProfileMetricConfiguration.profile_id == selected_id)
+            .filter(ProfileMetricConfiguration.profile_id == selected_id, IndustryProfile.user_id == user_id)
             .order_by(FinancialMetricCategory.name)
             .all()
         )
+        print("configs:", configs)
+
 
         metrics_by_category = []
         for category_name, group in groupby(
@@ -742,34 +746,66 @@ def show_saved_financial_metrics_page(
 
 @app.post("/metrics/create", response_class=HTMLResponse)
 def create_metric(
-        selected_branch_id: int = Form(1),
-        name: str = Form(...),
-        unit: str = Form(...),
-        reference_value: int = Form(...),
-        should_rise: bool = Form(False),
-        category_id: str = Form(""),
-        db: Session = Depends(get_db)
+    request: Request,
+    selected_branch_id: int = Form(...),
+    financial_metric_id: int = Form(...),
+    reference_value: int = Form(...),
+    should_rise: bool = Form(False),
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id),
 ):
-    new_metric = FinancialMetric(
-        name=name, unit=unit
-    )
-    if category_id.strip():
-        new_metric.category_id = int(category_id)
+    profile = db.query(IndustryProfile).filter(
+        IndustryProfile.id == selected_branch_id,
+        IndustryProfile.user_id == current_user_id,
+    ).first()
+    if not profile:
 
-    db.add(new_metric)
-    db.flush()
+        general_profile = db.query(IndustryProfile).filter_by(
+                name="Allgemein",
+                user_id=current_user_id
+        ).first()
+        if general_profile:
+            profile = general_profile
+            selected_branch_id = general_profile.id
+        else:
+            profile = IndustryProfile(
+                    name="Allgemein",
+                    user_id=current_user_id
+            )
+            db.add(profile)
+            db.commit()
+            db.refresh(profile)
+            selected_branch_id = profile.id
 
-    new_config = ProfileMetricConfiguration(
+
+    metric = db.query(FinancialMetric).filter(FinancialMetric.id == financial_metric_id).first()
+    if not metric:
+        raise HTTPException(status_code=400, detail="Metrik nicht gefunden")
+
+    existing = db.query(ProfileMetricConfiguration).filter_by(
         profile_id=selected_branch_id,
-        metric_id=new_metric.id,
-        should_rise=should_rise,
-        reference_value=reference_value,
-        is_active=True
-    )
-    db.add(new_config)
+        metric_id=metric.id,
+    ).first()
+    if existing:
+
+        existing.reference_value = reference_value
+        existing.should_rise = should_rise
+        existing.is_active = True
+    else:
+        new_config = ProfileMetricConfiguration(
+            profile_id=selected_branch_id,
+            metric_id=metric.id,
+            should_rise=should_rise,
+            reference_value=reference_value,
+            is_active=True,
+        )
+        db.add(new_config)
+
     db.commit()
-    return RedirectResponse(url=f"/show-saved-financial-metrics?branch_profile_id={selected_branch_id}",
-                            status_code=303)
+    return RedirectResponse(
+        url=f"/show-saved-financial-metrics?branch_profile_id={selected_branch_id}",
+        status_code=303,
+    )
 
 
 @app.post("/metrics/branch-profiles/create", response_class=HTMLResponse)
@@ -849,16 +885,18 @@ def update_metric(
         should_rise: bool = Form(False),
         reference_value: int = Form(0),
         is_active: bool = Form(False),
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
+        current_user_id: int = Depends(get_current_user),
 ):
     metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
     metric.name = name
     metric.unit = unit
     metric.category_id = int(category_id) if category_id.strip() else None
 
-    config = db.query(ProfileMetricConfiguration).filter(
+    config = db.query(ProfileMetricConfiguration).join(IndustryProfile).filter(
         ProfileMetricConfiguration.profile_id == profile_id,
-        ProfileMetricConfiguration.metric_id == metric_id
+        ProfileMetricConfiguration.metric_id == metric_id,
+        IndustryProfile.user_id == current_user_id
     ).first()
 
     if not config:
@@ -886,14 +924,22 @@ def edit_metric_page(
         current_user_id: int = Depends(get_current_user),
 ):
     metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
-
+    user_id = db.query(User).filter(User.user_name == current_user_id).first().id
+    if not profile_id:
+        profile_id = db.query(IndustryProfile).join(User).filter(User.id == user_id).first().id
     profile = db.query(IndustryProfile).filter(IndustryProfile.id == profile_id,
-                                               IndustryProfile.user_id == current_user_id).first()
+                                               IndustryProfile.user_id == user_id).first()
 
-    config = db.query(ProfileMetricConfiguration).filter(
-        ProfileMetricConfiguration.profile_id == profile_id,
-        ProfileMetricConfiguration.metric_id == metric_id
-    ).first()
+    config = (
+        db.query(ProfileMetricConfiguration)
+        .join(IndustryProfile)
+        .filter(
+            ProfileMetricConfiguration.profile_id == profile_id,
+            ProfileMetricConfiguration.metric_id == metric_id,
+            IndustryProfile.user_id == current_user_id
+        )
+        .first()
+    )
 
     if not config:
         config = ProfileMetricConfiguration(
@@ -923,16 +969,23 @@ def edit_metric_page(
 def delete_metrics(
         metric_ids: str = Form(...),
         selected_branch_id: int = Form(1),
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
+        current_user_id: int = Depends(get_current_user),
 ):
     id_list = [int(i) for i in metric_ids.split(",") if i.strip()]
     if selected_branch_id == 1:
         db.query(FinancialMetric).filter(FinancialMetric.id.in_(id_list)).delete(synchronize_session=False)
     else:
-        db.query(ProfileMetricConfiguration).filter(
-            ProfileMetricConfiguration.profile_id == selected_branch_id,
-            ProfileMetricConfiguration.metric_id.in_(id_list)
-        ).delete(synchronize_session=False)
+        (
+            db.query(ProfileMetricConfiguration)
+            .join(IndustryProfile)
+            .filter(
+                ProfileMetricConfiguration.profile_id == selected_branch_id,
+                ProfileMetricConfiguration.metric_id.in_(id_list),
+                IndustryProfile.user_id == current_user_id
+            )
+            .delete(synchronize_session=False)
+        )
     db.commit()
     return RedirectResponse(url=f"/show-saved-financial-metrics?branch_profile_id={selected_branch_id}",
                             status_code=303)

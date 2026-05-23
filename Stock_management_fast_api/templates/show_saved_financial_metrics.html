@@ -151,7 +151,7 @@
     <span style="font-weight: bold; margin-right: 0.5rem;">{{ _('selected_branch') }}:</span>
 
     <form action="/show-saved-financial-metrics" method="post">
-        <input type="hidden" name="branch_profile_id" value="1">
+        <input type="hidden" name="branch_profile_id" value="">
         <button type="submit" class="profile-btn {% if selected_branch_profile_id == 1 %}profile-active{% endif %}">
             {{ _('btn_all') }}
         </button>
