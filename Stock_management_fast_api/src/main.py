@@ -52,20 +52,6 @@ class Company(BaseModel):
     weakness: str
 
 
-class DeleteCompaniesRequest(BaseModel):
-    companies: List[str]
-
-
-
-class BoughtStockCreate(BaseModel):
-    name: str
-    amount: float
-    bought_price: float
-
-    class Config:
-        from_attributes = True
-
-
 class SummaryRequest(BaseModel):
     url: str
 
@@ -646,37 +632,6 @@ def delete_metrics(
     db.commit()
     return RedirectResponse(url=f"/show-saved-financial-metrics?branch_profile_id={selected_branch_id}",
                             status_code=303)
-
-
-@app.post("/delete-saved-companies", response_class=HTMLResponse)
-def delete_saved_companies(
-        request: Request,
-        data: DeleteCompaniesRequest,
-        db: Session = Depends(get_db),
-        current_user_id: UUID = Depends(get_current_user_id)
-):
-    try:
-        if not data.companies:
-            return {"message": "Keine Companies übergeben", "deleted": 0}
-
-        db.query(models.StockSummary) \
-            .filter(models.StockSummary.name.in_(data.companies), models.StockSummary.user_id == current_user_id) \
-            .delete(synchronize_session=False)
-
-        db.commit()
-
-        companies = db.query(models.StockSummary).filter(models.StockSummary.user_id == current_user_id).all()
-        return templates.TemplateResponse(request=request,
-                                          name="saved_companies_overview.html",
-                                          context={"request": request, "companies": companies
-                                                   })
-    except Exception as e:
-        return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={"request": request}
-        )
-
 
 @app.get("/get-news")
 def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...)):

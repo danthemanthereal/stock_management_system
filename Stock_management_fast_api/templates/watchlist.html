@@ -154,7 +154,7 @@ async function sendSelected() {
     }
 
     try {
-        const response = await fetch("http://localhost:8000/delete-saved-companies", {
+        const response = await fetch("/watchlist/delete-stock-from-watchlist", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({companies: selected})
