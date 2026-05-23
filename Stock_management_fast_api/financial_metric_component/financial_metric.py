@@ -10,7 +10,7 @@ def get_total_financial_metrics(db, company_name: str)->dict:
     total_financial_metric_map = {}
     total_financial_metric_map = get_financial_metrics_by_guro_focus(db, total_financial_metric_map)
     total_financial_metric_map = get_financial_metrics_with_alpha_ventage_api(db, total_financial_metric_map, company_name)
-    #total_financial_metric_map = get_financial_metrics_with_fmp_api(db, total_financial_metric_map, company_name)
+    total_financial_metric_map = get_financial_metrics_with_fmp_api(db, total_financial_metric_map, company_name)
     total_financial_metric_map = get_calculated_metrics(db, total_financial_metric_map, company_name)
     return  total_financial_metric_map
 
