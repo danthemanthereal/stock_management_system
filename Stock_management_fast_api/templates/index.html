@@ -100,13 +100,13 @@
             <p class="error-message">{{ error }}</p>
         {% endif %}
 
-        <form action="/login" method="post">
+        <form action="/auth/login" method="post">
             <input type="text" name="username" placeholder="Benutzername" autocomplete="off" required>
             <input type="password" name="password" placeholder="Passwort" autocomplete="new-password"required>
             <button type="submit">Anmelden</button>
         </form>
 
-        <a href="/register" class="register-link">Noch keinen Account? Jetzt registrieren</a>
+        <a href="/auth/register" class="register-link">Noch keinen Account? Jetzt registrieren</a>
     </div>
 {% endif %}
 {% endblock %}

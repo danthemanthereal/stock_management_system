@@ -7,8 +7,9 @@
         padding: 30px;
         background: #f9f9f9;
         border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
+
     input {
         width: 100%;
         padding: 10px;
@@ -16,6 +17,7 @@
         border: 1px solid #ccc;
         border-radius: 4px;
     }
+
     button {
         width: 100%;
         padding: 10px;
@@ -26,20 +28,33 @@
         font-size: 16px;
         cursor: pointer;
     }
-    .error { color: red; margin-bottom: 10px; }
-    .login-link { display: block; text-align: center; margin-top: 15px; }
+
+    .error {
+        color: red;
+        margin-bottom: 10px;
+    }
+
+    .login-link {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+    }
 </style>
 
 <div class="form-container">
     <h2>Registrieren</h2>
     {% if error %}
-        <p class="error">{{ error }}</p>
+    <p class="error">{{ error }}</p>
     {% endif %}
-    <form method="post" action="/register">
+    <form method="post" action="/auth/register">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <input name="username" placeholder="Benutzername" required>
         <input type="password" name="password" placeholder="Passwort" required>
         <button type="submit">Registrieren</button>
     </form>
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
     <a href="/" class="login-link">Bereits registriert? Jetzt anmelden</a>
 </div>
 {% endblock %}

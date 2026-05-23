@@ -34,8 +34,10 @@ from datetime import datetime, timedelta
 from gnews import GNews
 from dotenv import load_dotenv
 import os
-from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
+from src.authenticator_component.views import authentication_router
+from src.core.rate_limit import configure_rate_limit
+from src.database.db import get_db
 
 load_dotenv()
 
@@ -60,6 +62,10 @@ app = FastAPI()
 origins = [
     "*"
 ]
+
+app.include_router(authentication_router)
+
+configure_rate_limit(app)
 
 app.add_middleware(
     SessionMiddleware,
@@ -116,12 +122,7 @@ def get_locale(request: Request) -> str:
     return "en"
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
 
 
 def metric_ids_for_branch_profile_from_form(form) -> List[int]:
@@ -328,18 +329,7 @@ class DeleteCompaniesRequest(BaseModel):
     companies: List[str]
 
 
-ph = PasswordHasher()
 
-
-def hash_password(password: str) -> str:
-    return ph.hash(password)
-
-
-def verify_password(plain_password: str, hashed: str) -> bool:
-    try:
-        return ph.verify(hashed, plain_password)
-    except VerifyMismatchError:
-        return False
 
 
 async def get_current_user(
@@ -368,6 +358,10 @@ async def read_root(request: Request, user: Optional[str] = Depends(get_current_
             })
     except Exception as e:
         print(e)
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html"
+        )
 
 
 from fastapi import Request
@@ -380,87 +374,6 @@ async def get_current_user(request: Request):
     if not username:
         return None
     return username
-
-
-@app.get("/register")
-async def register_form(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="register.html", context={
-            "request": request
-        })
-
-
-@app.post("/register")
-async def register(
-        request: Request,
-        username: str = Form(...),
-        password: str = Form(...),
-        db: Session = Depends(get_db)
-):
-    existing = db.query(User).filter(User.user_name == username).first()
-    if existing:
-        return templates.TemplateResponse(
-            request=request,
-            name="register.html", context={
-                "request": request,
-                "error": "Benutzername bereits vergeben"
-            })
-
-    hashed = hash_password(password)
-
-    new_user = User(user_name=username, password_hash=hashed)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    request.session["user"] = new_user.user_name
-    return RedirectResponse(url="/", status_code=303)
-
-
-@app.post("/login")
-async def login(
-        request: Request,
-        username: str = Form(...),
-        password: str = Form(...),
-        db: Session = Depends(get_db)
-):
-    user = db.query(User).filter(User.user_name == username).first()
-    if not user:
-        return templates.TemplateResponse(
-            request=request,
-            name="index.html",
-            context={"request": request, "user": None, "error": "Falscher Benutzername oder Passwort"}
-        )
-
-    try:
-
-        verify_result = ph.verify(user.password_hash, password)
-    except VerifyMismatchError as e:
-        return templates.TemplateResponse(
-            request=request,
-            name="index.html",
-            context={"request": request, "user": None, "error": "Falscher Benutzername oder Passwort"}
-        )
-    except Exception as e:
-        return templates.TemplateResponse(
-            request=request,
-            name="index.html",
-            context={"request": request, "user": None, "error": "Ein Fehler ist aufgetreten."}
-        )
-
-    if not verify_result:
-        return templates.TemplateResponse(
-            request=request,
-            name="index.html",
-            context={"request": request, "user": None, "error": "Falscher Benutzername oder Passwort"}
-        )
-
-    request.session["user"] = user.user_name
-    request.session["user_id"] = user.id
-
-    return RedirectResponse(url="/", status_code=303)
-
 
 @app.get("/logout")
 async def logout(request: Request):
