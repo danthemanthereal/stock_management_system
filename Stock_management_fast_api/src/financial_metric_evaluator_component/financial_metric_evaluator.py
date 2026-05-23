@@ -1,4 +1,4 @@
-from database.models import FinancialMetric, ProfileMetricConfiguration
+from src.database.models import FinancialMetric, ProfileMetricConfiguration
 from sqlalchemy import and_
 
 

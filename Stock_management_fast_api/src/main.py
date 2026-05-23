@@ -4,20 +4,21 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from collections import defaultdict
 from typing import List, Tuple, Optional
 from finvizfinance.screener.overview import Overview
-from evaluation_component.evaluation import evaluate_new_information
+
 import traceback
-from combining_stock_infos_llm.combine_stock import get_combination
-from financial_metric_evaluator_component.financial_metric_evaluator import \
+from src.combining_stock_infos_llm.combine_stock import get_combination
+from src.evaluation_component.evaluation import evaluate_new_information
+from src.financial_metric_evaluator_component.financial_metric_evaluator import \
     get_satisfied_and_not_satisfied_financial_metrics
-from database.models import FinancialMetric, IndustryProfile, ProfileMetricConfiguration, FinancialMetricCategory, \
+from src.database.models import FinancialMetric, IndustryProfile, ProfileMetricConfiguration, FinancialMetricCategory, \
     BoughtStock, StockSummary, User
-from financial_metric_component.financial_metric import get_total_financial_metrics
-from database.db import engine, SessionLocal
+from src.financial_metric_component.financial_metric import get_total_financial_metrics
+from src.database.db import engine, SessionLocal
 from sqlalchemy.orm import Session, joinedload
-from database import models
-from youtube_transcript_component.yt_transcript_component import \
+from src.database import models
+from src.youtube_transcript_component.yt_transcript_component import \
     get_youtube_transcript_based_url
-from summary_llm_component.gemini_llm_component import get_summary_of_gemini_with_url_context, \
+from src.summary_llm_component.gemini_llm_component import get_summary_of_gemini_with_url_context, \
     get_summary_of_gemini_of_transcript
 import json
 import re

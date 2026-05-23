@@ -1,5 +1,5 @@
 import requests
-from database.models import FinancialMetric, ProfileMetricConfiguration
+from src.database.models import FinancialMetric, ProfileMetricConfiguration
 from playwright.async_api import async_playwright
 import json
 from sqlalchemy import and_
