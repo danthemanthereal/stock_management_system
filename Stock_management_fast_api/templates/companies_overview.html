@@ -83,7 +83,7 @@
         button.innerText = "Speichere und analysiere...";
 
         try {
-            const response = await fetch("/companies", {
+            const response = await fetch("/watchlist/add-to-watchlist-from-url-analysis", {
                 method: "POST",
                 credentials: "same-origin",   // ← diese Zeile neu
                 headers: {

@@ -17,11 +17,6 @@ from src.financial_metric_component.financial_metric import get_total_financial_
 from src.database.db import engine, SessionLocal
 from sqlalchemy.orm import Session, joinedload
 from src.database import models
-from src.youtube_transcript_component.yt_transcript_component import \
-    get_youtube_transcript_based_url
-from src.summary_llm_component.gemini_llm_component import get_summary_of_gemini_with_url_context, \
-    get_summary_of_gemini_of_transcript
-import json
 import re
 from starlette.middleware.sessions import SessionMiddleware
 import numpy as np
@@ -29,7 +24,6 @@ import pandas as pd
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import requests
-from pytube import extract
 from itertools import groupby
 from datetime import datetime, timedelta
 from gnews import GNews
@@ -41,15 +35,13 @@ from src.core.rate_limit import configure_rate_limit
 from src.database.db import get_db
 from src.portfolio_component.views import portfolio_router
 from src.watchlist_component.views import watchlist_router
+from src.analysis_component.views import analysis_router
 
 load_dotenv()
 
 models.Base.metadata.create_all(bind=engine)
 
-class Company(BaseModel):
-    company_name: str
-    strength: str
-    weakness: str
+
 
 
 class SummaryRequest(BaseModel):
@@ -68,6 +60,7 @@ templates = Jinja2Templates(directory="templates")
 app.include_router(authentication_router)
 app.include_router(portfolio_router)
 app.include_router(watchlist_router)
+app.include_router(analysis_router)
 
 configure_rate_limit(app)
 
@@ -108,107 +101,6 @@ async def show_index_page(request: Request, user: Optional[UUID] = Depends(get_c
 async def logout(request: Request):
     request.session.clear()
     return RedirectResponse(url="/", status_code=303)
-
-
-@app.post("/get-summary", response_class=HTMLResponse)
-async def analyze(request: Request, url: str = Form(...)):
-    try:
-        companies_array = get_summary_of_gemini_with_url_context(url)
-
-        if isinstance(companies_array, str):
-            try:
-                companies_array = json.loads(companies_array)
-            except json.JSONDecodeError:
-                companies_array = []
-
-        return templates.TemplateResponse(
-            request=request,
-            name="companies_overview.html",
-            context={"request": request, "companies": companies_array}
-        )
-    except Exception as e:
-        return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={"request": request},
-        )
-
-
-def extract_video_id_by_url(url: str) -> str:
-    try:
-        return extract.video_id(url)
-    except Exception as e:
-        return ""
-
-
-@app.post("/get-yt-transcript", response_class=HTMLResponse)
-def get_yt_transcript(request: Request, url: str = Form(...)):
-    try:
-        video_id = extract_video_id_by_url(url)
-        transcript = get_youtube_transcript_based_url(video_id)
-        companies_array = get_summary_of_gemini_of_transcript(transcript)
-
-        if isinstance(companies_array, str):
-            try:
-                companies_array = json.loads(companies_array)
-            except json.JSONDecodeError:
-                companies_array = []
-
-        return templates.TemplateResponse(
-            request=request,
-            name="companies_overview.html",
-            context={"request": request, "companies": companies_array}
-        )
-    except Exception as e:
-        return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={"request": request},
-        )
-
-
-@app.post("/companies")
-async def receive_company(
-        company: Company,
-        db: Session = Depends(get_db),
-        current_user_id: UUID = Depends(get_current_user_id),
-):
-    db_company = db.query(models.StockSummary).filter_by(
-        name=company.company_name,
-        user_id=current_user_id
-    ).first()
-
-    if db_company:
-        current_strengths = db_company.strength
-        current_weakness = db_company.weakness
-        strengths, weaknesses = get_combination(current_strengths, current_weakness, company.strength, company.weakness)
-        db_company.strength = "\n".join(f"• {s}" for s in strengths)
-        db_company.weakness = "\n".join(f"• {w}" for w in weaknesses)
-        db.commit()
-        db.refresh(db_company)
-        trajectory, reasoning, recommendation = evaluate_new_information(current_strengths, company.strength,
-                                                                         current_weakness, company.weakness)
-
-        return {
-            "message": "Firma aktualisiert!",
-            "id": db_company.id,
-            "trajectory": trajectory,
-            "reasoning": reasoning,
-            "recommendation": recommendation
-        }
-
-    else:
-        db_company = models.StockSummary(
-            name=company.company_name,
-            strength=company.strength,
-            weakness=company.weakness,
-            is_on_watch_list=True,
-            user_id=current_user_id
-        )
-        db.add(db_company)
-        db.commit()
-        db.refresh(db_company)
-        return {"message": "Firma gespeichert!", "id": db_company.id}
 
 
 @app.get("/success", response_class=HTMLResponse)
@@ -677,14 +569,6 @@ async def get_summary_api(payload: SummaryRequest):
 
     return {"summary": ergebnis_text}
 
-@app.get("/analysis")
-def analysis(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="analysis.html",
-        context={"request": request})
-
-
 @app.post("/find-candidates")
 def screen(filters: dict):
     f = Overview()
@@ -726,23 +610,6 @@ def screen(filters: dict):
         "count": len(df),
         "data": df.to_dict(orient="records")
     }
-
-with open("locales/de.json", "r", encoding="utf-8") as f:
-    de_translations = json.load(f)
-with open("locales/en.json", "r", encoding="utf-8") as f:
-    en_translations = json.load(f)
-
-
-templates = Jinja2Templates(directory="templates")
-
-
-
-
-
-
-
-
-
 
 
 def metric_ids_for_branch_profile_from_form(form) -> List[int]:

@@ -52,7 +52,7 @@ def get_combination(current_strengths, current_weakness, new_strengths, new_weak
             ,
             {
                 "role": "user",
-                "content": f"""
+                "content": f'''
     Combine the following company data into a single consolidated analysis:
     Answer only in german. 
     
@@ -69,12 +69,18 @@ def get_combination(current_strengths, current_weakness, new_strengths, new_weak
     {new_weakness}
 
     Ensure all information is merged, deduplicated, and consistently structured.
-    """
+    OUTPUT FORMAT (STRICT):
+            Return ONLY valid JSON:
+
+            {{"strengths": ["...merged strengths in german..."],
+              "weaknesses": ["...merged weaknesses in german..."]}}
+    '''
             }
         ]
     )
 
     content = response.choices[0].message.content
+    print(content)
     data = safe_parse(content)
     strengths = data.get("strengths", [])
     weaknesses = data.get("weaknesses", [])

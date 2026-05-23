@@ -92,12 +92,12 @@
     <div class="action-card card-ai">
         <h3 style="margin-top: 0;">📝 Content Analyzer</h3>
 
-        <form action="/get-summary" method="post" class="form-group">
+        <form action="/analysis/get-summary-url" method="post" class="form-group">
             <input type="text" name="url" placeholder="Artikel-URL für Zusammenfassung..." required>
             <button type="submit" class="btn">Senden</button>
         </form>
 
-        <form action="/get-yt-transcript" method="post" class="form-group" style="margin-bottom: 0;">
+        <form action="/analysis/get-summary-by-yt-video" method="post" class="form-group" style="margin-bottom: 0;">
             <input type="text" name="url" placeholder="YouTube-URL für Skript..." required>
             <button type="submit" class="btn">Senden</button>
         </form>
