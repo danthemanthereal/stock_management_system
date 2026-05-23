@@ -50,7 +50,8 @@ class Auth:
         except jwt.InvalidTokenError as e:
             raise AuthenticationFailed(detail="Invalid refresh token") from e
 
-    async def get_current_user_id(request: Request) -> UUID | None:
+
+async def get_current_user_id(request: Request) -> UUID | None:
         user_id_str = request.session.get("user_id")
         if not user_id_str:
             return None

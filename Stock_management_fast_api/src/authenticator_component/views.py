@@ -38,7 +38,7 @@ async def login(
     if not auth_handler.verify_password(password, user.password_hash):
         raise AuthenticationFailed(detail="Invalid password.")
 
-    request.session["user_id"] = user.id
+    request.session["user_id"] = str(user.id)
 
     return RedirectResponse(url="/", status_code=303)
 
