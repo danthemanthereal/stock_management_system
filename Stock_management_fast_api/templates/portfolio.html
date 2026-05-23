@@ -99,7 +99,7 @@
 <!-- BEREICH 1: Neue Aktie hinzufügen -->
 <div class="action-card success">
     <h3 style="margin-top: 0; color: #2c3e50;">➕ Neue Position eintragen</h3>
-    <form action="/portfolio/create" method="post" class="form-row">
+    <form action="/portfolio/create/" method="post" class="form-row">
         <input type="text" name="name" placeholder="Name (z.B. Microsoft)" required>
         <input type="text" name="ticker" placeholder="Ticker (z.B. MSFT)" required style="max-width: 100px;">
         <input type="number" name="bought_price" placeholder="Kaufpreis (€)" step="0.01" min="0.01" required>

@@ -14,7 +14,7 @@ class StockSummary(Base):
     __tablename__ = "stock_summary"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     name = Column(String,unique=True, index=True)
     strength = Column(String, index=True)
     weakness = Column(String, index=True)
@@ -63,7 +63,7 @@ class IndustryProfile(Base):
     name = Column(String)
 
     metric_configs = relationship("ProfileMetricConfiguration", back_populates="profile", cascade="all, delete-orphan")
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     user = relationship("User", back_populates="industry_profiles")
     __table_args__ = (
@@ -92,7 +92,7 @@ class ProfileMetricConfiguration(Base):
 class BoughtStock(Base):
     __tablename__ = "bought_stock"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     name = Column(String, unique=True, index=True)
     ticker = Column(String, unique=True, index=True)
