@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, Float, DateTime
+import uuid
+
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, Float, DateTime, UUID
 from sqlalchemy.orm import relationship
 from .db import Base
 from datetime import datetime, timezone
@@ -105,7 +107,7 @@ class BoughtStock(Base):
 
 class User(Base):
     __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_name = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)

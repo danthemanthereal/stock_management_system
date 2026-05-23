@@ -1,8 +1,11 @@
 from datetime import datetime, timedelta, timezone
+from uuid import UUID
 
+from fastapi import Request
 import jwt
 from passlib.context import CryptContext
 from src.configs.setting import Settings
+from src.authenticator_component.exception import AuthenticationFailed
 
 
 class Auth:
@@ -46,3 +49,12 @@ class Auth:
             raise AuthenticationFailed(detail="Refresh token expired") from e
         except jwt.InvalidTokenError as e:
             raise AuthenticationFailed(detail="Invalid refresh token") from e
+
+    async def get_current_user_id(request: Request) -> UUID | None:
+        user_id_str = request.session.get("user_id")
+        if not user_id_str:
+            return None
+        try:
+            return UUID(user_id_str)
+        except ValueError:
+            return None

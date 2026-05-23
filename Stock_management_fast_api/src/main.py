@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, status, Query
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -34,8 +36,8 @@ from datetime import datetime, timedelta
 from gnews import GNews
 from dotenv import load_dotenv
 import os
-from argon2.exceptions import VerifyMismatchError
 from src.authenticator_component.views import authentication_router
+from src.authenticator_component.authenticator import Auth
 from src.core.rate_limit import configure_rate_limit
 from src.database.db import get_db
 
@@ -328,26 +330,8 @@ class Company(BaseModel):
 class DeleteCompaniesRequest(BaseModel):
     companies: List[str]
 
-
-
-
-
-async def get_current_user(
-        request: Request,
-        db: Session = Depends(get_db)
-) -> Optional[User]:
-    user_id = request.session.get("user_id")
-    if user_id is None:
-        return None
-    return db.query(User).filter(User.id == user_id).first()
-
-
-async def get_current_user_id(request: Request) -> Optional[int]:
-    return request.session.get("user_id")
-
-
 @app.get("/")
-async def read_root(request: Request, user: Optional[str] = Depends(get_current_user)):
+async def show_index_page(request: Request, user: Optional[UUID] = Depends(Auth.get_current_user_id)):
     try:
 
         return templates.TemplateResponse(
@@ -367,13 +351,6 @@ async def read_root(request: Request, user: Optional[str] = Depends(get_current_
 from fastapi import Request
 
 from fastapi import Depends
-
-
-async def get_current_user(request: Request):
-    username = request.session.get("user")
-    if not username:
-        return None
-    return username
 
 @app.get("/logout")
 async def logout(request: Request):
@@ -442,7 +419,7 @@ def get_yt_transcript(request: Request, url: str = Form(...)):
 async def receive_company(
         company: Company,
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user),
+        current_user_id: UUID = Depends(Auth.get_current_user_id),
 ):
     db_company = db.query(models.StockSummary).filter_by(
         name=company.company_name,
@@ -492,7 +469,7 @@ async def success_page(request: Request):
 
 
 @app.get("/saved-companies", response_class=HTMLResponse)
-def show_companies(request: Request, db: Session = Depends(get_db), current_user_id: int = Depends(get_current_user)):
+def show_companies(request: Request, db: Session = Depends(get_db), current_user_id: UUID = Depends(Auth.get_current_user_id)):
     try:
         companies = db.query(models.StockSummary).filter(
             models.StockSummary.is_on_watch_list == True,
@@ -605,7 +582,7 @@ def show_saved_financial_metrics_page(
         request: Request,
         branch_profile_id: Optional[int] = Form(None),
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user),
+        current_user_id: UUID = Depends(Auth.get_current_user_id),
 ):
     try:
         selected_id = branch_profile_id
@@ -666,7 +643,7 @@ def create_metric(
     reference_value: int = Form(...),
     should_rise: bool = Form(False),
     db: Session = Depends(get_db),
-    current_user_id: int = Depends(get_current_user_id),
+    current_user_id: UUID = Depends(Auth.get_current_user_id),
 ):
     profile = db.query(IndustryProfile).filter(
         IndustryProfile.id == selected_branch_id,
@@ -728,7 +705,7 @@ async def create_branch_profile(
         branch_profile_name: str = Form(...),
         metric_data_triplets: str = Form(""),
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user),
+        current_user_id: UUID = Depends(Auth.get_current_user_id),
 ):
     try:
         new_profile = IndustryProfile(name=branch_profile_name, user_id=current_user_id)
@@ -780,7 +757,7 @@ async def create_branch_profile(
 def delete_branch_profile(
         profile_id: int,
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user),
+        current_user_id: UUID = Depends(Auth.get_current_user_id),
 ):
     if profile_id != 1:
         db.query(IndustryProfile).filter(IndustryProfile.id == profile_id,
@@ -800,7 +777,7 @@ def update_metric(
         reference_value: int = Form(0),
         is_active: bool = Form(False),
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user),
+        current_user_id: UUID = Depends(Auth.get_current_user_id),
 ):
     metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
     metric.name = name
@@ -835,7 +812,7 @@ def edit_metric_page(
         profile_id: int,
         metric_id: int,
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user),
+        current_user_id: UUID = Depends(Auth.get_current_user_id),
 ):
     metric = db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first()
     user_id = db.query(User).filter(User.user_name == current_user_id).first().id
@@ -884,7 +861,7 @@ def delete_metrics(
         metric_ids: str = Form(...),
         selected_branch_id: int = Form(1),
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user),
+        current_user_id: UUID = Depends(Auth.get_current_user_id),
 ):
     id_list = [int(i) for i in metric_ids.split(",") if i.strip()]
     if selected_branch_id == 1:
@@ -910,7 +887,7 @@ def delete_saved_companies(
         request: Request,
         data: DeleteCompaniesRequest,
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user)
+        current_user_id: UUID = Depends(Auth.get_current_user_id)
 ):
     try:
         if not data.companies:
@@ -937,7 +914,7 @@ def delete_saved_companies(
 
 @app.get("/portfolio", response_class=HTMLResponse)
 async def get_portfolio_page(request: Request, db: Session = Depends(get_db),
-                             current_user_id: int = Depends(get_current_user)):
+                             current_user_id: UUID = Depends(Auth.get_current_user_id)):
     try:
         bought_stocks = db.query(BoughtStock).filter(BoughtStock.user_id == current_user_id).order_by(
             BoughtStock.ticker).all()
@@ -963,7 +940,7 @@ async def create_portfolio_entry(
         bought_price: float = Form(...),
         amount: float = Form(...),
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user),
+        current_user_id: UUID = Depends(Auth.get_current_user_id),
 ):
     try:
         new_stock = BoughtStock(
@@ -989,7 +966,7 @@ async def update_multiple_portfolio_entries(
         delete_ids: str = Form(""),
         update_triplets: str = Form(""),
         db: Session = Depends(get_db),
-        current_user_id: int = Depends(get_current_user),
+        current_user_id: UUID = Depends(Auth.get_current_user_id),
 ):
     try:
         if delete_ids:
@@ -1027,7 +1004,7 @@ async def update_multiple_portfolio_entries(
 
 @app.post("/api/bought-stocks", status_code=status.HTTP_201_CREATED)
 def create_bought_stock(stock_data: BoughtStockCreate, db: Session = Depends(get_db),
-                        current_user_id: int = Depends(get_current_user)):
+                        current_user_id: UUID = Depends(Auth.get_current_user_id)):
     existing_stock = db.query(BoughtStock).filter(BoughtStock.name == stock_data.name,
                                                   BoughtStock.user_id == current_user_id).first()
 
@@ -1106,7 +1083,7 @@ async def get_summary_api(payload: SummaryRequest):
 
 
 @app.get("/watchlist")
-def watch_list(request: Request, db: Session = Depends(get_db), current_user_id: int = Depends(get_current_user)):
+def watch_list(request: Request, db: Session = Depends(get_db), current_user_id: UUID = Depends(Auth.get_current_user_id)):
     watch_list_stocks = db.query(models.StockSummary).filter(models.StockSummary.is_on_watch_list == True,
                                                              models.StockSummary.user_id == current_user_id).all()
     return templates.TemplateResponse(request=request,

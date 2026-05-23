@@ -127,7 +127,7 @@ async def register(
         #   token = generate_email_verification_token(new_user.email)
         #  background_tasks.add_task(send_verification_email, new_user.email, token)
 
-
+        request.session["user_id"] = str(new_user.id)
         request.session["registration_success"] = True
 
         return RedirectResponse(url="/", status_code=303)
@@ -142,3 +142,4 @@ async def register(
                      "error": "Ein technischer Fehler ist aufgetreten. Bitte versuche es später erneut."},
             status_code=500
         )
+
