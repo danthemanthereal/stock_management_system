@@ -28,7 +28,7 @@ from src.database.models import IndustryProfile, ProfileMetricConfiguration, Fin
     FinancialMetricCategory
 from datetime import datetime, timedelta
 from gnews import GNews
-
+from src.analysis_component.service import get_available_metrics
 
 templates = Jinja2Templates(directory="templates")
 
@@ -187,20 +187,19 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
 @analysis_router.api_route("/show-saved-financial-metrics", methods=["GET", "POST"],response_class=HTMLResponse)
 def show_saved_financial_metrics_page(
         request: Request,
-        branch_profile_id: Optional[int] = Form(None),
         db: Session = Depends(get_db),
         current_user_id: UUID = Depends(get_current_user_id),
 ):
     try:
 
 
-        all_available_metrics = db.query(FinancialMetric).order_by(FinancialMetric.name).all()
+        available_metrics = get_available_metrics(db)
 
         return render_localized(
             template_name="analysis/show_saved_financial_metrics.html",
             request=request,
             context={
-
+                "available_metrics": available_metrics
             }
         )
     except Exception as e:

@@ -151,7 +151,7 @@
         <input type="hidden" name="selected_branch_id" value="{{ selected_branch_profile_id }}">
         <select name="financial_metric_id" required style="min-width: 250px;">
             <option value="">— {{ _('select_metric') }} —</option>
-            {% for metric in all_available_metrics %}
+            {% for metric in available_metrics %}
             <option value="{{ metric.id }}">
                 {{ _(metric.name) }} {% if metric.unit %}({{ metric.unit }}){% endif %}
             </option>
