@@ -224,7 +224,14 @@
         </tr>
         </thead>
         <tbody>
-        {% for c in financial_metrics_of_last_selected_template %}
+        {% for category_label, metrics_list in financial_metrics_of_last_selected_template_per_category.items() %}
+        <tbody class="metric-category-group">
+        <!-- Kategorie-Überschrift -->
+        <tr class="category-heading-row">
+            <td colspan="7" class="category-header">{{ _(category_label) }}</td>
+        </tr>
+
+        {% for c in metrics_list %}
         <tr class="saved-metric-row" data-is-active="{{ 'true' if c.is_active else 'false' }}">
             <!-- Löschen -->
             <td style="text-align: center;">
@@ -248,7 +255,7 @@
             <!-- Einheit -->
             <td>{{ _(c.unit) }}</td>
 
-            <!-- Kategorie (einfache Spalte) -->
+            <!-- Kategorie (redundant, aber kann bleiben) -->
             <td>{{ _(c.category) }}</td>
 
             <!-- Aktiv-Status -->
@@ -262,6 +269,8 @@
                 <a href="/metrics/edit/{{ selected_branch_profile_id }}/{{ c.metric_id }}">{{ _('link_edit') }}</a>
             </td>
         </tr>
+        {% endfor %}
+        </tbody>
         {% endfor %}
         </tbody>
     </table>
