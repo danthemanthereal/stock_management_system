@@ -1,0 +1,245 @@
+{% extends "analysis/analysis_base.html" %}
+
+{% block analysis_content %}
+
+<!-- ========== CSS bleibt erhalten, kann aber in extra_head-Block ausgelagert werden ========== -->
+<style>
+    body {
+        font-family: sans-serif;
+        line-height: 1.5;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .branch-profile-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+    }
+
+    .profile-btn {
+        padding: 8px 16px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        background: white;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+    .profile-btn:hover {
+        background: #eee;
+    }
+    .profile-active {
+        background-color: #007bff !important;
+        color: white !important;
+        border-color: #0056b3 !important;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .action-box {
+        background: #ffffff;
+        padding: 1.5rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    h3 { margin-top: 0; color: #222; }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        background: white;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+    thead th {
+        background: #f4f4f4;
+        position: sticky;
+        top: 0;
+    }
+    .category-header {
+        background: #f0f0f0;
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+    tr:hover { background-color: #fafafa; }
+
+    .btn-primary {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .btn-filter {
+        background: #17a2b8;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 1rem;
+    }
+    .btn-filter:hover { background: #138496; }
+
+    input[type="text"], input[type="number"], select {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+</style>
+
+<h1>{{ _('title') }}</h1>
+
+<!-- Branchen-Auswahl -->
+<div class="branch-profile-bar" role="toolbar">
+    <span style="font-weight: bold; margin-right: 0.5rem;">{{ _('selected_branch') }}:</span>
+    <form action="/analysis/kennzahlen" method="post">
+        <input type="hidden" name="branch_profile_id" value="">
+        <button type="submit" class="profile-btn {% if selected_branch_profile_id == 1 %}profile-active{% endif %}">
+            {{ _('btn_all') }}
+        </button>
+    </form>
+    {% for p in branch_profiles %}
+    {% if p.id != 1 %}
+    <form action="/analysis/kennzahlen" method="post">
+        <input type="hidden" name="branch_profile_id" value="{{ p.id }}">
+        <button type="submit" class="profile-btn {% if selected_branch_profile_id == p.id %}profile-active{% endif %}">
+            {{ _(p.name) }}
+        </button>
+    </form>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<!-- Neue Kennzahl hinzufügen -->
+<div class="action-box">
+    <h3>{{ _('add_metric_title') }}</h3>
+    <form action="/metrics/create" method="post"
+          style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+        <input type="hidden" name="selected_branch_id" value="{{ selected_branch_profile_id }}">
+        <select name="financial_metric_id" required style="min-width: 250px;">
+            <option value="">— {{ _('select_metric') }} —</option>
+            {% for metric in all_available_metrics %}
+            <option value="{{ metric.id }}">
+                {{ _(metric.name) }} {% if metric.unit %}({{ metric.unit }}){% endif %}
+            </option>
+            {% endfor %}
+        </select>
+        <input type="number" name="reference_value" placeholder="{{ _('placeholder_value') }}" required
+               style="width: 100px;">
+        <label style="font-size: 0.9em;">
+            <input type="checkbox" name="should_rise"> {{ _('should_rise') }}
+        </label>
+        <button type="submit" class="btn-primary">{{ _('btn_add') }}</button>
+    </form>
+</div>
+
+<!-- Tabelle mit Aktionen -->
+<form action="/metrics/delete-multiple" method="post" id="main-metrics-form">
+    <input type="hidden" name="selected_branch_id" value="{{ selected_branch_profile_id }}">
+
+    <div class="action-box" style="border-left: 5px solid #007bff;">
+        <h3 style="color: #007bff;">{{ _('actions_title') }}</h3>
+        <p style="font-size: 0.9em; color: #666;">
+            {{ _('actions_description') }}
+        </p>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <input type="text" name="branch_profile_name" placeholder="{{ _('placeholder_new_profile') }}"
+                   style="flex-grow: 1;">
+            <button type="submit" formaction="/metrics/branch-profiles/create" class="btn-secondary">
+                {{ _('btn_save_profile') }}
+            </button>
+            <button type="submit" class="btn-danger" onclick="return confirm('{{ _('confirm_delete') }}')">
+                {{ _('btn_delete_marked') }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter-Button -->
+    <button type="button" id="toggle-active-metrics" class="btn-filter" data-filtering="false">
+        {{ _('btn_filter_active') }}
+    </button>
+
+    <table>
+        <thead>
+        <tr>
+            <th style="width: 40px;">{{ _('table_header_delete') }}</th>
+            <th>{{ _('table_header_metric') }}</th>
+            <th>{{ _('table_header_value') }}</th>
+            <th>{{ _('table_header_unit') }}</th>
+            <th>{{ _('table_header_category') }}</th>
+            <th style="text-align: center;">{{ _('table_header_active') }}</th>
+            <th>{{ _('table_header_action') }}</th>
+        </tr>
+        </thead>
+        {% for category_label, configs in metrics_by_category %}
+        <tbody class="metric-category-group">
+        <tr class="category-heading-row">
+            <td colspan="7" class="category-header">{{ _(category_label) }}</td>
+        </tr>
+        {% for c in configs %}
+        <tr class="saved-metric-row" data-is-active="{{ 'true' if c.is_active else 'false' }}">
+            <td style="text-align: center;">
+                <input type="checkbox" name="delete_checkbox" value="{{ c.metric.id }}">
+            </td>
+            <td><strong>{{ _(c.metric.name) }}</strong></td>
+            <td>
+                <input type="number"
+                       class="inline-metric-value"
+                       data-metric-id="{{ c.metric.id }}"
+                       value="{{ c.reference_value | int }}"
+                       min="0" step="1"
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                       style="width: 90px; padding: 4px; border: 1px dashed #ccc; border-radius: 4px; text-align: right;">
+            </td>
+            <td>{{_(c.metric.unit)}}</td>
+            <td>{{ _(category_label) }}</td>
+            <td style="text-align: center;">
+                <input type="checkbox" name="active_status_checkbox" value="{{ c.metric.id }}"
+                       {% if c.is_active %}checked{% endif %}>
+            </td>
+            <td>
+                <a href="/metrics/edit/{{ selected_branch_profile_id }}/{{ c.metric.id }}">{{ _('link_edit') }}</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        {% endfor %}
+    </table>
+</form>
+
+
+
+{% endblock %}

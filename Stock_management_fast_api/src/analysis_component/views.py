@@ -38,7 +38,7 @@ analysis_router = APIRouter(prefix="/analysis", tags=["analysis"])
 def analysis(request: Request):
     return templates.TemplateResponse(
         request=request,
-        name="analysis.html",
+        name="analysis/analysis.html",
         context={"request": request})
 
 
@@ -192,60 +192,15 @@ def show_saved_financial_metrics_page(
         current_user_id: UUID = Depends(get_current_user_id),
 ):
     try:
-        selected_id = branch_profile_id
-        if request.method == "GET":
-            query_id = request.query_params.get("branch_profile_id")
 
-
-        print(current_user_id)
-        if not selected_id:
-            industry_profile = db.query(IndustryProfile).join(User).filter(User.id == current_user_id).first()
-            if industry_profile:
-                selected_id = industry_profile.id
-            else:
-                profile = IndustryProfile(
-                    name="Allgemein",
-                    user_id=str(current_user_id)
-                )
-                db.add(profile)
-                db.commit()
-                db.refresh(profile)
-                selected_id = profile.id
-
-        branch_profiles = db.query(IndustryProfile).filter(IndustryProfile.user_id == current_user_id).all()
-
-        configs = (
-            db.query(ProfileMetricConfiguration)
-            .join(FinancialMetric)
-            .join(IndustryProfile)
-            .outerjoin(FinancialMetricCategory, FinancialMetric.category_id == FinancialMetricCategory.id)
-            .filter(ProfileMetricConfiguration.profile_id == selected_id, IndustryProfile.user_id == current_user_id)
-            .order_by(FinancialMetricCategory.name)
-            .all()
-        )
-        print("configs:", configs)
-
-
-        metrics_by_category = []
-        for category_name, group in groupby(
-                configs,
-                lambda x: x.metric.category_rel.name if x.metric.category_rel else "— keine —"
-        ):
-            group_list = list(group)
-            if group_list:
-                metrics_by_category.append((category_name, group_list))
 
         all_available_metrics = db.query(FinancialMetric).order_by(FinancialMetric.name).all()
 
         return render_localized(
-            template_name="show_saved_financial_metrics.html",
+            template_name="analysis/show_saved_financial_metrics.html",
             request=request,
             context={
-                "branch_profiles": branch_profiles,
-                "selected_branch_profile_id": selected_id,
-                "metrics_by_category": metrics_by_category,
-                "displayed_metrics_count": len(configs),
-                "all_available_metrics": all_available_metrics
+
             }
         )
     except Exception as e:

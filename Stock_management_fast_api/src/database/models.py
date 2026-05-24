@@ -120,6 +120,7 @@ class User(Base):
     bought_stocks = relationship("BoughtStock", back_populates="user", cascade="all, delete-orphan")
     industry_profiles = relationship("IndustryProfile", back_populates="user", cascade="all, delete-orphan")
     stock_summary = relationship("StockSummary", back_populates="user", cascade="all, delete-orphan")
+    last_selected_template_id = Column(Integer)
 
 
 class RefreshToken(Base):
