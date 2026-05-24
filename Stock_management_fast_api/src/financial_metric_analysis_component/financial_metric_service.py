@@ -68,3 +68,5 @@ class MetricsService:
             financial_metrics_overviews_per_category[metric.category_rel.name].append(overview)
 
         return financial_metrics_overviews_per_category
+
+    

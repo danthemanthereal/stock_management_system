@@ -199,9 +199,6 @@
             <button type="submit" formaction="/analysis/create-new-template-with-current-properties" class="btn-secondary">
                 {{ _('btn_save_profile') }}
             </button>
-            <button type="submit" class="btn-danger" onclick="return confirm('{{ _('confirm_delete') }}')">
-                {{ _('btn_delete_marked') }}
-            </button>
         </div>
     </div>
 
@@ -209,6 +206,10 @@
     <button type="button" id="toggle-active-metrics" class="btn-filter" data-filtering="false">
         {{ _('btn_filter_active') }}
     </button>
+
+     <button type="submit" class="btn-danger" onclick="return confirm('{{ _('confirm_delete') }}')">
+                {{ _('btn_delete_marked') }}
+            </button>
 
     <table>
         <thead>
