@@ -1,9 +1,9 @@
 import uuid
-
+from typing import List
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from src.database.models import IndustryProfile, ProfileMetricConfiguration, User
-
+from src.financial_metric_analysis_component.schema import FinancialMetricOverview
 
 
 class MetricsService:
@@ -44,3 +44,31 @@ class MetricsService:
         current_user.last_selected_template_id = template_id
         self.db.commit()
         self.db.refresh(current_user)
+
+    def get_all_financial_metrics_of_last_selected_template(self, template_id: int) -> List[FinancialMetricOverview]:
+        configs = (
+            self.db.query(ProfileMetricConfiguration)
+            .options(joinedload(ProfileMetricConfiguration.metric))
+            .filter(
+                ProfileMetricConfiguration.profile_id == template_id,
+                ProfileMetricConfiguration.is_active == True
+            )
+            .all()
+        )
+
+        financial_metrics_overviews = []
+        for cfg in configs:
+            metric = cfg.metric
+            overview = FinancialMetricOverview(
+                config_id=cfg.id,
+                metric_id=metric.id,
+                display_name=metric.display_name_reference,
+                category=metric.unit,
+                reference_value=cfg.reference_value,
+                unit=metric.unit,
+                should_rise=cfg.should_rise,
+                is_active=cfg.is_active,
+            )
+            financial_metrics_overviews.append(overview)
+
+        return financial_metrics_overviews

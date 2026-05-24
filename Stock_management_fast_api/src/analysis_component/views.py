@@ -104,15 +104,19 @@ def show_saved_financial_metrics_page(
         last_selected_branch_profile_id = get_last_selected_template_id_of_user(current_user_id, db)
         available_metrics = get_available_metrics(db)
         current_user_created_templates = get_current_user_created_templates(db, current_user_id)
-
-
+        financial_metric_service = MetricsService(db)
+        financial_metrics_of_last_selected_template = financial_metric_service.get_all_financial_metrics_of_last_selected_template(
+            last_selected_branch_profile_id)
+        print("last_selected_branch_profile_id", last_selected_branch_profile_id)
+        print("fin metrics: ", financial_metrics_of_last_selected_template)
         return render_localized(
             template_name="analysis/show_saved_financial_metrics.html",
             request=request,
             context={
                 "available_metrics": available_metrics,
                 "last_selected_branch_profile_id": last_selected_branch_profile_id,
-                "branch_profiles": current_user_created_templates
+                "branch_profiles": current_user_created_templates,
+                "financial_metrics_of_last_selected_template": financial_metrics_of_last_selected_template,
             }
         )
     except Exception as e:
@@ -144,6 +148,9 @@ def add_to_current_selected_template_new_financial_metric(
         last_selected_branch_profile_id = get_last_selected_template_id_of_user(current_user_id, db)
         available_metrics = get_available_metrics(db)
         current_user_created_templates = get_current_user_created_templates(db, current_user_id)
+        financial_metric_service = MetricsService(db)
+        financial_metrics_of_last_selected_template = financial_metric_service.get_all_financial_metrics_of_last_selected_template(
+            last_selected_branch_profile_id)
 
         return render_localized(
         template_name="analysis/show_saved_financial_metrics.html",
@@ -151,7 +158,9 @@ def add_to_current_selected_template_new_financial_metric(
         context={
             "available_metrics": available_metrics,
             "last_selected_branch_profile_id": last_selected_branch_profile_id,
-            "branch_profiles": current_user_created_templates
+            "branch_profiles": current_user_created_templates,
+            "financial_metrics_of_last_selected_template": financial_metrics_of_last_selected_template,
+
         }
     )
     except Exception as e:

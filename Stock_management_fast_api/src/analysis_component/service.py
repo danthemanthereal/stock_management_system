@@ -40,3 +40,4 @@ def get_last_selected_template_id_if_user(current_user_id: UUID, db: Session)->i
 
 def get_current_user_created_templates(db: Session, user_id: UUID)->List[IndustryProfile]:
     return db.query(IndustryProfile).filter(IndustryProfile.user_id == str(user_id)).all()
+
