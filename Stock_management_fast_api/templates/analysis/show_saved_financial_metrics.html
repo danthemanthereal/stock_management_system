@@ -150,7 +150,7 @@
     </span>
 
     {% for p in branch_profiles %}
-    <form action="/analysis/kennzahlen" method="post" style="display:inline;">
+    <form action="/analysis/change-selected-template" method="post" style="display:inline;">
         <input type="hidden" name="branch_profile_id" value="{{ p.id }}">
         <button type="submit"
                 class="profile-btn {% if p.id == last_selected_branch_profile_id %}profile-active{% endif %}">

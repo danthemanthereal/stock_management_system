@@ -204,6 +204,42 @@ def create_new_template_of_current_financial_metrics_properties(
         return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
 
 
+@analysis_router.post("/change-selected-template")
+def change_selected_template(
+    request: Request,
+    branch_profile_id: int = Form(...),
+    db: Session = Depends(get_db),
+    current_user_id: UUID = Depends(get_current_user_id)
+):
+    try:
+        template_service = TemplateService(db)
+        template_service.update_last_selected_template_id(branch_profile_id, current_user_id)
+        last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
+        available_metrics = get_available_metrics(db)
+        current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
+        financial_metric_service = MetricsService(db)
+        financial_metrics_of_last_selected_template_per_category = financial_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+            last_selected_branch_profile_id)
+
+        return render_localized(
+            template_name="analysis/show_saved_financial_metrics.html",
+            request=request,
+            context={
+                "available_metrics": available_metrics,
+                "last_selected_branch_profile_id": last_selected_branch_profile_id,
+                "branch_profiles": current_user_created_templates,
+                "financial_metrics_of_last_selected_template_per_category": financial_metrics_of_last_selected_template_per_category,
+
+            })
+
+    except Exception as e:
+        print(f"Error: {e}")
+        traceback.print_exc()
+        return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
+
+
+
+
 
 
 
