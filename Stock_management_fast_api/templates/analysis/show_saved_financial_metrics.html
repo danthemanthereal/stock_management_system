@@ -147,9 +147,10 @@
 <!-- Neue Kennzahl hinzufügen -->
 <div class="action-box">
     <h3>{{ _('add_metric_title') }}</h3>
-    <form action="/metrics/create" method="post"
+    <form action="/analysis/add-metric-to-current-template" method="post"
           style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-        <input type="hidden" name="selected_branch_id" value="{{ selected_branch_profile_id }}">
+        <input type="hidden" name="last_selected_branch_profile_id"
+       value="{{ last_selected_branch_profile_id  }}">
         <select name="financial_metric_id" required style="min-width: 250px;">
             <option value="">— {{ _('select_metric') }} —</option>
             {% for metric in available_metrics %}

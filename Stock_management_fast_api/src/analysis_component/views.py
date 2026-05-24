@@ -31,6 +31,7 @@ from gnews import GNews
 from src.analysis_component.service import get_available_metrics
 from src.analysis_component.service import get_last_selected_template_id_of_user
 from src.analysis_component.service import get_current_user_created_templates
+from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 
 templates = Jinja2Templates(directory="templates")
 
@@ -91,6 +92,73 @@ def get_yt_transcript(request: Request, url: str = Form(...)):
             name="error.html",
             context={"request": request},
         )
+
+@analysis_router.api_route("/show-saved-financial-metrics", methods=["GET", "POST"],response_class=HTMLResponse)
+def show_saved_financial_metrics_page(
+        request: Request,
+        db: Session = Depends(get_db),
+        current_user_id: UUID = Depends(get_current_user_id),
+):
+    try:
+
+        last_selected_branch_profile_id = get_last_selected_template_id_of_user(current_user_id, db)
+        available_metrics = get_available_metrics(db)
+        current_user_created_templates = get_current_user_created_templates(db, current_user_id)
+
+
+        return render_localized(
+            template_name="analysis/show_saved_financial_metrics.html",
+            request=request,
+            context={
+                "available_metrics": available_metrics,
+                "last_selected_branch_profile_id": last_selected_branch_profile_id,
+                "branch_profiles": current_user_created_templates
+            }
+        )
+    except Exception as e:
+        print(f"Error: {e}")
+        traceback.print_exc()
+        return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
+
+
+@analysis_router.post("/add-metric-to-current-template", response_class=HTMLResponse)
+def add_to_current_selected_template_new_financial_metric(
+        request: Request,
+    last_selected_branch_profile_id: int = Form(...),
+    financial_metric_id: int = Form(...),
+    reference_value: float = Form(...),
+    should_rise: bool = Form(False),
+    db: Session = Depends(get_db),
+    current_user_id: UUID = Depends(get_current_user_id)
+):
+    try:
+        financial_metric_service = MetricsService(db)
+        financial_metric_service.add_metric_to_profile(
+            profile_id=last_selected_branch_profile_id,
+            metric_id=financial_metric_id,
+            reference_value=reference_value,
+            should_rise=should_rise,
+            user_id=current_user_id
+        )
+
+        last_selected_branch_profile_id = get_last_selected_template_id_of_user(current_user_id, db)
+        available_metrics = get_available_metrics(db)
+        current_user_created_templates = get_current_user_created_templates(db, current_user_id)
+
+        return render_localized(
+        template_name="analysis/show_saved_financial_metrics.html",
+        request=request,
+        context={
+            "available_metrics": available_metrics,
+            "last_selected_branch_profile_id": last_selected_branch_profile_id,
+            "branch_profiles": current_user_created_templates
+        }
+    )
+    except Exception as e:
+        print(f"Error: {e}")
+        traceback.print_exc()
+        return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
+
 
 @analysis_router.post("/find-potential-stocks", response_class=HTMLResponse)
 def find_potential_stocks_page(request: Request):
@@ -186,32 +254,6 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
             context={"request": request}
         )
 
-@analysis_router.api_route("/show-saved-financial-metrics", methods=["GET", "POST"],response_class=HTMLResponse)
-def show_saved_financial_metrics_page(
-        request: Request,
-        db: Session = Depends(get_db),
-        current_user_id: UUID = Depends(get_current_user_id),
-):
-    try:
-
-        last_selected_branch_profile_id = get_last_selected_template_id_of_user(current_user_id, db)
-        available_metrics = get_available_metrics(db)
-        current_user_created_templates = get_current_user_created_templates(db, current_user_id)
-
-
-        return render_localized(
-            template_name="analysis/show_saved_financial_metrics.html",
-            request=request,
-            context={
-                "available_metrics": available_metrics,
-                "last_selected_branch_profile_id": last_selected_branch_profile_id,
-                "branch_profiles": current_user_created_templates
-            }
-        )
-    except Exception as e:
-        print(f"Error: {e}")
-        traceback.print_exc()
-        return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
 
 
 @analysis_router.get("/get-news")
