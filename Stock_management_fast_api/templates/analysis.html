@@ -112,7 +112,7 @@
             <button type="submit" class="btn">Berechnen</button>
         </form>
 
-        <form action="/show-saved-financial-metrics" method="post">
+        <form action="/analysis/show-saved-financial-metrics" method="post">
             <button type="submit" class="btn btn-outline btn-block">Alle gespeicherten Kennzahlen anzeigen</button>
         </form>
 
@@ -126,7 +126,7 @@
         <h3 style="margin-top: 0;">📰 News & Stimmungsbild</h3>
         <p style="font-size: 13px; color: #7f8c8d;">Suche nach aktuellen Nachrichten zu einer bestimmten Aktie.</p>
 
-        <form action="/get-news" method="get" class="form-group" style="margin-bottom: 0;">
+        <form action="/analysis/get-news" method="get" class="form-group" style="margin-bottom: 0;">
             <input type="text" name="stock" placeholder="Ticker eingeben (z.B. AAPL)" required>
             <button type="submit" class="btn">News abrufen</button>
         </form>

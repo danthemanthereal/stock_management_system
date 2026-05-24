@@ -1,12 +1,15 @@
-from typing import List, Tuple
-
-from fastapi import APIRouter, Request, Depends, BackgroundTasks, Form
+import traceback
+from itertools import groupby
+from typing import List, Tuple, Optional
+from uuid import UUID
+from fastapi import APIRouter, Request, Depends, BackgroundTasks, Form, requests, Query
 from sqlalchemy.orm import Session
 from src.database import db
 from src.database.models import User
 from fastapi.templating import Jinja2Templates
 from src.database.db import get_db
 import json
+import requests
 from starlette.responses import HTMLResponse
 from src.summary_llm_component.gemini_llm_component import \
     get_summary_of_gemini_with_url_context
@@ -15,6 +18,17 @@ from src.youtube_transcript_component.yt_transcript_component import get_summary
 from src.find_potential_stocks_component.find_potential_stocks import \
     find_potential_stocks_for_current_user
 from src.utils.utils import render_localized
+from src.financial_metric_analysis_component.financial_metric_analysis import \
+    merge_financial_summary_triples, build_category_pair_summary, group_metric_names_by_category, \
+    group_financial_metrics_map_by_category, get_total_financial_metrics
+from src.financial_metric_evaluator_component.financial_metric_evaluator import \
+    get_satisfied_and_not_satisfied_financial_metrics
+from src.authenticator_component.authenticator import get_current_user_id
+from src.database.models import IndustryProfile, ProfileMetricConfiguration, FinancialMetric, \
+    FinancialMetricCategory
+from datetime import datetime, timedelta
+from gnews import GNews
+
 
 templates = Jinja2Templates(directory="templates")
 
@@ -101,7 +115,7 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
                                                   db: Session = Depends(get_db)):
     try:
 
-        satisfied_metrics_by_category, unsatisfied_metrics_by_category,satisfied_benchmarks_by_category, unsatisfied_benchmarks_by_category, satisfied_development_by_category
+
         financial_metrics_map = get_total_financial_metrics(db, company)
         satisfied_metrics, unsatisfied_metrics, satisfied_benchmarks, unsatisfied_benchmarks, satisfied_development, unsatisfied_development = get_satisfied_and_not_satisfied_financial_metrics(
             financial_metrics_map, db)
@@ -170,152 +184,107 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
             context={"request": request}
         )
 
-
-def build_category_pair_summary(
-        satisfied_by_category: List[Tuple[str, List[str]]],
-        unsatisfied_by_category: List[Tuple[str, List[str]]],
-) -> List[dict]:
+@analysis_router.api_route("/show-saved-financial-metrics", methods=["GET", "POST"],response_class=HTMLResponse)
+def show_saved_financial_metrics_page(
+        request: Request,
+        branch_profile_id: Optional[int] = Form(None),
+        db: Session = Depends(get_db),
+        current_user_id: UUID = Depends(get_current_user_id),
+):
     try:
-        sat_map = {label: len(names) for label, names in satisfied_by_category}
-        unsat_map = {label: len(names) for label, names in unsatisfied_by_category}
-        all_labels = set(sat_map) | set(unsat_map)
-        ordered = sorted(
-            all_labels,
-            key=lambda L: (1 if L == "Ohne Kategorie" else 0, L.casefold()),
-        )
-        rows: List[dict] = []
-        for L in ordered:
-            s = sat_map.get(L, 0)
-            u = unsat_map.get(L, 0)
-            rows.append(
-                {
-                    "category": L,
-                    "satisfied": s,
-                    "unsatisfied": u,
-                    "total": s + u,
-                }
-            )
-        return rows
-    except Exception as e:
-        return []
+        selected_id = branch_profile_id
+        if request.method == "GET":
+            query_id = request.query_params.get("branch_profile_id")
 
 
-def metric_ids_for_branch_profile_from_form(form) -> List[int]:
-    hidden = form.get("profile_selected_metric_ids")
-    if hidden is not None and str(hidden).strip():
-        parts = [x.strip() for x in str(hidden).split(",") if x.strip()]
-        try:
-            return sorted({int(x) for x in parts})
-        except ValueError:
-            pass
-    listed = form.getlist("metric_ids")
-    if listed:
-        try:
-            return sorted({int(x) for x in listed})
-        except ValueError:
-            pass
-    found = set()
-    for key, _ in form.multi_items():
-        m = re.match(r"^is_active_(\d+)$", str(key))
-        if m:
-            found.add(int(m.group(1)))
-    return sorted(found)
+        print(current_user_id)
+        if not selected_id:
+            industry_profile = db.query(IndustryProfile).join(User).filter(User.id == current_user_id).first()
+            if industry_profile:
+                selected_id = industry_profile.id
+            else:
+                profile = IndustryProfile(
+                    name="Allgemein",
+                    user_id=str(current_user_id)
+                )
+                db.add(profile)
+                db.commit()
+                db.refresh(profile)
+                selected_id = profile.id
 
+        branch_profiles = db.query(IndustryProfile).filter(IndustryProfile.user_id == current_user_id).all()
 
-def group_financial_metrics_by_category(
-        metrics: List[FinancialMetric],
-) -> List[Tuple[str, List[FinancialMetric]]]:
-    try:
-        groups: dict[str, List[FinancialMetric]] = defaultdict(list)
-        for m in metrics:
-            raw = m.category_name
-            key = raw if raw else ""
-            groups[key].append(m)
-        ordered_keys = sorted(
-            groups.keys(),
-            key=lambda k: (1 if k == "" else 0, k.casefold()),
-        )
-        return [
-            (
-                k if k else "Ohne Kategorie",
-                sorted(groups[k], key=lambda m: (m.name or "").casefold()),
-            )
-            for k in ordered_keys
-        ]
-    except Exception as e:
-        return []
-
-
-def group_financial_metrics_map_by_category(
-        financial_metrics_map: dict,
-        db: Session,
-) -> List[dict]:
-    try:
-        if not financial_metrics_map:
-            return []
-        metric_names = list(financial_metrics_map.keys())
-        rows = (
-            db.query(FinancialMetric)
-            .options(joinedload(FinancialMetric.category_rel))
-            .filter(FinancialMetric.name.in_(metric_names))
+        configs = (
+            db.query(ProfileMetricConfiguration)
+            .join(FinancialMetric)
+            .join(IndustryProfile)
+            .outerjoin(FinancialMetricCategory, FinancialMetric.category_id == FinancialMetricCategory.id)
+            .filter(ProfileMetricConfiguration.profile_id == selected_id, IndustryProfile.user_id == current_user_id)
+            .order_by(FinancialMetricCategory.name)
             .all()
         )
-        name_to_category = {
-            r.name: r.category_name for r in rows
-        }
-        groups: dict[str, dict] = defaultdict(dict)
-        for name, values in financial_metrics_map.items():
-            cat_key = name_to_category.get(name, "")
-            groups[cat_key][name] = values
-        ordered_keys = sorted(
-            groups.keys(),
-            key=lambda k: (1 if k == "" else 0, k.casefold()),
-        )
-        out: List[dict] = []
-        for k in ordered_keys:
-            inner = groups[k]
-            sorted_metrics = {
-                n: inner[n] for n in sorted(inner.keys(), key=str.casefold)
+        print("configs:", configs)
+
+
+        metrics_by_category = []
+        for category_name, group in groupby(
+                configs,
+                lambda x: x.metric.category_rel.name if x.metric.category_rel else "— keine —"
+        ):
+            group_list = list(group)
+            if group_list:
+                metrics_by_category.append((category_name, group_list))
+
+        all_available_metrics = db.query(FinancialMetric).order_by(FinancialMetric.name).all()
+
+        return render_localized(
+            template_name="show_saved_financial_metrics.html",
+            request=request,
+            context={
+                "branch_profiles": branch_profiles,
+                "selected_branch_profile_id": selected_id,
+                "metrics_by_category": metrics_by_category,
+                "displayed_metrics_count": len(configs),
+                "all_available_metrics": all_available_metrics
             }
-            out.append(
-                {
-                    "category": k if k else "Ohne Kategorie",
-                    "metrics": sorted_metrics,
-                }
-            )
-        return out
-    except Exception as e:
-        return []
-
-
-def group_metric_names_by_category(
-        metric_names: List[str],
-        db: Session,
-) -> List[Tuple[str, List[str]]]:
-    try:
-        if not metric_names:
-            return []
-        names = list(metric_names)
-        rows = (
-            db.query(FinancialMetric)
-            .options(joinedload(FinancialMetric.category_rel))
-            .filter(FinancialMetric.name.in_(set(names)))
-            .all()
         )
-        name_to_category = {
-            r.name: r.category_name for r in rows
+    except Exception as e:
+        print(f"Error: {e}")
+        traceback.print_exc()
+        return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
+
+
+@analysis_router.get("/get-news")
+def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...)):
+    finhub_api_key = "cqe2g6pr01qgmug3gjogcqe2g6pr01qgmug3gjp0"
+    today = datetime.utcnow().date()
+    two_days_ago = today - timedelta(days=2)
+    url = f"https://finnhub.io/api/v1/company-news?symbol={stock}&from={two_days_ago}&to={today}&token={finhub_api_key}"
+    response = requests.get(url)
+    data = response.json()
+
+    headline_url = []
+
+    for news in data:
+        headline_url.append({
+            "headline": news["headline"],
+            "url": news["url"],
+        })
+
+    google_news = GNews(language='de', country='DE', period='1d')
+
+    meine_news = google_news.get_news(f'{stock}  Aktie news')
+
+    for artikel in meine_news:
+        headline_url.append({
+            "headline": artikel['title'],
+            "url": artikel['url']
+        })
+
+    return templates.TemplateResponse(
+        request=request,
+        name="show_news.html",
+        context={
+            "news_articles": headline_url
         }
-        groups: dict[str, List[str]] = defaultdict(list)
-        for n in names:
-            cat = name_to_category.get(n, "")
-            groups[cat].append(n)
-        for k in groups:
-            groups[k].sort(key=str.casefold)
-        ordered_keys = sorted(
-            groups.keys(),
-            key=lambda k: (1 if k == "" else 0, k.casefold()),
-        )
-        return [(k if k else "Ohne Kategorie", groups[k]) for k in ordered_keys]
-    except Exception as e:
-        return []
-
+    )

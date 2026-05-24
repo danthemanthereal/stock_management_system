@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Firmenprofile</title>
+</head>
+<body>
+    <h1>Deine gespeicherten Profile</h1>
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>Headline</th>
+                <th>Aktion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in news_articles %}
+            <tr>
+                <td>{{ article.headline }}</td>
+                <td>
+                    <form action="/analysis/get-summary-url" method="post">
+                        <!-- verstecktes Feld mit der zu analysierenden URL -->
+                        <input type="hidden" name="url" value="{{ article.url }}">
+                        <!-- optional: weitere Daten wie Profil-ID könnten ebenfalls übertragen werden -->
+                        <button type="submit">Zusammenfassung anzeigen</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

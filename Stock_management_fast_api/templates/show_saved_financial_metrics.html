@@ -150,7 +150,7 @@
 <div class="branch-profile-bar" role="toolbar">
     <span style="font-weight: bold; margin-right: 0.5rem;">{{ _('selected_branch') }}:</span>
 
-    <form action="/show-saved-financial-metrics" method="post">
+    <form action="/analysis/show-saved-financial-metrics" method="post">
         <input type="hidden" name="branch_profile_id" value="">
         <button type="submit" class="profile-btn {% if selected_branch_profile_id == 1 %}profile-active{% endif %}">
             {{ _('btn_all') }}
@@ -159,7 +159,7 @@
 
     {% for p in branch_profiles %}
     {% if p.id != 1 %}
-    <form action="/show-saved-financial-metrics" method="post">
+    <form action="/analysis/show-saved-financial-metrics" method="post">
         <input type="hidden" name="branch_profile_id" value="{{ p.id }}">
         <button type="submit" class="profile-btn {% if selected_branch_profile_id == p.id %}profile-active{% endif %}">
             {{ _(p.name) }}
