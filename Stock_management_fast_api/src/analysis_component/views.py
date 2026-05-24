@@ -29,6 +29,8 @@ from src.database.models import IndustryProfile, ProfileMetricConfiguration, Fin
 from datetime import datetime, timedelta
 from gnews import GNews
 from src.analysis_component.service import get_available_metrics
+from src.analysis_component.service import get_last_selected_template_id_of_user
+from src.analysis_component.service import get_current_user_created_templates
 
 templates = Jinja2Templates(directory="templates")
 
@@ -192,14 +194,18 @@ def show_saved_financial_metrics_page(
 ):
     try:
 
-
+        last_selected_branch_profile_id = get_last_selected_template_id_of_user(current_user_id, db)
         available_metrics = get_available_metrics(db)
+        current_user_created_templates = get_current_user_created_templates(db, current_user_id)
+
 
         return render_localized(
             template_name="analysis/show_saved_financial_metrics.html",
             request=request,
             context={
-                "available_metrics": available_metrics
+                "available_metrics": available_metrics,
+                "last_selected_branch_profile_id": last_selected_branch_profile_id,
+                "branch_profiles": current_user_created_templates
             }
         )
     except Exception as e:
