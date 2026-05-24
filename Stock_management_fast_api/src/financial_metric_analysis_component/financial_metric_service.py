@@ -41,13 +41,6 @@ class MetricsService:
         self.db.commit()
         self.db.refresh(config)
 
-
-    def update_last_selected_template_id(self, template_id: int, user_id: uuid.UUID):
-        current_user = self.db.query(User).filter(User.id == user_id).first()
-        current_user.last_selected_template_id = template_id
-        self.db.commit()
-        self.db.refresh(current_user)
-
     def get_all_financial_metrics_of_last_selected_template_per_category(self, template_id: int) -> Dict[str,list[FinancialMetricOverview]]:
         configs = (
             self.db.query(ProfileMetricConfiguration)

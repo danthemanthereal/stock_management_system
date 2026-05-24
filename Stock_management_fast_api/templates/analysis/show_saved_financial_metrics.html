@@ -2,7 +2,6 @@
 
 {% block analysis_content %}
 
-<!-- ========== CSS bleibt erhalten, kann aber in extra_head-Block ausgelagert werden ========== -->
 <style>
     body {
         font-family: sans-serif;
@@ -197,7 +196,7 @@
         <div style="display: flex; gap: 15px; align-items: center;">
             <input type="text" name="branch_profile_name" placeholder="{{ _('placeholder_new_profile') }}"
                    style="flex-grow: 1;">
-            <button type="submit" formaction="/metrics/branch-profiles/create" class="btn-secondary">
+            <button type="submit" formaction="/analysis/create-new-template-with-current-properties" class="btn-secondary">
                 {{ _('btn_save_profile') }}
             </button>
             <button type="submit" class="btn-danger" onclick="return confirm('{{ _('confirm_delete') }}')">
@@ -223,25 +222,20 @@
             <th>{{ _('table_header_action') }}</th>
         </tr>
         </thead>
-        <tbody>
         {% for category_label, metrics_list in financial_metrics_of_last_selected_template_per_category.items() %}
         <tbody class="metric-category-group">
-        <!-- Kategorie-Überschrift -->
         <tr class="category-heading-row">
             <td colspan="7" class="category-header">{{ _(category_label) }}</td>
         </tr>
 
         {% for c in metrics_list %}
-        <tr class="saved-metric-row" data-is-active="{{ 'true' if c.is_active else 'false' }}">
-            <!-- Löschen -->
+        <tr class="saved-metric-row"
+            data-is-active="{{ 'true' if c.is_active else 'false' }}"
+            data-should-rise="{{ 'true' if c.should_rise else 'false' }}">
             <td style="text-align: center;">
                 <input type="checkbox" name="delete_checkbox" value="{{ c.config_id }}">
             </td>
-
-            <!-- Name -->
             <td><strong>{{ _(c.display_name) }}</strong></td>
-
-            <!-- Richtwert (inline editierbar) -->
             <td>
                 <input type="number"
                        class="inline-metric-value"
@@ -251,20 +245,12 @@
                        oninput="this.value = this.value.replace(/[^0-9]/g, '');"
                        style="width: 90px; padding: 4px; border: 1px dashed #ccc; border-radius: 4px; text-align: right;">
             </td>
-
-            <!-- Einheit -->
             <td>{{ _(c.unit) }}</td>
-
-            <!-- Kategorie (redundant, aber kann bleiben) -->
             <td>{{ _(c.category) }}</td>
-
-            <!-- Aktiv-Status -->
             <td style="text-align: center;">
                 <input type="checkbox" name="active_status_checkbox" value="{{ c.metric_id }}"
                        {% if c.is_active %}checked{% endif %}>
             </td>
-
-            <!-- Bearbeiten -->
             <td>
                 <a href="/metrics/edit/{{ selected_branch_profile_id }}/{{ c.metric_id }}">{{ _('link_edit') }}</a>
             </td>
@@ -272,9 +258,111 @@
         {% endfor %}
         </tbody>
         {% endfor %}
-        </tbody>
     </table>
 </form>
 
+<!-- JavaScript: Sammeln der aktiven Metriken für neues Template -->
+<script>
+    document.getElementById('main-metrics-form').addEventListener('submit', function (e) {
+        const action = e.submitter ? e.submitter.getAttribute('formaction') : null;
+        const isCreateProfile = action && action.includes('/create-new-template-with-current-properties');
+
+        if (isCreateProfile) {
+            // Checkboxen für "aktiv" (active_status_checkbox) finden
+            const activeCheckboxes = document.querySelectorAll('input[name="active_status_checkbox"]:checked');
+            const triplets = [];
+
+            activeCheckboxes.forEach(cb => {
+                const metricId = cb.value;
+                // Die nächste umschließende Zeile finden
+                const row = cb.closest('tr');
+
+                // Wert aus dem Eingabefeld (inline-metric-value) genau dieser Zeile
+                const valueInput = row.querySelector(`.inline-metric-value[data-metric-id="${metricId}"]`);
+                const value = valueInput ? parseInt(valueInput.value, 10) || 0 : 0;
+
+                // Einheit aus einem evtl. vorhandenen data-attribut (nicht zwingend benötigt)
+                // wir ignorieren die unit, da sie aus dem Metric-Objekt kommt.
+
+                // should_rise aus data-should-rise-Attribut des <tr>
+                const shouldRise = row.getAttribute('data-should-rise') === 'true';
+
+                // Triplet: metric_id|value||should_rise  (unit lassen wir leer, wird nicht gebraucht)
+                triplets.push(`${metricId}|${value}||${shouldRise}`);
+            });
+
+            if (triplets.length === 0) {
+                alert("Bitte wähle mindestens eine Kennzahl als 'Aktiv' aus!");
+                e.preventDefault();
+                return;
+            }
+
+            // Verstecktes Feld mit allen Triplets anhängen
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'metric_data_triplets';
+            hiddenInput.value = triplets.join(',');
+            this.appendChild(hiddenInput);
+        }
+    });
+
+    // Filter-Funktion für aktive/inaktive Zeilen (unverändert)
+    function applyFilters() {
+        const btn = document.getElementById('toggle-active-metrics');
+        const isFilteringActiveOnly = btn.getAttribute('data-filtering') === 'true';
+        const rows = document.querySelectorAll('.saved-metric-row');
+        const groups = document.querySelectorAll('.metric-category-group');
+
+        rows.forEach(row => {
+            const isActive = row.getAttribute('data-is-active') === 'true';
+            if (isFilteringActiveOnly && !isActive) {
+                row.style.display = 'none';
+            } else {
+                row.style.display = '';
+            }
+        });
+
+        groups.forEach(group => {
+            const headerRow = group.querySelector('.category-heading-row');
+            const visibleDataRows = group.querySelectorAll('.saved-metric-row:not([style*="display: none"])');
+            if (visibleDataRows.length === 0) {
+                group.style.display = 'none';
+            } else {
+                group.style.display = '';
+                if (headerRow) headerRow.style.display = '';
+            }
+        });
+    }
+
+    document.getElementById('toggle-active-metrics').addEventListener('click', function () {
+        const isFiltering = this.getAttribute('data-filtering') === 'true';
+        const nextState = !isFiltering;
+        this.setAttribute('data-filtering', nextState);
+
+        const textShowAll = "{{ _('btn_filter_all') }}";
+        const textShowActive = "{{ _('btn_filter_active') }}";
+        this.textContent = nextState ? textShowAll : textShowActive;
+
+        applyFilters();
+    });
+
+    // Initialisierung beim Laden
+    document.addEventListener("DOMContentLoaded", function() {
+        applyFilters();
+
+        // Formatierung für eventuelle number-cells (falls noch vorhanden)
+        const currentLocale = "{{ current_locale }}";
+        const numberFormatter = new Intl.NumberFormat(currentLocale === 'de' ? 'de-DE' : 'en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        document.querySelectorAll('.number-cell').forEach(td => {
+            const rawValue = parseFloat(td.getAttribute('data-value'));
+            if (!isNaN(rawValue)) {
+                td.textContent = numberFormatter.format(rawValue);
+            }
+        });
+    });
+</script>
 
 {% endblock %}

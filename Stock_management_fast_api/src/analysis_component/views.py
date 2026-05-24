@@ -29,9 +29,8 @@ from src.database.models import IndustryProfile, ProfileMetricConfiguration, Fin
 from datetime import datetime, timedelta
 from gnews import GNews
 from src.analysis_component.service import get_available_metrics
-from src.analysis_component.service import get_last_selected_template_id_of_user
-from src.analysis_component.service import get_current_user_created_templates
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
+from src.template_component.service import TemplateService
 
 templates = Jinja2Templates(directory="templates")
 
@@ -100,10 +99,10 @@ def show_saved_financial_metrics_page(
         current_user_id: UUID = Depends(get_current_user_id),
 ):
     try:
-
-        last_selected_branch_profile_id = get_last_selected_template_id_of_user(current_user_id, db)
+        template_service = TemplateService(db)
+        last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
         available_metrics = get_available_metrics(db)
-        current_user_created_templates = get_current_user_created_templates(db, current_user_id)
+        current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
         financial_metric_service = MetricsService(db)
         financial_metrics_of_last_selected_template_per_category = financial_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
@@ -144,9 +143,10 @@ def add_to_current_selected_template_new_financial_metric(
             user_id=current_user_id
         )
 
-        last_selected_branch_profile_id = get_last_selected_template_id_of_user(current_user_id, db)
+        template_service = TemplateService(db)
+        last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
         available_metrics = get_available_metrics(db)
-        current_user_created_templates = get_current_user_created_templates(db, current_user_id)
+        current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
         financial_metric_service = MetricsService(db)
         financial_metrics_of_last_selected_template_per_category = financial_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
@@ -166,9 +166,42 @@ def add_to_current_selected_template_new_financial_metric(
         traceback.print_exc()
         return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
 
+@analysis_router.post("/create-new-template-with-current-properties", response_class=HTMLResponse)
+def create_new_template_of_current_financial_metrics_properties(
+    request: Request,
+    branch_profile_name: str = Form(...),
+    metric_data_triplets: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    current_user_id: UUID = Depends(get_current_user_id)
+):
+    try:
+        template_service = TemplateService(db)
+        (template_service.create_template_from_active_metrics(
+        user_id=current_user_id,
+        new_profile_name=branch_profile_name,
+        triplets_str=metric_data_triplets))
+        template_service = TemplateService(db)
+        last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
+        available_metrics = get_available_metrics(db)
+        current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
+        financial_metric_service = MetricsService(db)
+        financial_metrics_of_last_selected_template_per_category = financial_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+            last_selected_branch_profile_id)
 
+        return render_localized(
+            template_name="analysis/show_saved_financial_metrics.html",
+            request=request,
+            context={
+                        "available_metrics": available_metrics,
+                        "last_selected_branch_profile_id": last_selected_branch_profile_id,
+                        "branch_profiles": current_user_created_templates,
+                        "financial_metrics_of_last_selected_template_per_category": financial_metrics_of_last_selected_template_per_category,
 
-
+            })
+    except Exception as e:
+        print(f"Error: {e}")
+        traceback.print_exc()
+        return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
 
 
 
