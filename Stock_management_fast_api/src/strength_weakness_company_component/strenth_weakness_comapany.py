@@ -2,6 +2,10 @@ from google import genai
 from google.genai.types import GenerateContentConfig
 from src.youtube_transcript_component.yt_transcript_component import \
     YoutubeTranscriptComponent
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class StrengthWeaknessOfCompanyComponent:
@@ -11,7 +15,7 @@ class StrengthWeaknessOfCompanyComponent:
 
 
     def get_summary_of_gemini_with_url_context(self,url: str):
-        client = genai.Client(api_key="AIzaSyDlDOLI8jYT4u_kauJ5C6x_rYSQ8q3unZU")
+        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
         model_id = "gemini-3-flash-preview"
 
         tools = [
@@ -40,7 +44,7 @@ class StrengthWeaknessOfCompanyComponent:
         return self.get_summary_of_gemini_of_transcript(transcript)
 
     def get_summary_of_gemini_of_transcript(self,transcript: str):
-        client = genai.Client(api_key="AIzaSyDlDOLI8jYT4u_kauJ5C6x_rYSQ8q3unZU")
+        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
         user_prompt = self.get_user_prompt_yt_script(transcript)
         system_prompt = self.get_system_instruction_youtube_script()
         response = client.models.generate_content(

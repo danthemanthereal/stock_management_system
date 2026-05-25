@@ -94,8 +94,8 @@ class BoughtStock(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
-    name = Column(String, unique=True, index=True)
-    ticker = Column(String, unique=True, index=True)
+    name = Column(String, index=True)
+    ticker = Column(String, index=True)
     bought_price = Column(Float)
     amount = Column(Float)
 

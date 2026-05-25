@@ -2,8 +2,8 @@ from typing import List
 from uuid import UUID
 from sqlalchemy.orm import Session
 from src.database.models import BoughtStock
-
-
+from src.bought_stock_component.schema import BoughtStockRequest
+from src.watchlist_component.service import WatchlistStockService
 
 
 class BoughtStockService:
@@ -16,19 +16,26 @@ class BoughtStockService:
         return self.db.query(BoughtStock).filter(BoughtStock.user_id == current_user_id).order_by(
             BoughtStock.ticker).all()
 
-    def create_new_stock_of_current_user(self, name:str, ticker:str,
+    def add_stock_to_current_user(self, name:str, ticker:str,
                                          bought_price:float, amount: float,
                                          current_user_id:UUID):
 
-        new_stock = BoughtStock(
+        if self.user_already_bought_stock(current_user_id=current_user_id, stock_name=name):
+            current_stock = self.get_of_current_user_stock_by_name(current_user_id=current_user_id, stock_name=name)
+            current_stock.amount += amount
+            self.db.commit()
+
+        else:
+            new_stock = BoughtStock(
             name=name.strip(),
             ticker=ticker.strip().upper(),
             bought_price=bought_price,
             amount=amount,
             user_id=str(current_user_id)
-        )
-        self.db.add(new_stock)
-        self.db.commit()
+            )
+            self.db.add(new_stock)
+            self.db.commit()
+            self.db.refresh(new_stock)
 
     def update_bought_stocks_of_current_user(self, current_user_id:UUID,
                                              delete_ids: str,
@@ -62,3 +69,39 @@ class BoughtStockService:
             self.db.flush()
         except Exception:
             self.db.rollback()
+
+
+    def create_bought_stock(self,stock_data: BoughtStockRequest,
+                            current_user_id: UUID):
+
+
+        generated_ticker = stock_data.name.replace(" ", "").upper()[:5]
+
+        db_bought_stock = BoughtStock(
+            name=stock_data.name,
+            ticker=generated_ticker,
+            amount=stock_data.amount,
+            bought_price=stock_data.bought_price,
+            user_id=str(current_user_id)
+        )
+
+        try:
+            self.db.add(db_bought_stock)
+
+            self.db.commit()
+            self.db.refresh(db_bought_stock)
+            watchlist_service = WatchlistStockService(self.db)
+            watchlist_service.deactivate_current_stock_on_watchlist(current_user_id,stock_data.name)
+            return {"status": "success", "message": "Aktie erfolgreich eingebucht", "data": db_bought_stock}
+        except Exception as e:
+            self.db.rollback()
+            return {}
+
+    def user_already_bought_stock(self, current_user_id:UUID, stock_name)->bool:
+        return self.db.query(BoughtStock).filter(BoughtStock.user_id == str(current_user_id),
+                                                 BoughtStock.name ==stock_name ).first() is not None
+
+
+    def get_of_current_user_stock_by_name(self, current_user_id:UUID, stock_name)->BoughtStock:
+        return self.db.query(BoughtStock).filter(BoughtStock.user_id == str(current_user_id),
+                                                 BoughtStock.name ==stock_name ).first()

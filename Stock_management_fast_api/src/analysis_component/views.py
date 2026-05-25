@@ -51,7 +51,7 @@ def analysis(request: Request):
 async def analyze_url(request: Request, url: str = Form(...)):
     try:
         strength_weakness_company_component = StrengthWeaknessOfCompanyComponent()
-        companies_array = strength_weakness_company_component.get_summary_of_gemini_with_url_context(url)
+        companies_array = strength_weakness_company_component.get_strength_weakness_of_company(url)
 
         if isinstance(companies_array, str):
             try:

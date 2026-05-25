@@ -50,7 +50,7 @@ async def create_bought_stock_of_current_user(
 ):
     try:
         bought_stock_service = BoughtStockService(db=db)
-        bought_stock_service.create_new_stock_of_current_user(name=name, ticker=ticker,
+        bought_stock_service.add_stock_to_current_user(name=name, ticker=ticker,
                                                               bought_price=bought_price,
                                                               amount=amount, current_user_id=current_user_id)
 
