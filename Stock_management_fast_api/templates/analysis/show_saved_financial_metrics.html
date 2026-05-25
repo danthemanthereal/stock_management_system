@@ -185,7 +185,7 @@
 </div>
 
 <!-- Tabelle mit Aktionen -->
-<form action="/metrics/delete-multiple" method="post" id="main-metrics-form">
+<form action="/analysis/delete-selected-metrics-for-this-template" method="post" id="main-metrics-form">
     <input type="hidden" name="selected_branch_id" value="{{ selected_branch_profile_id }}">
 
     <div class="action-box" style="border-left: 5px solid #007bff;">
@@ -218,6 +218,7 @@
             <th>{{ _('table_header_metric') }}</th>
             <th>{{ _('table_header_value') }}</th>
             <th>{{ _('table_header_unit') }}</th>
+            <th>{{ _('table_header_should_rise')}}</th>
             <th>{{ _('table_header_category') }}</th>
             <th style="text-align: center;">{{ _('table_header_active') }}</th>
             <th>{{ _('table_header_action') }}</th>
@@ -226,7 +227,7 @@
         {% for category_label, metrics_list in financial_metrics_of_last_selected_template_per_category.items() %}
         <tbody class="metric-category-group">
         <tr class="category-heading-row">
-            <td colspan="7" class="category-header">{{ _(category_label) }}</td>
+            <td colspan="8" class="category-header">{{ _(category_label) }}</td>
         </tr>
 
         {% for c in metrics_list %}
@@ -247,6 +248,10 @@
                        style="width: 90px; padding: 4px; border: 1px dashed #ccc; border-radius: 4px; text-align: right;">
             </td>
             <td>{{ _(c.unit) }}</td>
+            <td style="text-align: center;">
+                <input type="checkbox" name="should_rise_checkbox" value="{{ c.metric_id }}"
+                       {% if c.should_rise %}checked{% endif %}>
+            </td>
             <td>{{ _(c.category) }}</td>
             <td style="text-align: center;">
                 <input type="checkbox" name="active_status_checkbox" value="{{ c.metric_id }}"

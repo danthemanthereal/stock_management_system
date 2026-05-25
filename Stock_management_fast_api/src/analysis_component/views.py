@@ -31,6 +31,7 @@ from gnews import GNews
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.template_component.service import TemplateService
 from src.financial_metric_category_component.service import FinancialMetricCategoryService
+
 from src.template_metric_component.service import TemplateMetricService
 
 templates = Jinja2Templates(directory="templates")
@@ -258,20 +259,67 @@ def show_edit_financial_metric_of_current_template(
     template = template_service.get_template_by_id(last_selected_branch_profile_id)
     metric = financial_metric_service.get_financial_metric_by_id(metric_id)
     metric_categories = financial_metric_category_service.get_all_metric_categories()
-    config = financial_metric_template_service.get_config_by_metric_and_template_id(metric_id,last_selected_branch_profile_id)
+    config = financial_metric_template_service.get_config_by_metric_and_template_id(metric_id,
+                                                                                    last_selected_branch_profile_id)
 
     return templates.TemplateResponse(
         request=request,
         name="analysis/edit_metric.html",
         context={
-        "request": request,
-        "active_page": "Kennzahl bearbeiten",
-        "profile": template,
-        "metric": metric,
-        "config": config,
-        "metric_categories": metric_categories,
-        "selected_branch_profile_id": last_selected_branch_profile_id,
-    })
+            "request": request,
+            "active_page": "Kennzahl bearbeiten",
+            "profile": template,
+            "metric": metric,
+            "config": config,
+            "metric_categories": metric_categories,
+            "selected_branch_profile_id": last_selected_branch_profile_id,
+        })
+
+
+@analysis_router.post("/update-metric-of-current-template-config/{config_id}")
+def update_metric_of_current_template(
+        request: Request,
+        config_id: int,
+        db: Session = Depends(get_db),
+        name: str = Form(...),
+        unit: str = Form(...),
+        should_rise: bool = Form(False),
+        reference_value: float = Form(None),
+        is_active: bool = Form(False),
+        current_user_id: UUID = Depends(get_current_user_id)
+):
+    financial_metric_template_service = TemplateMetricService(db)
+    financial_metric_template_service.update_template_metric_configuration(
+        config_id=config_id,
+        new_reference_value=reference_value,
+        should_rise=should_rise,
+        is_active=is_active,
+    )
+
+    financial_metric_service = MetricsService(db)
+    template_service = TemplateService(db)
+    last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
+    available_metrics = financial_metric_service.get_available_metrics()
+    current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
+    financial_metrics_of_last_selected_template_per_category = financial_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+        last_selected_branch_profile_id)
+
+    return render_localized(
+        template_name="analysis/show_saved_financial_metrics.html",
+        request=request,
+        context={
+            "available_metrics": available_metrics,
+            "last_selected_branch_profile_id": last_selected_branch_profile_id,
+            "branch_profiles": current_user_created_templates,
+            "financial_metrics_of_last_selected_template_per_category": financial_metrics_of_last_selected_template_per_category,
+
+        })
+
+
+
+
+
+
 
 
 @analysis_router.post("/find-potential-stocks", response_class=HTMLResponse)

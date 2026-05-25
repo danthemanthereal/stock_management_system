@@ -55,9 +55,9 @@ class TemplateService:
                 name="Allgemein",
                 user_id=str(current_user_id)
             )
-            db.add(over_all_user_template)
-            db.commit()
-            db.refresh(over_all_user_template)
+            self.db.add(over_all_user_template)
+            self.db.commit()
+            self.db.refresh(over_all_user_template)
             return self.set_to_current_user_his_first_template(current_user_id, over_all_user_template.id)
 
         return self.get_last_selected_template_id_if_user(current_user_id)

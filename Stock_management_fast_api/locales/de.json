@@ -9,6 +9,7 @@
   "table_header_metric": "Kennzahl",
   "table_header_value": "Richtwert",
   "table_header_unit": "Einheit",
+  "table_header_should_rise": "Sollte Steigen",
   "table_header_category": "Kategorie",
   "table_header_active": "Ist Aktiviert",
   "table_header_action": "Aktion",

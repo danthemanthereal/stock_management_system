@@ -29,3 +29,5 @@ class TemplateMetricService:
             ProfileMetricConfiguration.metric_id == metric_id,
             ProfileMetricConfiguration.profile_id == template_id
         ).first()
+
+
