@@ -15,8 +15,6 @@ from src.summary_llm_component.gemini_llm_component import \
     get_summary_of_gemini_with_url_context
 from src.summary_llm_component.gemini_llm_component import get_summary_of_gemini_of_transcript
 from src.youtube_transcript_component.yt_transcript_component import get_summary_of_yt_video
-from src.find_potential_stocks_component.find_potential_stocks import \
-    find_potential_stocks_for_current_user
 from src.utils.utils import render_localized
 from src.financial_metric_analysis_component.financial_metric_analysis import \
     merge_financial_summary_triples, build_category_pair_summary, group_metric_names_by_category, \
@@ -31,8 +29,8 @@ from gnews import GNews
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.template_component.service import TemplateService
 from src.financial_metric_category_component.service import FinancialMetricCategoryService
-
 from src.template_metric_component.service import TemplateMetricService
+from src.find_potential_stocks_component.find_potential_stocks import FindPotentialStocks
 
 templates = Jinja2Templates(directory="templates")
 
@@ -371,9 +369,11 @@ def find_potential_stocks_page(request: Request):
     try:
 
         return templates.TemplateResponse(request=request,
-                                          name="find_candidates.html",
+                                          name="analysis/find_candidates.html",
                                           context={})
     except Exception as e:
+        print(f"Error: {e}")
+        traceback.print_exc()
         return templates.TemplateResponse(
             request=request,
             name="error.html",
@@ -383,7 +383,8 @@ def find_potential_stocks_page(request: Request):
 
 @analysis_router.post("/find-candidates")
 def find_potential_stocks(filters: dict):
-    return find_potential_stocks_for_current_user(filters)
+    find_potential_stocks_component = FindPotentialStocks()
+    return find_potential_stocks_component.find_potential_stocks_for_current_user(filters)
 
 
 @analysis_router.post("/get-financial-metrics", response_class=HTMLResponse)

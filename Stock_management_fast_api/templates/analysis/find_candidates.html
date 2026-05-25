@@ -1,76 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Finviz Stock Screener</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 900px;
-            margin: 40px auto;
-        }
+{% extends "analysis/analysis_base.html" %}
 
-        .filter-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 8px 0;
-        }
-
-        .filter-row label {
-            width: 220px;
-            font-weight: bold;
-        }
-
-        .filter-row select, .filter-row input {
-            width: 100px;
-        }
-
-        button {
-            margin-top: 15px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .hint {
-            font-size: 0.85em;
-            color: #666;
-            margin-left: 5px;
-        }
-
-        .analyse-btn {
-            padding: 4px 10px;
-            font-size: 0.9em;
-            cursor: pointer;
-        }
-
-        #metrics-result {
-            margin-top: 30px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            background: #fafafa;
-            min-height: 50px;
-        }
-    </style>
-</head>
-<body>
+{% block analysis_content %}
 
 <h2>Finviz Stock Screener</h2>
 <p>Nur aktivierte und gültige Filter werden gesendet. <br>
@@ -78,7 +8,7 @@
 
 <div id="filters-container"></div>
 
-<button onclick="runScreen()">Run</button>
+<button onclick="runScreen()">Suchen</button>
 
 <h3>Results</h3>
 <table id="table">
@@ -280,5 +210,4 @@
 
 </script>
 
-</body>
-</html>
+{% endblock %}
