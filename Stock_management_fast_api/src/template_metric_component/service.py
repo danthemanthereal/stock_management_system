@@ -30,4 +30,24 @@ class TemplateMetricService:
             ProfileMetricConfiguration.profile_id == template_id
         ).first()
 
+    def delete_metrics_of_current_template(self, template_id: int, metric_ids:list[int]):
+        try:
+
+            (self.db.query(ProfileMetricConfiguration)
+                .filter(
+                    ProfileMetricConfiguration.profile_id == template_id,
+                    ProfileMetricConfiguration.metric_id.in_(metric_ids)
+                )
+                .delete(synchronize_session='fetch')
+                )
+            self.db.commit()
+            self.db.refresh()
+            return True
+
+
+        except Exception as e:
+            print(e)
+            return False
+
+
 
