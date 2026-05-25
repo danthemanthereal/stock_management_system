@@ -11,10 +11,6 @@ from src.database.db import get_db
 import json
 import requests
 from starlette.responses import HTMLResponse
-from src.summary_llm_component.gemini_llm_component import \
-    get_summary_of_gemini_with_url_context
-from src.summary_llm_component.gemini_llm_component import get_summary_of_gemini_of_transcript
-from src.youtube_transcript_component.yt_transcript_component import get_summary_of_yt_video
 from src.utils.utils import render_localized
 from src.financial_metric_analysis_component.financial_metric_analysis import \
     merge_financial_summary_triples, build_category_pair_summary, group_metric_names_by_category, \
@@ -31,6 +27,8 @@ from src.template_component.service import TemplateService
 from src.financial_metric_category_component.service import FinancialMetricCategoryService
 from src.template_metric_component.service import TemplateMetricService
 from src.find_potential_stocks_component.find_potential_stocks import FindPotentialStocks
+from src.strength_weakness_company_component.strenth_weakness_comapany import \
+    StrengthWeaknessOfCompanyComponent
 
 templates = Jinja2Templates(directory="templates")
 
@@ -48,7 +46,8 @@ def analysis(request: Request):
 @analysis_router.post("/get-summary-url", response_class=HTMLResponse)
 async def analyze_url(request: Request, url: str = Form(...)):
     try:
-        companies_array = get_summary_of_gemini_with_url_context(url)
+        strength_weakness_company_component = StrengthWeaknessOfCompanyComponent()
+        companies_array = strength_weakness_company_component.get_summary_of_gemini_with_url_context(url)
 
         if isinstance(companies_array, str):
             try:
@@ -58,7 +57,7 @@ async def analyze_url(request: Request, url: str = Form(...)):
 
         return templates.TemplateResponse(
             request=request,
-            name="companies_overview.html",
+            name="analysis/companies_overview.html",
             context={"request": request, "companies": companies_array}
         )
     except Exception as e:
@@ -73,8 +72,8 @@ async def analyze_url(request: Request, url: str = Form(...)):
 def get_yt_transcript(request: Request, url: str = Form(...)):
     try:
 
-        transcript = get_summary_of_yt_video(url)
-        companies_array = get_summary_of_gemini_of_transcript(transcript)
+        strength_weakness_company_component = StrengthWeaknessOfCompanyComponent()
+        companies_array = strength_weakness_company_component.get_strength_weakness_of_youtube(url)
 
         if isinstance(companies_array, str):
             try:
@@ -84,10 +83,12 @@ def get_yt_transcript(request: Request, url: str = Form(...)):
 
         return templates.TemplateResponse(
             request=request,
-            name="companies_overview.html",
+            name="analysis/companies_overview.html",
             context={"request": request, "companies": companies_array}
         )
     except Exception as e:
+        print(e)
+        traceback.print_exc()
         return templates.TemplateResponse(
             request=request,
             name="error.html",

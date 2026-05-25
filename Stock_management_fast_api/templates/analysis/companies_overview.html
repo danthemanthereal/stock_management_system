@@ -1,37 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Hier zusammenfassung basierend Skript oder Url </title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-        }
+{% extends "analysis/analysis_base.html" %}
 
-        .company {
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-
-        h2 {
-            margin-bottom: 10px;
-        }
-
-        .strength {
-            color: green;
-        }
-
-        .weakness {
-            color: red;
-        }
-    </style>
-</head>
-<body>
+{% block analysis_content %}
 {% if companies %}
 {% for company in companies %}
+<style>
+    .strength { color: green; font-weight: bold; }
+    .weakness { color: red; font-weight: bold; }
+</style>
 <div class="company">
     <h2
             contenteditable="true"
@@ -140,5 +115,4 @@
         }
     }
 </script>
-</body>
-</html>
+{% endblock %}

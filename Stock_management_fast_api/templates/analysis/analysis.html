@@ -166,5 +166,17 @@
     {% endfor %}
 </ul>
 {% endif %}
+<script>
+    function loadSummary(url, targetId) {
+    fetch(url)
+        .then(response => response.text())
+        .then(html => {
+            // Stärken und Schwächen farbig markieren
+            html = html.replace(/(Stärken:)/g, '<span class="strength">$1</span>');
+            html = html.replace(/(Schwächen:)/g, '<span class="weakness">$1</span>');
+            document.getElementById(targetId).innerHTML = html;
+        });
+}
+</script>
 
 {% endblock %}
