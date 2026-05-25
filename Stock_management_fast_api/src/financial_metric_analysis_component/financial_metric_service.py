@@ -1,6 +1,6 @@
 import uuid
 from collections import defaultdict
-from typing import  Dict
+from typing import Dict, List
 from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
 from src.database.models import IndustryProfile, ProfileMetricConfiguration, User, FinancialMetric
@@ -69,4 +69,8 @@ class MetricsService:
 
         return financial_metrics_overviews_per_category
 
-    
+    def get_available_metrics(self) -> List[FinancialMetric]:
+        return self.db.query(FinancialMetric).order_by(FinancialMetric.name).all()
+
+    def get_financial_metric_by_id(self, financial_metric_id: int) -> FinancialMetric:
+        return self.db.query(FinancialMetric).filter(FinancialMetric.id == financial_metric_id).first()

@@ -83,3 +83,6 @@ class TemplateService:
         current_user.last_selected_template_id = template_id
         self.db.commit()
         self.db.refresh(current_user)
+
+    def get_template_by_id(self, template_id: int) -> IndustryProfile:
+        return self.db.query(IndustryProfile).filter(IndustryProfile.id==template_id).first()

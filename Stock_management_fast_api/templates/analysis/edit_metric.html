@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Kennzahl bearbeiten - {{ profile.name }}</title>
-</head>
-<body>
+{% extends "analysis/analysis_base.html" %}
+
+{% block analysis_content %}
+
 <h1>Kennzahl bearbeiten für Branche: <strong>{{ profile.name }}</strong></h1>
 
-<!-- Die URL enthält nun die Profile ID und die Metric ID -->
 <form action="/metrics/update/{{ profile.id }}/{{ metric.id }}" method="post">
 
     <h3>Stammdaten (Global)</h3>
@@ -25,12 +21,7 @@
 
     <label>
         Kategorie:
-        <select name="category_id">
-            <option value="">— keine —</option>
-            {% for c in metric_categories %}
-            <option value="{{ c.id }}" {% if metric.category_id == c.id %}selected{% endif %}>{{ c.name }}</option>
-            {% endfor %}
-        </select>
+        <span>{{ metric.category_rel.name if metric.category_rel else '— keine —' }}</span>
     </label>
 
     <hr>
@@ -38,27 +29,23 @@
 
     <label>
         Sollte steigen:
-        <!-- Zugriff über 'config' Objekt -->
         <input type="checkbox" name="should_rise" {% if config.should_rise %}checked{% endif %}>
     </label>
     <br><br>
 
     <label>
         Richtwert:
-        <!-- Zugriff über 'config' Objekt -->
         <input type="number" name="reference_value" value="{{ config.reference_value }}">
     </label>
     <br><br>
 
     <label>
         Ist Aktiv in dieser Branche:
-        <!-- Zugriff über 'config' Objekt -->
         <input type="checkbox" name="is_active" {% if config.is_active %}checked{% endif %}>
     </label>
 
     <br><br>
     <button type="submit">Änderungen speichern</button>
-    <a href="/analysis/show-saved-financial-metrics?branch_profile_id={{ profile.id }}">Abbrechen</a>
 </form>
-</body>
-</html>
+
+{% endblock %}
