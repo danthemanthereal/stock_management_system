@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Firmenprofile</title>
-</head>
-<body>
+{% extends "analysis/analysis_base.html" %}
+
+{% block analysis_content %}
     <h1>Deine gespeicherten Profile</h1>
     <table border="1" cellpadding="8">
         <thead>
@@ -29,5 +25,4 @@
             {% endfor %}
         </tbody>
     </table>
-</body>
-</html>
+{% endblock %}

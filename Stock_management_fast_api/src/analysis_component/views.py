@@ -9,7 +9,6 @@ from src.database.models import User
 from fastapi.templating import Jinja2Templates
 from src.database.db import get_db
 import json
-import requests
 from starlette.responses import HTMLResponse
 from src.utils.utils import render_localized
 from src.financial_metric_analysis_component.financial_metric_analysis import \
@@ -20,8 +19,6 @@ from src.financial_metric_evaluator_component.financial_metric_evaluator import 
 from src.authenticator_component.authenticator import get_current_user_id
 from src.database.models import IndustryProfile, ProfileMetricConfiguration, FinancialMetric, \
     FinancialMetricCategory
-from datetime import datetime, timedelta
-from gnews import GNews
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.template_component.service import TemplateService
 from src.financial_metric_category_component.service import FinancialMetricCategoryService
@@ -29,6 +26,11 @@ from src.template_metric_component.service import TemplateMetricService
 from src.find_potential_stocks_component.find_potential_stocks import FindPotentialStocks
 from src.strength_weakness_company_component.strenth_weakness_comapany import \
     StrengthWeaknessOfCompanyComponent
+from src.get_news_component.get_news import NewsFinderComponent
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 templates = Jinja2Templates(directory="templates")
 
@@ -41,6 +43,8 @@ def analysis(request: Request):
         request=request,
         name="analysis/analysis.html",
         context={"request": request})
+
+
 
 
 @analysis_router.post("/get-summary-url", response_class=HTMLResponse)
@@ -94,6 +98,9 @@ def get_yt_transcript(request: Request, url: str = Form(...)):
             name="error.html",
             context={"request": request},
         )
+
+
+
 
 
 @analysis_router.api_route("/show-saved-financial-metrics", methods=["GET", "POST"], response_class=HTMLResponse)
@@ -388,6 +395,11 @@ def find_potential_stocks(filters: dict):
     return find_potential_stocks_component.find_potential_stocks_for_current_user(filters)
 
 
+
+
+
+
+
 @analysis_router.post("/get-financial-metrics", response_class=HTMLResponse)
 def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str = Form(...),
                                                   db: Session = Depends(get_db)):
@@ -462,36 +474,21 @@ def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str
         )
 
 
+
+
+
+
 @analysis_router.get("/get-news")
 def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...)):
-    finhub_api_key = "cqe2g6pr01qgmug3gjogcqe2g6pr01qgmug3gjp0"
-    today = datetime.utcnow().date()
-    two_days_ago = today - timedelta(days=2)
-    url = f"https://finnhub.io/api/v1/company-news?symbol={stock}&from={two_days_ago}&to={today}&token={finhub_api_key}"
-    response = requests.get(url)
-    data = response.json()
 
-    headline_url = []
-
-    for news in data:
-        headline_url.append({
-            "headline": news["headline"],
-            "url": news["url"],
-        })
-
-    google_news = GNews(language='de', country='DE', period='1d')
-
-    meine_news = google_news.get_news(f'{stock}  Aktie news')
-
-    for artikel in meine_news:
-        headline_url.append({
-            "headline": artikel['title'],
-            "url": artikel['url']
-        })
+    news_component = NewsFinderComponent(
+        finhub_api_key=os.getenv("FINNHUB_API_KEY")
+    )
+    headline_url = news_component.get_all_news_of_stock(stock)
 
     return templates.TemplateResponse(
         request=request,
-        name="show_news.html",
+        name="analysis/show_news.html",
         context={
             "news_articles": headline_url
         }
