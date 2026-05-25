@@ -99,7 +99,7 @@
 <!-- BEREICH 1: Neue Aktie hinzufügen -->
 <div class="action-card success">
     <h3 style="margin-top: 0; color: #2c3e50;">➕ Neue Position eintragen</h3>
-    <form action="/portfolio/create/" method="post" class="form-row">
+    <form action="/portfolio/create-new-bought-stock-current-user/" method="post" class="form-row">
         <input type="text" name="name" placeholder="Name (z.B. Microsoft)" required>
         <input type="text" name="ticker" placeholder="Ticker (z.B. MSFT)" required style="max-width: 100px;">
         <input type="number" name="bought_price" placeholder="Kaufpreis (€)" step="0.01" min="0.01" required>
@@ -114,7 +114,7 @@
 
     <!-- Linke Seite: Die Tabelle in einem Formular -->
     <div>
-        <form action="/portfolio/update-multiple" method="post" id="portfolio-update-form">
+        <form action="/portfolio/update-multiple-bought-stock-current-user" method="post" id="portfolio-update-form">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 style="margin: 0; color: #2c3e50;">📊 Deine Positionen</h3>
                 <button type="submit" class="btn" style="padding: 8px 15px;">💾 Änderungen speichern</button>
