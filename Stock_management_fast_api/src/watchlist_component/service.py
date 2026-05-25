@@ -41,7 +41,7 @@ class WatchlistStockService:
             strength=strength,
             weakness=weakness,
             user_id=str(user_id),
-            is_on_watchlist=True
+            is_on_watch_list=True
         )
         self.db.add(new_watchlist_stock)
         self.db.commit()

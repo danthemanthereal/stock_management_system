@@ -1,3 +1,4 @@
+import traceback
 from uuid import UUID
 from fastapi import APIRouter, Request, Depends, HTTPException, status, Form
 from starlette.responses import HTMLResponse
@@ -35,13 +36,14 @@ async def add_to_watchlist(
         current_user_id: UUID = Depends(get_current_user_id),
 ):
     try:
-
+        print("in add to watchlist method")
         evaluator = Evaluator(db,"llama-3.3-70b-versatile")
         trajectory, reasoning, recommendation = evaluator.evaluate_new_information(current_user_id,
-                                                                                   company.name,
+                                                                                   company.company_name,
                                                                                    company.strength,
                                                                                    company.weakness)
 
+        print("nach eval method kurz vor retirn ")
         return {
                 "message": "Firma aktualisiert!",
                 "id": 0,
@@ -52,6 +54,7 @@ async def add_to_watchlist(
 
 
     except Exception as e:
+        traceback.print_exc()
         return {"error": "fehler"}
 
 

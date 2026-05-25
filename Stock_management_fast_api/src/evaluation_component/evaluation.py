@@ -29,7 +29,6 @@ class Evaluator:
                                  company_name: str,
                                  new_strength: str,
                                  new_weakness: str):
-
         current_strengths, current_weaknesses= self.get_strength_weakness_of_stock(current_user_id, company_name, new_strength, new_weakness)
         client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         system_prompt = self.get_system_prompt()
