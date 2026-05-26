@@ -46,7 +46,9 @@ def analysis(request: Request):
 @analysis_router.post("/get-summary-url", response_class=HTMLResponse)
 async def analyze_url(request: Request, url: str = Form(...)):
     try:
-        strength_weakness_company_component = StrengthWeaknessOfCompanyComponent()
+        strength_weakness_company_component = StrengthWeaknessOfCompanyComponent(
+            groq_model_name="llama-3.3-70b-versatile"
+        )
         companies_array = strength_weakness_company_component.get_strength_weakness_of_company(url)
 
         if isinstance(companies_array, str):
@@ -72,7 +74,9 @@ async def analyze_url(request: Request, url: str = Form(...)):
 def get_yt_transcript(request: Request, url: str = Form(...)):
     try:
 
-        strength_weakness_company_component = StrengthWeaknessOfCompanyComponent()
+        strength_weakness_company_component = StrengthWeaknessOfCompanyComponent(
+            groq_model_name="llama-3.3-70b-versatile"
+        )
         companies_array = strength_weakness_company_component.get_strength_weakness_of_youtube(url)
 
         if isinstance(companies_array, str):

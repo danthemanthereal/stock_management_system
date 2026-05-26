@@ -1,5 +1,9 @@
+import json
+import re
+
 from google import genai
 from google.genai.types import GenerateContentConfig
+from groq import Groq
 from src.youtube_transcript_component.yt_transcript_component import \
     YoutubeTranscriptComponent
 import os
@@ -9,6 +13,9 @@ load_dotenv()
 
 
 class StrengthWeaknessOfCompanyComponent:
+
+    def __init__(self, groq_model_name):
+        self.groq_model_name = groq_model_name
 
     def get_strength_weakness_of_company(self, url):
         return self.get_summary_of_gemini_with_url_context(url)
@@ -41,7 +48,7 @@ class StrengthWeaknessOfCompanyComponent:
     def get_strength_weakness_of_youtube(self,url:str):
         transcript_component = YoutubeTranscriptComponent()
         transcript = transcript_component.get_summary_of_yt_video(url)
-        return self.get_summary_of_gemini_of_transcript(transcript)
+        return self.analysis_of_yt_video_with_ollama(transcript)
 
     def get_summary_of_gemini_of_transcript(self,transcript: str):
         client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
@@ -55,6 +62,27 @@ class StrengthWeaknessOfCompanyComponent:
             )
         )
         return response.text
+
+    def analysis_of_yt_video_with_ollama(self,transcript: str):
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        user_prompt = self.get_user_prompt_yt_script(transcript)
+        system_prompt = self.get_system_instruction_youtube_script()
+        response = client.chat.completions.create(
+            model=self.groq_model_name,
+            messages=[
+                {"role": "system",
+                 "content": system_prompt
+                 },
+                {
+                    "role": "user",
+                    "content": user_prompt
+                }
+            ])
+
+        content = response.choices[0].message.content
+        print("from groq")
+        print(content)
+        return self.safe_parse(content)
 
 
     def get_user_prompt_url_context(self,url: str):
@@ -126,11 +154,13 @@ class StrengthWeaknessOfCompanyComponent:
         ]
     
         Rules:
-        - The response MUST be in German
-        - Do not include any explanations or comments outside the JSON
-        - Use double quotes only (strict JSON)
-        - No trailing commas
-        - If no companies are found, return an empty array []
+            - The response MUST be in German
+            - Do not include any explanations or comments outside the JSON
+            - Use double quotes only (strict JSON)
+            - No trailing commas
+            - If no companies are found, return an empty array []
+            - Do NOT use real line breaks (newline characters) inside any JSON string values. Instead, use the escaped form \n if a line break is absolutely necessary.
+            - Alternatively, separate bullet points within a string using semicolons (;) or a simple space, so that each string remains a single continuous line.
         </output_format>
         """
 
@@ -236,3 +266,54 @@ class StrengthWeaknessOfCompanyComponent:
        - The response MUST be in German
     </output_format>
     """
+
+    def safe_parse(self, content: str):
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            pass
+
+        match = re.search(r"\[.*\]", content, re.DOTALL)
+        if not match:
+            match = re.search(r"\{.*\}", content, re.DOTALL)
+            if not match:
+                return []
+
+        raw_json = match.group()
+
+        def escape_control_in_strings(s):
+            result = []
+            in_string = False
+            escape = False
+            for ch in s:
+                if in_string:
+                    if escape:
+                        result.append(ch)
+                        escape = False
+                    elif ch == '\\':
+                        result.append(ch)
+                        escape = True
+                    elif ch == '"':
+                        in_string = False
+                        result.append(ch)
+                    elif ch == '\n':
+                        result.append('\\n')
+                    elif ch == '\r':
+                        result.append('\\r')
+                    elif ch == '\t':
+                        result.append('\\t')
+                    else:
+                        result.append(ch)
+                else:
+                    if ch == '"':
+                        in_string = True
+                    result.append(ch)
+            return ''.join(result)
+
+        fixed = escape_control_in_strings(raw_json)
+
+        try:
+            return json.loads(fixed)
+        except json.JSONDecodeError:
+            return []
+
