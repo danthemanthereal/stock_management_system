@@ -1,12 +1,61 @@
 {% extends "base.html" %}
 
 {% block content %}
-<nav class="analysis-nav" style="background:#f0f0f0; padding: 10px 20px; border-radius: 6px; margin-bottom: 25px;">
-    <a href="/analysis/" style="font-weight:bold;"> Analyse</a>
-    <span style="margin:0 8px;">→</span>
-    <strong>{{ active_page }}</strong>
+<style>
+    .breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    background: #f8f9fc;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    font-size: 0.95rem;
+    border: 1px solid #e9ecef;
+}
 
+.breadcrumb-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+}
 
+.breadcrumb-link:hover {
+    color: #0056b3;
+}
+
+/* Kleines Home-Symbol vor dem Link (optional) */
+.breadcrumb-link::before {
+    content: "🏠";
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+.breadcrumb-separator {
+    margin: 0 10px;
+    color: #adb5bd;
+    font-size: 1.2em;
+    font-weight: 300;
+    user-select: none;
+}
+
+.breadcrumb-current {
+    color: #495057;
+    font-weight: 600;
+    background: #e7f1ff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+}
+</style>
+<nav class="breadcrumb-nav" aria-label="Breadcrumb">
+    <a href="/analysis/" class="breadcrumb-link">Analyse</a>
+    <span class="breadcrumb-separator">›</span>
+    <span class="breadcrumb-current">{{ active_page }}</span>
 </nav>
 
 {% block analysis_content %}{% endblock %}
