@@ -11,11 +11,6 @@ from src.database.db import get_db
 import json
 from starlette.responses import HTMLResponse
 from src.utils.utils import render_localized
-from src.financial_metric_analysis_component.financial_metric_analysis import \
-    merge_financial_summary_triples, build_category_pair_summary, group_metric_names_by_category, \
-    group_financial_metrics_map_by_category, get_total_financial_metrics
-from src.financial_metric_evaluator_component.financial_metric_evaluator import \
-    get_satisfied_and_not_satisfied_financial_metrics
 from src.authenticator_component.authenticator import get_current_user_id
 from src.database.models import IndustryProfile, ProfileMetricConfiguration, FinancialMetric, \
     FinancialMetricCategory
@@ -112,10 +107,11 @@ def show_saved_financial_metrics_page(
     try:
         financial_metric_service = MetricsService(db)
         template_service = TemplateService(db)
+        template_metric_service = TemplateMetricService(db)
         last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
         available_metrics = financial_metric_service.get_available_metrics()
         current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
-        financial_metrics_of_last_selected_template_per_category = financial_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+        financial_metrics_of_last_selected_template_per_category = template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
 
         return render_localized(
@@ -145,8 +141,8 @@ def add_to_current_selected_template_new_financial_metric(
         current_user_id: UUID = Depends(get_current_user_id)
 ):
     try:
-        financial_metric_service = MetricsService(db)
-        financial_metric_service.add_metric_to_profile(
+        template_financial_metric_service = TemplateMetricService(db)
+        template_financial_metric_service.add_metric_to_profile(
             profile_id=last_selected_branch_profile_id,
             metric_id=financial_metric_id,
             reference_value=reference_value,
@@ -154,11 +150,12 @@ def add_to_current_selected_template_new_financial_metric(
             user_id=current_user_id
         )
         financial_metric_service = MetricsService(db)
+        template_metric_service = TemplateMetricService(db)
         template_service = TemplateService(db)
         last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
         available_metrics = financial_metric_service.get_available_metrics()
         current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
-        financial_metrics_of_last_selected_template_per_category = financial_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+        financial_metrics_of_last_selected_template_per_category = template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
 
         return render_localized(
@@ -187,6 +184,7 @@ def create_new_template_of_current_financial_metrics_properties(
 ):
     try:
         template_service = TemplateService(db)
+        template_metric_service = TemplateMetricService(db)
         (template_service.create_template_from_active_metrics(
             user_id=current_user_id,
             new_profile_name=branch_profile_name,
@@ -196,7 +194,7 @@ def create_new_template_of_current_financial_metrics_properties(
         last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
         available_metrics = financial_metric_service.get_available_metrics()
         current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
-        financial_metrics_of_last_selected_template_per_category = financial_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+        financial_metrics_of_last_selected_template_per_category = template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
 
         return render_localized(
@@ -225,11 +223,12 @@ def change_selected_template(
     try:
         financial_metric_service = MetricsService(db)
         template_service = TemplateService(db)
+        template_metric_service = TemplateMetricService(db)
         template_service.update_last_selected_template_id(branch_profile_id, current_user_id)
         last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
         available_metrics = financial_metric_service.get_available_metrics()
         current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
-        financial_metrics_of_last_selected_template_per_category = financial_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+        financial_metrics_of_last_selected_template_per_category = template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
 
         return render_localized(
@@ -305,10 +304,11 @@ def update_metric_of_current_template(
 
         financial_metric_service = MetricsService(db)
         template_service = TemplateService(db)
+        template_metric_service = TemplateMetricService(db)
         last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
         available_metrics = financial_metric_service.get_available_metrics()
         current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
-        financial_metrics_of_last_selected_template_per_category = financial_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+        financial_metrics_of_last_selected_template_per_category = template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
 
         return render_localized(
@@ -344,7 +344,7 @@ def delete_selected_metrics_for_this_template(
         last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
         available_metrics = financial_metric_service.get_available_metrics()
         current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
-        financial_metrics_of_last_selected_template_per_category = financial_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+        financial_metrics_of_last_selected_template_per_category = template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
 
         return render_localized(
@@ -401,48 +401,14 @@ def find_potential_stocks(filters: dict):
 
 
 @analysis_router.post("/get-financial-metrics", response_class=HTMLResponse)
-def get_financial_metrics_by_guro_focus_end_point(request: Request, company: str = Form(...),
-                                                  db: Session = Depends(get_db)):
+def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(request: Request, company: str = Form(...),
+                                                  db: Session = Depends(get_db),
+                                                  current_user_id: UUID = Depends(get_current_user_id)):
     try:
 
-        financial_metrics_map = get_total_financial_metrics(db, company)
-        satisfied_metrics, unsatisfied_metrics, satisfied_benchmarks, unsatisfied_benchmarks, satisfied_development, unsatisfied_development = get_satisfied_and_not_satisfied_financial_metrics(
-            financial_metrics_map, db)
-        years = ["2022", "2023", "2024", "2025"]
-        data_by_category = group_financial_metrics_map_by_category(
-            financial_metrics_map, db
-        )
-        satisfied_metrics_by_category = group_metric_names_by_category(
-            satisfied_metrics, db
-        )
-        unsatisfied_metrics_by_category = group_metric_names_by_category(
-            unsatisfied_metrics, db
-        )
-        satisfied_benchmarks_by_category = group_metric_names_by_category(
-            satisfied_benchmarks, db
-        )
-        unsatisfied_benchmarks_by_category = group_metric_names_by_category(
-            unsatisfied_benchmarks, db
-        )
-        satisfied_development_by_category = group_metric_names_by_category(
-            satisfied_development, db
-        )
-        unsatisfied_development_by_category = group_metric_names_by_category(
-            unsatisfied_development, db
-        )
+        financial_metric_service = MetricsService(db)
 
-        summary_combined = build_category_pair_summary(
-            satisfied_metrics_by_category,
-            unsatisfied_metrics_by_category,
-        )
-        summary_benchmark = build_category_pair_summary(
-            satisfied_benchmarks_by_category,
-            unsatisfied_benchmarks_by_category,
-        )
-        summary_development = build_category_pair_summary(
-            satisfied_development_by_category,
-            unsatisfied_development_by_category,
-        )
+        years = ["2022", "2023", "2024", "2025"]
 
         return render_localized(
             request=request,

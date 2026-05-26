@@ -4,8 +4,6 @@ from fastapi import FastAPI, Request, Form, Depends, HTTPException, status, Quer
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from typing import List, Tuple, Optional
-from src.financial_metric_evaluator_component.financial_metric_evaluator import \
-    get_satisfied_and_not_satisfied_financial_metrics
 from src.database.models import FinancialMetric, IndustryProfile, ProfileMetricConfiguration, FinancialMetricCategory, \
     BoughtStock, StockSummary, User
 from src.database.db import engine, SessionLocal

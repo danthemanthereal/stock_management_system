@@ -42,8 +42,6 @@ async def add_to_watchlist(
                                                                                    company.company_name,
                                                                                    company.strength,
                                                                                    company.weakness)
-
-        print("nach eval method kurz vor retirn ")
         return {
                 "message": "Firma aktualisiert!",
                 "id": 0,
