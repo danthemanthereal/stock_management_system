@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -150,10 +152,85 @@
             white-space: nowrap;
         }
 
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .header a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Buttons und Formular-Styling */
+        .btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 250px;
+        }
+
     </style>
 </head>
 <body>
+<div class="header">
+<h2>📈 Stock Analyzer</h2>
+    <!-- Dieser Link bringt den Nutzer von jeder Seite zurück ins Menü -->
+    <a href="/">Zurück zum Menü</a>
+    <p style="text-align:center;">
+        <a href="/logout" style="color:red;">Abmelden</a>
+    </p>
+</div>
+<nav class="analysis-nav" style="background:#f0f0f0; padding: 10px 20px; border-radius: 6px; margin-bottom: 25px;">
+    <a href="/analysis/" style="font-weight:bold;">🧠 Analyse</a>
+    <span style="margin:0 8px;">→</span>
+    <strong>{{ active_page }}</strong>
 
+
+</nav>
 <h1>Financial Metrics</h1>
 <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Chart Name eingeben...">

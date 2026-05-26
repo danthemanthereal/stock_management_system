@@ -424,7 +424,7 @@ def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(r
 
         return render_localized(
             request=request,
-            template_name="show_financial_metrics.html",
+            template_name="analysis/show_financial_metrics.html",
             context=
             {
                 "request": request,
