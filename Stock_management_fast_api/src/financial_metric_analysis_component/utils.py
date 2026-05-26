@@ -27,7 +27,7 @@ def get_needed_metrics_map():
                                     "good_will"]
 
     with open(
-            "/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/financial_metric_analysis_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
+            "/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/src/financial_metric_analysis_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
         financial_metrics = json.load(financial_metrics_file)
 
     annuals = financial_metrics.get("annual", [])

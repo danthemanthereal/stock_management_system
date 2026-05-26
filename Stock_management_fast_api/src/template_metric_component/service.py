@@ -119,7 +119,7 @@ class TemplateMetricService:
         current_user_config = self.db.query(ProfileMetricConfiguration).filter(
             ProfileMetricConfiguration.profile_id == current_template_id,
             ProfileMetricConfiguration.metric_id == financial_metric_id
-        )
+        ).first()
         if not current_user_config:
             return False
 

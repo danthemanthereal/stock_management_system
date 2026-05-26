@@ -4,8 +4,9 @@ from src.database.models import FinancialMetric, ProfileMetricConfiguration
 from src.template_component.service import TemplateService
 from src.template_metric_component.service import TemplateMetricService
 
-from Stock_management_fast_api.src.financial_metric_analysis_component.utils import \
+from src.financial_metric_analysis_component.utils import \
     group_financial_metrics_map_by_category, group_metric_names_by_category, build_category_pair_summary
+
 
 
 class FinancialMetricEvaluator:
@@ -14,7 +15,7 @@ class FinancialMetricEvaluator:
 
     def get_satisfied_unsatisfied_by_category_and_summary(self,
                                                           all_to_considered_financial_metrics:dict,
-                                                          current_user_id: UUID, group_metric_names_by_categof=None):
+                                                          current_user_id: UUID):
         (satisfied_metrics, unsatisfied_metrics,
          satisfied_benchmarks, unsatisfied_benchmarks,
          satisfied_development, unsatisfied_development) = self.get_satisfied_and_not_satisfied_financial_metrics(all_to_considered_financial_metrics,current_user_id)
@@ -73,7 +74,9 @@ class FinancialMetricEvaluator:
         template_metric_service = TemplateMetricService(self.db)
         template_service = TemplateService(self.db)
         current_used_template_id = template_service.get_last_selected_template_id_of_user(current_user_id)
-        financial_metric_service = FinancialMetric(self.db)
+        from src.financial_metric_analysis_component.financial_metric_service import MetricsService
+
+        financial_metric_service = MetricsService(self.db)
         for financial_metric_name in financial_metrics.keys():
             values = financial_metrics[financial_metric_name]
             financial_metric_id = financial_metric_service.get_id_of_current_metric_by_name(financial_metric_name)

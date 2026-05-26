@@ -1,9 +1,6 @@
 import uuid
-from collections import defaultdict
-from typing import List, Optional, Tuple
-
 import requests
-from sqlalchemy.orm import joinedload, Session
+from sqlalchemy.orm import  Session
 from src.database.models import FinancialMetric, ProfileMetricConfiguration
 import json
 from src.financial_metric_analysis_component.utils import get_needed_metrics_map
@@ -18,6 +15,7 @@ from src.financial_metric_analysis_component.financial_metric_evaluator import \
     FinancialMetricEvaluator
 
 
+
 class ActiveFinancialMetricComponent:
 
     def __init__(self, db: Session, company_name: str,
@@ -30,7 +28,7 @@ class ActiveFinancialMetricComponent:
 
 
 
-    def get_total_financial_metrics(self, current_user_id: uuid.UUID)->dict:
+    def get_total_financial_metrics_of_current_template(self, current_user_id: uuid.UUID)->dict:
         total_financial_metric_map = {}
         total_financial_metric_map = self.get_financial_metrics_by_guro_focus(total_financial_metric_map, current_user_id)
         total_financial_metric_map = self.get_financial_metrics_with_alpha_ventage_api(total_financial_metric_map, current_user_id)
@@ -67,8 +65,9 @@ class ActiveFinancialMetricComponent:
 
         template_service = TemplateService(self.db)
         current_used_template_id = template_service.get_last_selected_template_id_of_user(current_user_id)
+        from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 
-        financial_metric_service = FinancialMetric(self.db)
+        financial_metric_service = MetricsService(db=self.db)
         for current_year_map in annuals:
             for key, value in current_year_map.items():
                 if key == "date":
@@ -98,8 +97,9 @@ class ActiveFinancialMetricComponent:
 
         template_service = TemplateService(self.db)
         current_used_template_id = template_service.get_last_selected_template_id_of_user(current_user_id)
+        from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 
-        financial_metric_service = FinancialMetric(self.db)
+        financial_metric_service = MetricsService(self.db)
         for annual_report in annual_reports:
             for (key, value) in annual_report.items():
                 if key not in financial_metric_to_get:
@@ -123,13 +123,15 @@ class ActiveFinancialMetricComponent:
         r = requests.get(url)
         ## 22, 23, 24, 25
         data = r.json()
-        annual_reports = list(reversed(data.get('annualReports', [])))[-4:]
+
+        annual_reports = list(reversed(data))[-4:]
         template_metric_service = TemplateMetricService(db=self.db)
 
         template_service = TemplateService(self.db)
         current_used_template_id = template_service.get_last_selected_template_id_of_user(current_user_id)
+        from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 
-        financial_metric_service = FinancialMetric(self.db)
+        financial_metric_service = MetricsService(self.db)
         for annual_report in annual_reports:
             for (key, value) in annual_report.items():
                 if key not in key_metrics_to_consider:
@@ -143,9 +145,9 @@ class ActiveFinancialMetricComponent:
 
 
         ratio_url = f"https://financialmodelingprep.com/stable/ratios?symbol={self.company_name}&apikey={self.fmp_api_key}"
-        ratio_response = requests.get(ratio_url)
+        ratio_response = requests.get(ratio_url).json()
         ## 22, 23, 24, 25
-        annual_reports_because_of_ratio = list(reversed(ratio_response.get('annualReports', [])))[-4:]
+        annual_reports_because_of_ratio = list(reversed(ratio_response))[-4:]
 
         for annual_report in annual_reports_because_of_ratio:
             for (key, value) in annual_report.items():
@@ -176,14 +178,15 @@ class ActiveFinancialMetricComponent:
         total_assets = needed_financial_metrics_map.get("total_assets", [])
         total_good_will = needed_financial_metrics_map.get("good_will", [])
 
-        calculated_metrics_name = get_financial_metric_name_to_calculate()
+        calculated_metrics_name = get_financial_metric_name_to_calculate(self.db)
 
         template_metric_service = TemplateMetricService(db=self.db)
 
         template_service = TemplateService(self.db)
         current_used_template_id = template_service.get_last_selected_template_id_of_user(current_user_id)
+        from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 
-        financial_metric_service = FinancialMetric(self.db)
+        financial_metric_service = MetricsService(self.db)
         for current_metric in calculated_metrics_name:
             current_financial_metric_id = financial_metric_service. get_id_of_current_metric_by_name(current_metric)
 

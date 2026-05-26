@@ -24,6 +24,7 @@ from src.strength_weakness_company_component.strenth_weakness_comapany import \
 from src.get_news_component.get_news import NewsFinderComponent
 import os
 from dotenv import load_dotenv
+from src.financial_metric_analysis_component.utils import merge_financial_summary_triples
 
 load_dotenv()
 
@@ -407,6 +408,18 @@ def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(r
     try:
 
         financial_metric_service = MetricsService(db)
+        (data_by_category,
+         satisfied_metrics_by_category,
+         unsatisfied_metrics_by_category,
+         satisfied_benchmarks_by_category,
+         unsatisfied_benchmarks_by_category,
+         satisfied_development_by_category,
+         unsatisfied_development_by_category,
+         summary_combined,
+         summary_benchmark,
+         summary_development) = financial_metric_service.get_evaluation_of_over_all_reference_value_development(
+            company_name=company, current_user_id=current_user_id
+        )
 
         years = ["2022", "2023", "2024", "2025"]
 
@@ -432,7 +445,7 @@ def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(r
             })
     except Exception as e:
         print(e)
-
+        traceback.print_exc()
         return templates.TemplateResponse(
             request=request,
             name="error.html",

@@ -1,14 +1,17 @@
 import uuid
-from collections import defaultdict
-from typing import Dict, List
-from fastapi import HTTPException
-from sqlalchemy.orm import Session, joinedload
+from typing import List
+from sqlalchemy.orm import Session
 from src.database.models import IndustryProfile, ProfileMetricConfiguration, User, FinancialMetric
 from src.financial_metric_analysis_component.schema import FinancialMetricOverview
 from src.financial_metric_analysis_component.financial_metric_analysis import \
     FinancialMetricEvaluator
 from src.financial_metric_analysis_component.financial_metric_analysis import \
     ActiveFinancialMetricComponent
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class MetricsService:
@@ -29,6 +32,16 @@ class MetricsService:
     def get_name_of_current_metric_name_by_id(self, metric_id: int) -> str:
         return self.db.query(FinancialMetric).filter(FinancialMetric.id == metric_id).first().id if self.db.query(FinancialMetric).filter(FinancialMetric.name == metric_id).first() else ""
 
-    def get_evaluation_of_over_all_reference_value_development(self, company_name: str):
-        get_active_metrics_of_template_component = ActiveFinancialMetricComponent()
-        active_financial_metrics = get_active_metrics_of_template_component
+    def get_evaluation_of_over_all_reference_value_development(self,
+                                                               company_name: str,
+                                                               current_user_id: uuid.UUID, ):
+        get_active_metrics_of_template_component = ActiveFinancialMetricComponent(
+            db=self.db,
+            company_name=company_name,
+            fmp_api_key=os.getenv("FMP_API_KEY"),
+            alpha_vantage_api_key=os.getenv("ALPHA_VENTAGE_API_KEY"),
+        )
+        metrics_of_current_user_template = get_active_metrics_of_template_component.get_total_financial_metrics_of_current_template(current_user_id)
+        metric_evaluator = FinancialMetricEvaluator(self.db)
+        return metric_evaluator.get_satisfied_unsatisfied_by_category_and_summary(metrics_of_current_user_template,
+                                                                                  current_user_id)
