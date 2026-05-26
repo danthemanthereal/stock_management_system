@@ -420,7 +420,6 @@ def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(r
          summary_development) = financial_metric_service.get_evaluation_of_over_all_reference_value_development(
             company_name=company, current_user_id=current_user_id
         )
-
         years = ["2022", "2023", "2024", "2025"]
 
         return render_localized(

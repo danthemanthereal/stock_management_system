@@ -663,7 +663,7 @@
             <h3>{{ category_label }}</h3>
             {% for metric in metrics %}
             <div class="satisfied">
-                {{ metric.display_name if metric.display_name is defined else (metric if metric is string else metric) }}
+                {{ _(metric)  }}
             </div>
             {% endfor %}
         </div>
@@ -678,7 +678,7 @@
             <h3>{{ category_label }}</h3>
             {% for metric in metrics %}
             <div class="unsatisfied">
-                {{ metric.display_name if metric.display_name is defined else (metric if metric is string else metric) }}
+                {{ _(metric) }}
             </div>
             {% endfor %}
         </div>
@@ -693,7 +693,7 @@
             <h3>{{ category_label }}</h3>
             {% for metric in metrics %}
             <div class="satisfied">
-                {{ metric.display_name if metric.display_name is defined else (metric if metric is string else metric) }}
+                                {{ _(metric) }}
             </div>
             {% endfor %}
         </div>
@@ -708,7 +708,7 @@
             <h3>{{ category_label }}</h3>
             {% for metric in metrics %}
             <div class="unsatisfied">
-                {{ metric.display_name if metric.display_name is defined else (metric if metric is string else metric) }}
+                {{ _(metric) }}
             </div>
             {% endfor %}
         </div>
@@ -723,7 +723,7 @@
             <h3>{{ category_label }}</h3>
             {% for metric in metrics %}
             <div class="satisfied">
-                {{ metric.display_name if metric.display_name is defined else (metric if metric is string else metric) }}
+                {{ _(metric) }}
             </div>
             {% endfor %}
         </div>
@@ -738,7 +738,7 @@
             <h3>{{ category_label }}</h3>
             {% for metric in metrics %}
             <div class="unsatisfied">
-                {{ metric.display_name if metric.display_name is defined else (metric if metric is string else metric) }}
+                {{ _(metric) }}
             </div>
             {% endfor %}
         </div>
