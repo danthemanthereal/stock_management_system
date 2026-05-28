@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, Float, DateTime, UUID
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, Float, DateTime, UUID, Text
 from sqlalchemy.orm import relationship
 from .db import Base
 from datetime import datetime, timezone
@@ -19,6 +19,7 @@ class StockSummary(Base):
     strength = Column(String, index=True)
     weakness = Column(String, index=True)
     is_on_watch_list = Column(Boolean)
+    wiki_page  = Column(Text)
 
     user = relationship("User", back_populates="stock_summary")
     __table_args__ = (
@@ -99,7 +100,9 @@ class BoughtStock(Base):
     ticker = Column(String, index=True)
     bought_price = Column(Float)
     amount = Column(Float)
-
+    strengths = Column(Text)
+    weaknesses = Column(Text)
+    wiki_page = Column(Text)
     user = relationship("User", back_populates="bought_stocks")
     __table_args__ = (
         UniqueConstraint("user_id", "name", name="uq_user_stock_ticker"),  # sicherer

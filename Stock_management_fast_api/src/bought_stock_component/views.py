@@ -25,21 +25,30 @@ def add_stock_from_watchlist(
         current_user_id: UUID = Depends(get_current_user_id)
 ):
     try:
+
         bought_stock_service = BoughtStockService(db=db)
         watchlist_service = WatchlistStockService(db=db)
+        current_stock_on_watchlist = watchlist_service.get_current_stock_of_user(current_user_id=current_user_id, name=name)
         bought_stock_service.add_stock_to_current_user(
             name=name,
             ticker=name,
             amount=amount,
             bought_price=bought_price,
-            current_user_id=current_user_id
+            current_user_id=current_user_id,
+            strengths=current_stock_on_watchlist.strengths,
+            weakness=current_stock_on_watchlist.weakness,
+            wiki_page=current_stock_on_watchlist.wiki_page
         )
+
+
         watchlist_service.deactivate_current_stock_on_watchlist(current_user_id, name)
+        watch_list_stocks = watchlist_service.get_watchlist_stocks_of_current_user(current_user_id)
 
         return templates.TemplateResponse(
             request=request,
             name="watchlist/watchlist.html",
-            context={"request": request})
+            context={"request": request,
+                     "watch_list_stocks": watch_list_stocks})
     except Exception as error:
         print(error)
         traceback.print_exc()
