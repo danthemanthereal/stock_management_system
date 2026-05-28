@@ -9,6 +9,7 @@ from src.youtube_transcript_component.yt_transcript_component import \
 import os
 from dotenv import load_dotenv
 from src.html__text_parser_component.html_text_parser import TextExtractor
+from src.html__text_parser_component.bs4_text_parser import BS4TextParser
 
 load_dotenv()
 
@@ -18,9 +19,12 @@ class StrengthWeaknessOfCompanyComponent:
     def __init__(self, groq_model_name):
         self.groq_model_name = groq_model_name
 
-    def get_strength_weakness_of_company(self, url: str):
-        text_extractor = TextExtractor()
-        text = text_extractor.get_website_text(url)
+    async def get_strength_weakness_of_company(self, url: str):
+        #text_extractor = TextExtractor()
+        #text = text_extractor.get_website_text(url)
+
+        bs4_text_parser = BS4TextParser()
+        text = await  bs4_text_parser.get_website_text(url)
         print("text von der seite ")
         print(text)
         return self.get_strength_weakness_of_url_with_groq(text)

@@ -51,7 +51,7 @@ async def analyze_url(request: Request, url: str = Form(...)):
         strength_weakness_company_component = StrengthWeaknessOfCompanyComponent(
             groq_model_name="llama-3.3-70b-versatile"
         )
-        companies_array = strength_weakness_company_component.get_strength_weakness_of_company(url)
+        companies_array = await strength_weakness_company_component.get_strength_weakness_of_company(url)
 
         if isinstance(companies_array, str):
             try:
