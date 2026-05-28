@@ -52,7 +52,9 @@ async def create_bought_stock_of_current_user(
         bought_stock_service = BoughtStockService(db=db)
         bought_stock_service.add_stock_to_current_user(name=name, ticker=ticker,
                                                               bought_price=bought_price,
-                                                              amount=amount, current_user_id=current_user_id)
+                                                              amount=amount,
+                                                       current_user_id=current_user_id,
+                                                       strengths="", weakness="", wiki_page="")
 
 
         bought_stocks = bought_stock_service.get_bought_stocks_of_current_user(current_user_id=str(current_user_id))

@@ -23,6 +23,7 @@ class BoughtStockService:
         if self.user_already_bought_stock(current_user_id=current_user_id, stock_name=name):
             current_stock = self.get_of_current_user_stock_by_name(current_user_id=current_user_id, stock_name=name)
             current_stock.amount += amount
+            # TODO hier noch die zusammenfügen machen
             self.db.commit()
 
         else:
@@ -31,8 +32,10 @@ class BoughtStockService:
             ticker=ticker.strip().upper(),
             bought_price=bought_price,
             amount=amount,
-            user_id=str(current_user_id)
-
+            user_id=str(current_user_id),
+            strengths=strengths,
+            weaknesses=weakness,
+            wiki_page=wiki_page,
             )
             self.db.add(new_stock)
             self.db.commit()

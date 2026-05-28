@@ -25,6 +25,7 @@ from src.get_news_component.get_news import NewsFinderComponent
 import os
 from dotenv import load_dotenv
 from src.financial_metric_analysis_component.utils import merge_financial_summary_triples
+from src.html__text_parser_component.html_text_parser import TextExtractor
 
 load_dotenv()
 
@@ -46,6 +47,7 @@ def analysis(request: Request):
 @analysis_router.post("/get-summary-url", response_class=HTMLResponse)
 async def analyze_url(request: Request, url: str = Form(...)):
     try:
+
         strength_weakness_company_component = StrengthWeaknessOfCompanyComponent(
             groq_model_name="llama-3.3-70b-versatile"
         )
@@ -63,6 +65,7 @@ async def analyze_url(request: Request, url: str = Form(...)):
             context={"request": request, "companies": companies_array}
         )
     except Exception as e:
+        traceback.print_exc()
         return templates.TemplateResponse(
             request=request,
             name="error.html",

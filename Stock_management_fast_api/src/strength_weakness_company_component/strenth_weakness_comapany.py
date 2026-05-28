@@ -8,6 +8,7 @@ from src.youtube_transcript_component.yt_transcript_component import \
     YoutubeTranscriptComponent
 import os
 from dotenv import load_dotenv
+from src.html__text_parser_component.html_text_parser import TextExtractor
 
 load_dotenv()
 
@@ -17,8 +18,12 @@ class StrengthWeaknessOfCompanyComponent:
     def __init__(self, groq_model_name):
         self.groq_model_name = groq_model_name
 
-    def get_strength_weakness_of_company(self, url):
-        return self.get_summary_of_gemini_with_url_context(url)
+    def get_strength_weakness_of_company(self, url: str):
+        text_extractor = TextExtractor()
+        text = text_extractor.get_website_text(url)
+        print("text von der seite ")
+        print(text)
+        return self.get_strength_weakness_of_url_with_groq(text)
 
 
     def get_summary_of_gemini_with_url_context(self,url: str):
@@ -80,8 +85,7 @@ class StrengthWeaknessOfCompanyComponent:
             ])
 
         content = response.choices[0].message.content
-        print("from groq")
-        print(content)
+
         return self.safe_parse(content)
 
 
@@ -316,4 +320,25 @@ class StrengthWeaknessOfCompanyComponent:
             return json.loads(fixed)
         except json.JSONDecodeError:
             return []
+
+
+    def get_strength_weakness_of_url_with_groq(self, text: str):
+           system_prompt = self.get_system_instruction_url_context()
+           user_prompt = self.get_user_prompt_yt_script(text)
+           client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+           response = client.chat.completions.create(
+               model=self.groq_model_name,
+               messages=[
+                   {"role": "system",
+                    "content": system_prompt
+                    },
+                   {
+                       "role": "user",
+                       "content": user_prompt
+                   }
+               ])
+
+           content = response.choices[0].message.content
+
+           return self.safe_parse(content)
 
