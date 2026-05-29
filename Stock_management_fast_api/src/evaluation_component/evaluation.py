@@ -55,8 +55,12 @@ class Evaluator:
 
     def get_strength_weakness_of_stock(self, current_user_id: UUID, company_name: str, new_strength: str, new_weakness: str):
         watch_list_service = WatchlistStockService(self.db)
-        if watch_list_service.check_if_user_has_stock_already_in_watchlist(current_user_id, company_name):
-            current_watchlist_stock = watch_list_service.get_current_stock_of_user(current_user_id, company_name)
+
+        # TODO get ticker of company name
+        ticker = company_name
+
+        if watch_list_service.check_if_user_has_stock_already_in_watchlist(current_user_id, ticker):
+            current_watchlist_stock = watch_list_service.get_current_stock_of_user(current_user_id, ticker)
             current_strengths = current_watchlist_stock.strength
             current_weakness = current_watchlist_stock.weakness
 
@@ -68,7 +72,11 @@ class Evaluator:
             self.db.commit()
             self.db.refresh(current_watchlist_stock)
             return current_strengths, current_weakness
-        watch_list_service.add_to_current_user_to__watchlist(company_name,new_strength,new_weakness, current_user_id)
+        watch_list_service.add_to_current_user_to__watchlist(company_name,
+                                                             ticker,
+                                                             new_strength,
+                                                             new_weakness,
+                                                             current_user_id)
         return "", ""
 
     def get_system_prompt(self) -> str:

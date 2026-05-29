@@ -94,6 +94,9 @@ class BoughtStockService:
 
             self.db.commit()
             self.db.refresh(db_bought_stock)
+            # TODO with api get stock ticker always
+            ticker = stock_data.name
+
             watchlist_service = WatchlistStockService(self.db)
             watchlist_service.deactivate_current_stock_on_watchlist(current_user_id,stock_data.name)
             return {"status": "success", "message": "Aktie erfolgreich eingebucht", "data": db_bought_stock}

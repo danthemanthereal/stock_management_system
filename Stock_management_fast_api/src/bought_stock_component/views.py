@@ -25,10 +25,15 @@ def add_stock_from_watchlist(
         current_user_id: UUID = Depends(get_current_user_id)
 ):
     try:
+        # TODO with api get ticker
+        ticker = name
 
         bought_stock_service = BoughtStockService(db=db)
+
         watchlist_service = WatchlistStockService(db=db)
-        current_stock_on_watchlist = watchlist_service.get_current_stock_of_user(current_user_id=current_user_id, name=name)
+
+        current_stock_on_watchlist = watchlist_service.get_current_stock_of_user(current_user_id=current_user_id, name=ticker)
+
         bought_stock_service.add_stock_to_current_user(
             name=name,
             ticker=name,
@@ -40,8 +45,9 @@ def add_stock_from_watchlist(
             wiki_page=current_stock_on_watchlist.wiki_page
         )
 
-
-        watchlist_service.deactivate_current_stock_on_watchlist(current_user_id, name)
+        # TODO with api get ticker
+        ticker = name
+        watchlist_service.deactivate_current_stock_on_watchlist(current_user_id, ticker)
         watch_list_stocks = watchlist_service.get_watchlist_stocks_of_current_user(current_user_id)
 
         return templates.TemplateResponse(

@@ -66,7 +66,9 @@ request: Request,
     try:
 
         watchlist_service = WatchlistStockService(db)
-        watchlist_service.delete_watchlist_stocks_of_current_user(current_user_id, selected_companies)
+        # TODO with api get stock ticker per name
+        selected_tickers = selected_companies
+        watchlist_service.delete_watchlist_stocks_of_current_user(current_user_id,selected_tickers)
         watch_list_stocks = watchlist_service.get_watchlist_stocks_of_current_user(current_user_id)
         return templates.TemplateResponse(request=request,
                                           name="watchlist/watchlist.html",
