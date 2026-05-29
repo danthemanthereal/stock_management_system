@@ -37,7 +37,13 @@ class WatchlistStockService:
         return self.db.query(StockSummary).filter(StockSummary.ticker == ticker_of_stock,
                                                   StockSummary.user_id == str(current_user_id)).first()
 
-    def add_to_current_user_to__watchlist(self, name: str, ticker: str,  strength: str, weakness: str, user_id: UUID):
+    def add_to_current_user_to__watchlist(self,
+                                          name: str,
+                                          ticker: str,
+                                          strength: str,
+                                          weakness: str,
+                                          user_id: UUID,
+                                          new_content: str):
 
         if self.check_if_user_has_stock_already_in_watchlist(user_id, ticker):
             current_stock = self.get_current_stock_of_user(user_id, ticker)
@@ -55,7 +61,7 @@ class WatchlistStockService:
                 ticker=ticker,
                 new_strengths=strength,
                 new_weaknesses=weakness,
-                new_content=""
+                new_content=new_content
             )
 
             self.update_strength_weakness_wiki_page_of_watchlist_stock(
@@ -80,6 +86,25 @@ class WatchlistStockService:
         self.db.add(new_watchlist_stock)
         self.db.commit()
         self.db.refresh(new_watchlist_stock)
+        llm_wiki = LLMWiki(self.db, "llama-3.3-70b-versatile")
+        new_strengths, new_weakness, new_wiki_page =  llm_wiki.ingest(
+            watch_list_stock_id=new_watchlist_stock.id,
+            bought_stock_id=None,
+            company_name=new_watchlist_stock.name,
+            ticker=new_watchlist_stock.ticker,
+            new_strengths=strength,
+            new_weaknesses=weakness,
+            new_content=new_content
+        )
+
+        self.update_strength_weakness_wiki_page_of_watchlist_stock(
+            watchlist_stock_obj=new_watchlist_stock,
+            new_strength=new_strengths,
+            new_weakness=new_weakness,
+            new_wiki_page=new_wiki_page
+        )
+
+
 
 
     def get_watch_list_stock_with_id(self, id:int) -> StockSummary:

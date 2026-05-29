@@ -37,6 +37,7 @@
 {% endif %}
 <script>
     const currentUrl = "{{ url }}";
+    const current_yt_url = "{{yt_url}}";
 </script>
 <script>
     async function sendCompanyData(button) {
@@ -52,7 +53,8 @@
             company_name: companyName,
             strength: strength,
             weakness: weakness,
-            url: currentUrl
+            url: currentUrl,
+            yt_url: current_yt_url
         };
 
         // Temporären Lade-Status anzeigen (damit der User sieht, dass etwas passiert)

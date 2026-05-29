@@ -41,9 +41,6 @@ class LLMWiki:
             current_wiki_page=current_wiki_page,
             new_content=new_content)
 
-        print("new combined strengths: ", new_combined_strengths)
-        print("new combined weaknesses: ", new_combined_weakness)
-        print("new wiki page: ", new_wiki_page)
         return new_combined_strengths, new_combined_weakness, new_wiki_page
 
     def get_strength_weakness_wiki_page(self, watch_list_stock_id: int, bought_stock_id: int):

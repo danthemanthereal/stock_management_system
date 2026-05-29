@@ -11,3 +11,4 @@ class WatchlistRequest(BaseModel):
     strength: str
     weakness: str
     url: str
+    yt_url: str

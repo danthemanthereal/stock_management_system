@@ -11,6 +11,8 @@ from src.ticker_stock_component.ticker_stock import TickerStock
 from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.bought_stock_component.service import BoughtStockService
 from src.html__text_parser_component.bs4_text_parser import BS4TextParser
+from src.youtube_transcript_component.yt_transcript_component import \
+    YoutubeTranscriptComponent
 
 load_dotenv()
 
@@ -34,7 +36,8 @@ class Evaluator:
                                  company_name: str,
                                  new_strength: str,
                                  new_weakness: str,
-                                 used_url: str):
+                                 used_url: str,
+                                 used_yt_url: str ):
         client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         watchlist_service = WatchlistStockService(self.db)
         ticker_component = TickerStock()
@@ -54,7 +57,8 @@ class Evaluator:
             ticker=ticker,
             new_strengths=new_strength,
             new_weaknesses=new_weakness,
-            url=used_url
+            url=used_url,
+            yt_url=used_yt_url
         )
 
 
@@ -200,12 +204,19 @@ reasoning:
                                                  ticker: str,
                                                  new_strengths,
                                                  new_weaknesses,
-                                                 url: str):
+                                                 url: str,
+                                                 yt_url: str):
         llm_wiki_component = LLMWiki(db=self.db,
                                      groq_model_name=self.model_name)
 
-        html_parser = BS4TextParser()
-        new_content = await html_parser.get_website_text(url)
+        new_content =""
+        if url:
+            html_parser = BS4TextParser()
+            new_content = await html_parser.get_website_text(url)
+
+        if yt_url:
+            yt_transcript_component = YoutubeTranscriptComponent()
+            new_content = yt_transcript_component.get_summary_of_yt_video(yt_url)
 
         (new_combined_strengths, new_combined_weakness, new_combined_wiki_page) = llm_wiki_component.ingest(
             watch_list_stock_id=watchlist_stock_id,

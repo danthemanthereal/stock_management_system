@@ -3,7 +3,6 @@ from pytube import extract
 
 
 class YoutubeTranscriptComponent:
-
     def __init__(self):
         pass
 

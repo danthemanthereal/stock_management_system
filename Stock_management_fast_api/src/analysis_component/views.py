@@ -93,7 +93,11 @@ def get_yt_transcript(request: Request, url: str = Form(...)):
         return templates.TemplateResponse(
             request=request,
             name="analysis/companies_overview.html",
-            context={"request": request, "companies": companies_array}
+            context={
+                "request": request,
+                "companies": companies_array,
+                "yt_url":url
+            }
         )
     except Exception as e:
         print(e)
