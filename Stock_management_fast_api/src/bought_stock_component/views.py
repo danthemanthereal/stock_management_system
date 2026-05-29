@@ -39,7 +39,7 @@ def add_stock_from_watchlist(
 
         bought_stock_service.add_stock_to_current_user(
             name=name,
-            ticker=name,
+            ticker=ticker,
             amount=amount,
             bought_price=bought_price,
             current_user_id=current_user_id,
@@ -48,10 +48,6 @@ def add_stock_from_watchlist(
             wiki_page=current_stock_on_watchlist.wiki_page
         )
 
-        # TODO with api get ticker
-
-        get_ticker_component = TickerStock()
-        ticker = get_ticker_component.get_ticker_of_a_stock(name)
         watchlist_service.deactivate_current_stock_on_watchlist(current_user_id, ticker)
         watch_list_stocks = watchlist_service.get_watchlist_stocks_of_current_user(current_user_id)
 

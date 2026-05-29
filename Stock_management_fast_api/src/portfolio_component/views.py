@@ -10,6 +10,8 @@ from src.database.models import BoughtStock
 from src.utils.utils import render_localized
 from src.bought_stock_component.service import BoughtStockService
 
+from src.ticker_stock_component.ticker_stock import TickerStock
+
 templates = Jinja2Templates(directory="templates")
 
 portfolio_router = APIRouter(prefix="/portfolio", tags=["portfolio"])
@@ -49,6 +51,9 @@ async def create_bought_stock_of_current_user(
         current_user_id: UUID = Depends(get_current_user_id),
 ):
     try:
+        get_ticker_component = TickerStock()
+        ticker = get_ticker_component.get_ticker_of_a_stock(name)
+
         bought_stock_service = BoughtStockService(db=db)
         bought_stock_service.add_stock_to_current_user(name=name, ticker=ticker,
                                                               bought_price=bought_price,

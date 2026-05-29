@@ -21,9 +21,11 @@ class BoughtStockService:
     def add_stock_to_current_user(self, name:str, ticker:str,
                                          bought_price:float, amount: float,
                                          current_user_id:UUID, strengths, weakness, wiki_page):
+        get_ticker_component = TickerStock()
 
-        if self.user_already_bought_stock(current_user_id=current_user_id, stock_name=name):
-            current_stock = self.get_of_current_user_stock_by_name(current_user_id=current_user_id, stock_name=name)
+        ticker = get_ticker_component.get_ticker_of_a_stock(name)
+        if self.user_already_bought_stock(current_user_id=current_user_id, ticker=ticker):
+            current_stock = self.get_of_current_user_stock_by_name(current_user_id=current_user_id, ticker=ticker)
             current_stock.amount += amount
             # TODO hier noch die zusammenfügen machen
             self.db.commit()
@@ -80,12 +82,14 @@ class BoughtStockService:
     def create_bought_stock(self,stock_data: BoughtStockRequest,
                             current_user_id: UUID):
 
+        get_ticker_component = TickerStock()
 
-        generated_ticker = stock_data.name.replace(" ", "").upper()[:5]
+        ticker = get_ticker_component.get_ticker_of_a_stock(stock_data.name)
+
 
         db_bought_stock = BoughtStock(
             name=stock_data.name,
-            ticker=generated_ticker,
+            ticker=ticker,
             amount=stock_data.amount,
             bought_price=stock_data.bought_price,
             user_id=str(current_user_id)
@@ -97,10 +101,6 @@ class BoughtStockService:
             self.db.commit()
             self.db.refresh(db_bought_stock)
 
-            get_ticker_component = TickerStock()
-
-            ticker =  get_ticker_component.get_ticker_of_a_stock(stock_data.name)
-
             watchlist_service = WatchlistStockService(self.db)
             watchlist_service.deactivate_current_stock_on_watchlist(current_user_id,ticker)
             return {"status": "success", "message": "Aktie erfolgreich eingebucht", "data": db_bought_stock}
@@ -108,14 +108,14 @@ class BoughtStockService:
             self.db.rollback()
             return {}
 
-    def user_already_bought_stock(self, current_user_id:UUID, stock_name)->bool:
+    def user_already_bought_stock(self, current_user_id:UUID, ticker)->bool:
         return self.db.query(BoughtStock).filter(BoughtStock.user_id == str(current_user_id),
-                                                 BoughtStock.name ==stock_name ).first() is not None
+                                                 BoughtStock.ticker ==ticker ).first() is not None
 
 
-    def get_of_current_user_stock_by_name(self, current_user_id:UUID, stock_name)->BoughtStock:
+    def get_of_current_user_stock_by_name(self, current_user_id:UUID, ticker)->BoughtStock:
         return self.db.query(BoughtStock).filter(BoughtStock.user_id == str(current_user_id),
-                                                 BoughtStock.name ==stock_name ).first()
+                                                 BoughtStock.ticker ==ticker ).first()
 
     def get_bought_stock_by_id(self, id: int)->BoughtStock:
         return self.db.query(BoughtStock).filter(BoughtStock.id == id).first()
