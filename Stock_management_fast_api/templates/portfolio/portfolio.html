@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Chart.js direkt laden -->
+<!-- Chart.js & marked.js laden -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <style>
     /* Modernes Kachel-Design für Boxen */
@@ -106,6 +107,28 @@
     .btn-success:hover {
         background-color: #2ecc71;
     }
+
+    /* Markdown-Inhaltsbereiche */
+    .markdown-content h1,
+    .markdown-content h2,
+    .markdown-content h3,
+    .markdown-content h4 {
+        margin: 1.2em 0 0.5em;
+    }
+    .markdown-content h1:first-child,
+    .markdown-content h2:first-child,
+    .markdown-content h3:first-child,
+    .markdown-content h4:first-child {
+        margin-top: 0;
+    }
+    .markdown-content p {
+        margin: 0.5em 0;
+    }
+    .markdown-content ul,
+    .markdown-content ol {
+        margin: 0.5em 0;
+        padding-left: 1.5em;
+    }
 </style>
 
 <h1>💼 Dein Portfolio</h1>
@@ -145,17 +168,16 @@
                     <th class="text-right">Kaufpreis</th>
                     <th class="text-right">Anzahl</th>
                     <th class="text-right">Gesamtwert</th>
+                    <th></th> <!-- Detail-Button -->
                 </tr>
                 </thead>
                 <tbody>
                 {% for stock in bought_stocks %}
                 <tr class="stock-row" data-stock-id="{{ stock.id }}">
-                    <!-- Checkbox -->
                     <td style="text-align: center;">
                         <input type="checkbox" class="delete-stock-checkbox" value="{{ stock.id }}"
                                style="transform: scale(1.2);">
                     </td>
-
                     <td><strong>{{ stock.ticker }}</strong></td>
                     <td>{{ stock.name }}</td>
 
@@ -181,7 +203,7 @@
                         {{ stock.bought_price * stock.amount }}
                     </td>
 
-                    <!-- Detail Button -->
+                    <!-- Detail-Button -->
                     <td>
                         <button onclick="toggleDetails({{ stock.id }})" type="button">
                             Details
@@ -189,37 +211,34 @@
                     </td>
                 </tr>
 
-                <!-- versteckte Detail-Zeile -->
+                <!-- Versteckte Detail-Zeile -->
                 <tr id="details-{{ stock.id }}" style="display: none;">
                     <td colspan="7" style="background: #f9f9f9; padding: 15px;">
 
                         <div style="display: flex; gap: 40px;">
-
                             <!-- Strengths -->
                             <div style="flex: 1;">
                                 <h4 style="color: green;">Stärken</h4>
-                                <p style="white-space: pre-line;">
-                                    {{ stock.strengths }}
-                                </p>
+                                <div id="strengths-{{ stock.id }}" class="markdown-content"></div>
                             </div>
-
                             <!-- Weaknesses -->
                             <div style="flex: 1;">
                                 <h4 style="color: red;">Schwächen</h4>
-                                <p style="white-space: pre-line;">
-                                    {{ stock.weaknesses }}
-                                </p>
+                                <div id="weaknesses-{{ stock.id }}" class="markdown-content"></div>
                             </div>
                         </div>
 
                         <!-- Wiki Page -->
                         <div style="margin-top: 15px;">
                             <h4>Wiki Page</h4>
-                            <div style="background: white; padding: 10px; border: 1px solid #ddd;">
-                                {{ stock.wiki_page | safe }}
-                            </div>
+                            <div id="wiki-{{ stock.id }}" class="markdown-content"
+                                 style="background: white; padding: 10px; border: 1px solid #ddd;"></div>
                         </div>
 
+                        <!-- Versteckte Markdown-Quellen (werden nicht im Browser gerendert) -->
+                        <script type="text/markdown" id="strengths-md-{{ stock.id }}">{{ stock.strengths | safe }}</script>
+                        <script type="text/markdown" id="weaknesses-md-{{ stock.id }}">{{ stock.weaknesses | safe }}</script>
+                        <script type="text/markdown" id="wiki-md-{{ stock.id }}">{{ stock.wiki_page | safe }}</script>
                     </td>
                 </tr>
                 {% endfor %}
@@ -244,13 +263,40 @@
 </div>
 {% endif %}
 
-<!-- Die JS-Logik -->
+<!-- JavaScript -->
 <script>
-    // Details ein-/ausblenden
+    // Details ein-/ausblenden und Markdown parsen
     function toggleDetails(stockId) {
         const row = document.getElementById(`details-${stockId}`);
         if (!row) return;
-        row.style.display = (row.style.display === "none") ? "table-row" : "none";
+
+        if (row.style.display === "none" || row.style.display === "") {
+            // Zeige die Zeile
+            row.style.display = "table-row";
+            // Markdown parsen und einfügen (nur wenn noch nicht geparst)
+            parseAndInsertMarkdown(stockId);
+        } else {
+            row.style.display = "none";
+        }
+    }
+
+    function parseAndInsertMarkdown(stockId) {
+        const strengthsDiv = document.getElementById(`strengths-${stockId}`);
+        // Verhindere mehrfaches Parsen (Attribut 'data-parsed' als Flag)
+        if (strengthsDiv && !strengthsDiv.hasAttribute('data-parsed')) {
+            const strengthsMd = document.getElementById(`strengths-md-${stockId}`).textContent;
+            const weaknessesMd = document.getElementById(`weaknesses-md-${stockId}`).textContent;
+            const wikiMd = document.getElementById(`wiki-md-${stockId}`).textContent;
+
+            strengthsDiv.innerHTML = marked.parse(strengthsMd);
+            document.getElementById(`weaknesses-${stockId}`).innerHTML = marked.parse(weaknessesMd);
+            document.getElementById(`wiki-${stockId}`).innerHTML = marked.parse(wikiMd);
+
+            // Als geparst markieren
+            strengthsDiv.setAttribute('data-parsed', 'true');
+            document.getElementById(`weaknesses-${stockId}`).setAttribute('data-parsed', 'true');
+            document.getElementById(`wiki-${stockId}`).setAttribute('data-parsed', 'true');
+        }
     }
 
     // Formular-Submit vorbereiten (IDs zum Löschen/Ändern sammeln)
