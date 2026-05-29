@@ -13,6 +13,8 @@ from src.watchlist_component.service import WatchlistStockService
 from src.watchlist_component.schemas import DeleteWatchListStockRequest
 from src.evaluation_component.evaluation import Evaluator
 
+from src.ticker_stock_component.ticker_stock import TickerStock
+
 templates = Jinja2Templates(directory="templates")
 
 watchlist_router = APIRouter(prefix="/watchlist", tags=["watchlist"])
@@ -66,8 +68,9 @@ request: Request,
     try:
 
         watchlist_service = WatchlistStockService(db)
-        # TODO with api get stock ticker per name
-        selected_tickers = selected_companies
+        get_ticker_component = TickerStock()
+
+        selected_tickers = [get_ticker_component.get_ticker_of_a_stock(company_name) for company_name in selected_companies]
         watchlist_service.delete_watchlist_stocks_of_current_user(current_user_id,selected_tickers)
         watch_list_stocks = watchlist_service.get_watchlist_stocks_of_current_user(current_user_id)
         return templates.TemplateResponse(request=request,

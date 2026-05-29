@@ -10,6 +10,8 @@ from src.authenticator_component.authenticator import get_current_user_id
 from src.bought_stock_component.service import BoughtStockService
 from src.watchlist_component.service import WatchlistStockService
 
+from src.ticker_stock_component.ticker_stock import TickerStock
+
 templates = Jinja2Templates(directory="templates")
 
 bought_stock_router = APIRouter(prefix="/bought-stock", tags=["bought-stock"])
@@ -25,8 +27,9 @@ def add_stock_from_watchlist(
         current_user_id: UUID = Depends(get_current_user_id)
 ):
     try:
-        # TODO with api get ticker
-        ticker = name
+
+        get_ticker_component = TickerStock()
+        ticker = get_ticker_component.get_ticker_of_a_stock(name)
 
         bought_stock_service = BoughtStockService(db=db)
 
@@ -46,7 +49,9 @@ def add_stock_from_watchlist(
         )
 
         # TODO with api get ticker
-        ticker = name
+
+        get_ticker_component = TickerStock()
+        ticker = get_ticker_component.get_ticker_of_a_stock(name)
         watchlist_service.deactivate_current_stock_on_watchlist(current_user_id, ticker)
         watch_list_stocks = watchlist_service.get_watchlist_stocks_of_current_user(current_user_id)
 

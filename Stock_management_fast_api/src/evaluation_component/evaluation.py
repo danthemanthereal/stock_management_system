@@ -7,6 +7,7 @@ from src.watchlist_component.service import WatchlistStockService
 import os
 from dotenv import load_dotenv
 from src.combining_stock_infos_llm.combine_stock import CombineComponent
+from src.ticker_stock_component.ticker_stock import TickerStock
 
 load_dotenv()
 
@@ -56,8 +57,8 @@ class Evaluator:
     def get_strength_weakness_of_stock(self, current_user_id: UUID, company_name: str, new_strength: str, new_weakness: str):
         watch_list_service = WatchlistStockService(self.db)
 
-        # TODO get ticker of company name
-        ticker = company_name
+        get_ticker_component = TickerStock()
+        ticker = get_ticker_component.get_ticker_of_a_stock(company_name)
 
         if watch_list_service.check_if_user_has_stock_already_in_watchlist(current_user_id, ticker):
             current_watchlist_stock = watch_list_service.get_current_stock_of_user(current_user_id, ticker)

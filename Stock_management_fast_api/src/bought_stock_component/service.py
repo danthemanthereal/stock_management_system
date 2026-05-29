@@ -5,6 +5,8 @@ from src.database.models import BoughtStock
 from src.bought_stock_component.schema import BoughtStockRequest
 from src.watchlist_component.service import WatchlistStockService
 
+from src.ticker_stock_component.ticker_stock import TickerStock
+
 
 class BoughtStockService:
     def __init__(self, db: Session):
@@ -94,11 +96,13 @@ class BoughtStockService:
 
             self.db.commit()
             self.db.refresh(db_bought_stock)
-            # TODO with api get stock ticker always
-            ticker = stock_data.name
+
+            get_ticker_component = TickerStock()
+
+            ticker =  get_ticker_component.get_ticker_of_a_stock(stock_data.name)
 
             watchlist_service = WatchlistStockService(self.db)
-            watchlist_service.deactivate_current_stock_on_watchlist(current_user_id,stock_data.name)
+            watchlist_service.deactivate_current_stock_on_watchlist(current_user_id,ticker)
             return {"status": "success", "message": "Aktie erfolgreich eingebucht", "data": db_bought_stock}
         except Exception as e:
             self.db.rollback()
