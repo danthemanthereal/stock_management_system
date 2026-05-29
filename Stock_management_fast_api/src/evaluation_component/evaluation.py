@@ -10,6 +10,7 @@ from src.combining_stock_infos_llm.combine_stock import CombineComponent
 from src.ticker_stock_component.ticker_stock import TickerStock
 from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.bought_stock_component.service import BoughtStockService
+from src.html__text_parser_component.bs4_text_parser import BS4TextParser
 
 load_dotenv()
 
@@ -29,10 +30,11 @@ class Evaluator:
                 return json.loads(match.group())
             return {"strengths": [], "weaknesses": []}
 
-    def evaluate_new_information(self, current_user_id: UUID,
+    async def evaluate_new_information(self, current_user_id: UUID,
                                  company_name: str,
                                  new_strength: str,
-                                 new_weakness: str):
+                                 new_weakness: str,
+                                 used_url: str):
         client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         watchlist_service = WatchlistStockService(self.db)
         ticker_component = TickerStock()
@@ -45,16 +47,14 @@ class Evaluator:
 
         current_watchlist_id = watchlist_service.get_watchlist_stock_id_by_ticker(ticker)
 
-        self.update_strength_weakness_wiki_page(
+        await self.update_strength_weakness_wiki_page(
             watchlist_stock_id=current_watchlist_id,
             bought_stock_id=None,
             company_name=company_name,
             ticker=ticker,
-            current_strengths=current_strengths,
             new_strengths=new_strength,
-            current_weaknesses=current_weaknesses,
             new_weaknesses=new_weakness,
-            current_wiki_page=current_wiki_page
+            url=used_url
         )
 
 
@@ -193,18 +193,19 @@ reasoning:
         
         Return the result in the required format.
 """
-    def update_strength_weakness_wiki_page(self,
-                                           watchlist_stock_id: int,
-                                           bought_stock_id: int,
-                                           company_name: str,
-                                           ticker: str,
-                                           current_strengths,
-                                           new_strengths,
-                                           current_weaknesses,
-                                           new_weaknesses,
-                                           current_wiki_page):
+    async def update_strength_weakness_wiki_page(self,
+                                                 watchlist_stock_id: int,
+                                                 bought_stock_id: int,
+                                                 company_name: str,
+                                                 ticker: str,
+                                                 new_strengths,
+                                                 new_weaknesses,
+                                                 url: str):
         llm_wiki_component = LLMWiki(db=self.db,
                                      groq_model_name=self.model_name)
+
+        html_parser = BS4TextParser()
+        new_content = await html_parser.get_website_text(url)
 
         (new_combined_strengths, new_combined_weakness, new_combined_wiki_page) = llm_wiki_component.ingest(
             watch_list_stock_id=watchlist_stock_id,
@@ -213,7 +214,7 @@ reasoning:
             ticker=ticker,
             new_strengths=new_strengths,
             new_weaknesses=new_weaknesses,
-            new_content=""
+            new_content=new_content
         )
 
         if watchlist_stock_id:

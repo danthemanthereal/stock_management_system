@@ -62,7 +62,9 @@ async def analyze_url(request: Request, url: str = Form(...)):
         return templates.TemplateResponse(
             request=request,
             name="analysis/companies_overview.html",
-            context={"request": request, "companies": companies_array}
+            context={"request": request,
+                     "companies": companies_array,
+                     "url": url}
         )
     except Exception as e:
         traceback.print_exc()

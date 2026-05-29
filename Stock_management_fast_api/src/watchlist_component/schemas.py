@@ -10,3 +10,4 @@ class WatchlistRequest(BaseModel):
     company_name: str
     strength: str
     weakness: str
+    url: str

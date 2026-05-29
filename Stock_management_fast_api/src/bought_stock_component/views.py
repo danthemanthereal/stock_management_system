@@ -35,7 +35,7 @@ def add_stock_from_watchlist(
 
         watchlist_service = WatchlistStockService(db=db)
 
-        current_stock_on_watchlist = watchlist_service.get_current_stock_of_user(current_user_id=current_user_id, name=ticker)
+        current_stock_on_watchlist = watchlist_service.get_current_stock_of_user(current_user_id=current_user_id, ticker_of_stock=ticker)
 
         bought_stock_service.add_stock_to_current_user(
             name=name,
@@ -43,7 +43,7 @@ def add_stock_from_watchlist(
             amount=amount,
             bought_price=bought_price,
             current_user_id=current_user_id,
-            strengths=current_stock_on_watchlist.strengths,
+            strengths=current_stock_on_watchlist.strength,
             weakness=current_stock_on_watchlist.weakness,
             wiki_page=current_stock_on_watchlist.wiki_page
         )

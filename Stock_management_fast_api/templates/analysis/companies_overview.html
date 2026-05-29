@@ -35,7 +35,9 @@
 {% else %}
 <p>Keine Unternehmen gefunden.</p>
 {% endif %}
-
+<script>
+    const currentUrl = "{{ url }}";
+</script>
 <script>
     async function sendCompanyData(button) {
         // 1. Variablen aus dem Button auslesen
@@ -49,7 +51,8 @@
         const data = {
             company_name: companyName,
             strength: strength,
-            weakness: weakness
+            weakness: weakness,
+            url: currentUrl
         };
 
         // Temporären Lade-Status anzeigen (damit der User sieht, dass etwas passiert)

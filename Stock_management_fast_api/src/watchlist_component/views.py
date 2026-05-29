@@ -38,12 +38,13 @@ async def add_to_watchlist(
         current_user_id: UUID = Depends(get_current_user_id),
 ):
     try:
-
         evaluator = Evaluator(db,"llama-3.3-70b-versatile")
-        trajectory, reasoning, recommendation = evaluator.evaluate_new_information(current_user_id,
+        trajectory, reasoning, recommendation = await evaluator.evaluate_new_information(current_user_id,
                                                                                    company.company_name,
                                                                                    company.strength,
-                                                                                   company.weakness)
+                                                                                   company.weakness,
+                                                                                   company.url
+                                                                                   )
         return {
                 "message": "Firma aktualisiert!",
                 "id": 0,
