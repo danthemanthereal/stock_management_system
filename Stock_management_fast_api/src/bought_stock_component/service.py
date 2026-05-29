@@ -87,19 +87,23 @@ class BoughtStockService:
         ticker = get_ticker_component.get_ticker_of_a_stock(stock_data.name)
 
 
-        db_bought_stock = BoughtStock(
-            name=stock_data.name,
-            ticker=ticker,
-            amount=stock_data.amount,
-            bought_price=stock_data.bought_price,
-            user_id=str(current_user_id)
-        )
-
         try:
-            self.db.add(db_bought_stock)
+            if self.user_already_bought_stock(current_user_id=current_user_id, ticker=ticker):
+                db_bought_stock = BoughtStock(
+                name=stock_data.name,
+                ticker=ticker,
+                amount=stock_data.amount,
+                bought_price=stock_data.bought_price,
+                user_id=str(current_user_id)
+                )
+                self.db.add(db_bought_stock)
 
-            self.db.commit()
-            self.db.refresh(db_bought_stock)
+                self.db.commit()
+                self.db.refresh(db_bought_stock)
+            else:
+                pass
+                # TODO zusammen führen via karpathy
+
 
             watchlist_service = WatchlistStockService(self.db)
             watchlist_service.deactivate_current_stock_on_watchlist(current_user_id,ticker)
