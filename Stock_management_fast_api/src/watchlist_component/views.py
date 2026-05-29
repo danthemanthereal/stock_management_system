@@ -38,7 +38,7 @@ async def add_to_watchlist(
         current_user_id: UUID = Depends(get_current_user_id),
 ):
     try:
-        print("in add to watchlist method")
+
         evaluator = Evaluator(db,"llama-3.3-70b-versatile")
         trajectory, reasoning, recommendation = evaluator.evaluate_new_information(current_user_id,
                                                                                    company.company_name,

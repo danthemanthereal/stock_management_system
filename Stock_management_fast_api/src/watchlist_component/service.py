@@ -2,6 +2,8 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 from src.database.models import StockSummary
 
+from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
+
 
 class WatchlistStockService:
     def __init__(self, db: Session):
@@ -39,7 +41,30 @@ class WatchlistStockService:
 
         if self.check_if_user_has_stock_already_in_watchlist(user_id, ticker):
             current_stock = self.get_current_stock_of_user(user_id, ticker)
-            # TODO with karpaty summ up
+            llm_wiki = LLMWiki(self.db, "llama-3.3-70b-versatile")
+
+
+            (
+                new_combined_strengths,
+                new_combined_weakness,
+                new_combined_wiki
+            ) = llm_wiki.ingest(
+                watch_list_stock_id=None,
+                bought_stock_id=current_stock.id,
+                company_name=name,
+                ticker=ticker,
+                new_strengths=strength,
+                new_weaknesses=weakness,
+                new_content=""
+            )
+
+            self.update_strength_weakness_wiki_page_of_watchlist_stock(
+                watchlist_stock_obj=current_stock,
+                new_strength=new_combined_strengths,
+                new_weakness=new_combined_weakness,
+                new_wiki_page=new_combined_wiki
+            )
+
             self.db.commit()
 
             return
@@ -48,6 +73,7 @@ class WatchlistStockService:
             ticker=ticker,
             strength=strength,
             weakness=weakness,
+            wiki_page="",
             user_id=str(user_id),
             is_on_watch_list=True
         )
@@ -58,3 +84,29 @@ class WatchlistStockService:
 
     def get_watch_list_stock_with_id(self, id:int) -> StockSummary:
         return self.db.query(StockSummary).filter(StockSummary.id == id).first()
+
+    def get_of_current_watchlist_stock_strengths_weakness_wiki_page(self, user_id: UUID, ticker: str):
+        current_stock = self.get_current_stock_of_user(user_id, ticker)
+        return (current_stock.strength,
+                current_stock.weakness,
+                current_stock.wiki_page) if current_stock else  "", "", ""
+
+
+    def get_of_current_watchlist_stock_strengths_weakness_wiki_page_with_id(self,watchlist_stock_id: int ):
+        current_stock = self.get_watch_list_stock_with_id(watchlist_stock_id)
+        return (
+            current_stock.strength if current_stock else "",
+            current_stock.weakness if current_stock else "",
+            current_stock.wiki_page if current_stock else ""
+        )
+
+    def get_watchlist_stock_id_by_ticker(self, ticker: str) -> int:
+        return (self.db.query(StockSummary).filter(StockSummary.ticker == ticker).first().id
+            if self.db.query(StockSummary).filter(StockSummary.ticker == ticker).first() else 0)
+
+    def update_strength_weakness_wiki_page_of_watchlist_stock(self,watchlist_stock_obj: StockSummary,new_strength: str, new_weakness: str, new_wiki_page: str):
+        watchlist_stock_obj.strength = new_strength
+        watchlist_stock_obj.weakness = new_weakness
+        watchlist_stock_obj.wiki_page = new_wiki_page
+        self.db.commit()
+        self.db.refresh(watchlist_stock_obj)

@@ -1,8 +1,6 @@
 from groq import Groq
 from sqlalchemy.orm import Session
-from src.watchlist_component.service import WatchlistStockService
 from src.database.models import StockSummary
-from src.bought_stock_component.service import BoughtStockService
 import os
 from dotenv import load_dotenv
 from src.kaparthies_llm_wiki_component.prompt import user_prompt_for_ingest, \
@@ -46,17 +44,18 @@ class LLMWiki:
         print("new combined strengths: ", new_combined_strengths)
         print("new combined weaknesses: ", new_combined_weakness)
         print("new wiki page: ", new_wiki_page)
+        return new_combined_strengths, new_combined_weakness, new_wiki_page
 
     def get_strength_weakness_wiki_page(self, watch_list_stock_id: int, bought_stock_id: int):
+        from src.watchlist_component.service import WatchlistStockService
+        from src.bought_stock_component.service import BoughtStockService
         watchlist_stock_service = WatchlistStockService(self.db)
         bought_stock_service = BoughtStockService(self.db)
 
         if watch_list_stock_id:
-            current_watchlist_stock: StockSummary = watchlist_stock_service.get_watch_list_stock_with_id
-            return current_watchlist_stock.strength, current_watchlist_stock.weakness, current_watchlist_stock.wiki_page
+            return watchlist_stock_service.get_of_current_watchlist_stock_strengths_weakness_wiki_page_with_id(watch_list_stock_id)
         elif bought_stock_id:
-            current_bought_stock = bought_stock_service.get_bought_stock_by_id(bought_stock_id)
-            return current_bought_stock.strengths, current_bought_stock.weaknesses, current_bought_stock.wiki_page
+            return bought_stock_service.get_bought_stock_strengths_weakness_wiki_page_with_id(bought_stock_id)
         return "", "", ""
 
     def get_ingest_only_strengths(self, company_name, ticker, current_strengths, new_strengths):

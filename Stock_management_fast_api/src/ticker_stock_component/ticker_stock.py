@@ -9,7 +9,6 @@ class TickerStock:
     def __init__(self):
         pass
 
-
     def get_ticker_of_a_stock(self, company_name):
         try:
             url = "https://financialmodelingprep.com/stable/search-name"

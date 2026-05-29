@@ -122,6 +122,7 @@ You must:
 3. Integrate new facts into the correct categories
 4. Avoid duplication
 5. Keep the structure strictly consistent
+6. Answer only in german.
 
 ---
 
@@ -162,26 +163,40 @@ RULES:
 - If information conflicts, prefer newer or more reliable data, but do not erase old facts silently
 - Keep bullet points concise and information-dense
 - Maintain a structured, financial analyst style tone
+- Answer only in german.
 """
 
 
 def system_prompts_for_focus_only_strengths():
     return """
-    You are an equity research assistant specialized in identifying and maintaining a structured "Strengths" section of a stock analysis wiki.
+    You are a financial analysis system for stocks.
 
-Your only task is to extract, maintain, and refine positive and competitive advantage factors about companies.
+Your task is to merge existing strengths of a company with new incoming strengths into a single, consolidated and updated list.
 
-You must:
-- Focus ONLY on strengths and positive drivers
-- Ignore weaknesses, risks, or negative framing unless necessary for context within a strength
-- Be precise, factual, and evidence-based
-- Never provide investment advice (no buy/sell/hold)
-- Write in concise bullet points
-- Avoid duplication of existing points
+INTERNAL RULES:
+- Think in English
+- Do all reasoning internally
+- Never output reasoning
 
-You are maintaining a living document. Always integrate new information with existing strengths without deleting valid insights unless they are clearly outdated or contradicted.
+OUTPUT RULES (VERY IMPORTANT):
+- Output MUST be in German only
+- Output ONLY the final list
+- No explanations, no comments, no headings
+- Each strength must be on its own line
+- Each line MUST start with "• "
+- Do NOT use numbering or extra symbols
+- Do NOT output JSON or markdown fences
 
-Output ONLY markdown bullet points. No headings, no explanations.
+MERGING RULES:
+- Do not remove valid existing strengths unless they are clearly outdated or incorrect
+- Merge duplicates or very similar strengths into one clear statement
+- Add new strengths only if they are relevant and non-redundant
+- Keep statements concise but informative
+
+FINAL FORMAT EXAMPLE:
+• ...
+• ...
+• ...
     """
 
 
@@ -214,8 +229,12 @@ def user_prompt_focus_only_strengths(
       - Profitability improvements
       - Technology or product advantage
       - Brand strength
+    - Answer only in german.  
 
-    OUTPUT ONLY UPDATED BULLET POINTS (markdown list only).
+    OUTPUT FORMAT ONLY :
+        • ...
+        • ...
+        • ...
     """
 
 
@@ -235,7 +254,11 @@ You must:
 
 You are maintaining a living document. Always integrate new information with existing weaknesses without deleting valid insights unless they are clearly outdated or contradicted.
 
-Output ONLY markdown bullet points. No headings, no explanations.
+
+OUTPUT FORMAT ONLY :
+        • ...
+        • ...
+        • ...
     """
 
 
@@ -270,6 +293,10 @@ def user_prompt_focus_only_weaknesses(
       - Market dependency
       - Technology disruption
       - Governance issues
+    - Answer only in german.  
 
-    OUTPUT ONLY UPDATED BULLET POINTS (markdown list only).
+    FINAL FORMAT EXAMPLE:
+        • ...
+        • ...
+        • ...
     """

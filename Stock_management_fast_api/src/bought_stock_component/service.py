@@ -7,6 +7,8 @@ from src.watchlist_component.service import WatchlistStockService
 
 from src.ticker_stock_component.ticker_stock import TickerStock
 
+from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
+
 
 class BoughtStockService:
     def __init__(self, db: Session):
@@ -22,18 +24,39 @@ class BoughtStockService:
                                          bought_price:float, amount: float,
                                          current_user_id:UUID, strengths, weakness, wiki_page):
         get_ticker_component = TickerStock()
-
         ticker = get_ticker_component.get_ticker_of_a_stock(name)
         if self.user_already_bought_stock(current_user_id=current_user_id, ticker=ticker):
+            llm_wiki = LLMWiki(self.db, "llama-3.3-70b-versatile")
+
             current_stock = self.get_of_current_user_stock_by_name(current_user_id=current_user_id, ticker=ticker)
             current_stock.amount += amount
-            # TODO hier noch die zusammenfügen machen
-            self.db.commit()
+
+            (
+                new_combined_strengths,
+                new_combined_weakness,
+                new_combined_wiki
+            ) =  llm_wiki.ingest(
+                watch_list_stock_id=None,
+                bought_stock_id=current_stock.id,
+                company_name=name,
+                ticker=ticker,
+                new_strengths=strengths,
+                new_weaknesses=weakness,
+                new_content=""
+            )
+
+
+            self.update_strength_weakness_wiki_page_of_stock(
+                bought_stock_obj=current_stock,
+                new_strength=new_combined_strengths,
+                new_weakness=new_combined_weakness,
+                new_wiki_page=new_combined_wiki
+            )
 
         else:
             new_stock = BoughtStock(
             name=name.strip(),
-            ticker=ticker.strip().upper(),
+            ticker=ticker,
             bought_price=bought_price,
             amount=amount,
             user_id=str(current_user_id),
@@ -89,20 +112,24 @@ class BoughtStockService:
 
         try:
             if self.user_already_bought_stock(current_user_id=current_user_id, ticker=ticker):
+
+                pass
+
+            else:
                 db_bought_stock = BoughtStock(
-                name=stock_data.name,
-                ticker=ticker,
-                amount=stock_data.amount,
-                bought_price=stock_data.bought_price,
-                user_id=str(current_user_id)
+                    name=stock_data.name,
+                    ticker=ticker,
+                    amount=stock_data.amount,
+                    bought_price=stock_data.bought_price,
+                    user_id=str(current_user_id),
+                    strengths="",
+                    weaknesses="",
+                    wiki_page="",
                 )
                 self.db.add(db_bought_stock)
 
                 self.db.commit()
                 self.db.refresh(db_bought_stock)
-            else:
-                pass
-                # TODO zusammen führen via karpathy
 
 
             watchlist_service = WatchlistStockService(self.db)
@@ -123,3 +150,22 @@ class BoughtStockService:
 
     def get_bought_stock_by_id(self, id: int)->BoughtStock:
         return self.db.query(BoughtStock).filter(BoughtStock.id == id).first()
+
+
+    def get_bought_stock_strengths_weakness_wiki_page_with_id(self, bought_stock_id: int):
+        current_bought_stock = self.get_bought_stock_by_id(bought_stock_id)
+        return (
+            current_bought_stock.strengths if current_bought_stock else "",
+            current_bought_stock.weaknesses if current_bought_stock else "",
+            current_bought_stock.wiki_page if current_bought_stock else ""
+        )
+
+    def update_strength_weakness_wiki_page_of_stock(self,bought_stock_obj: BoughtStock,
+                                                    new_strength: str,
+                                                    new_weakness: str,
+                                                    new_wiki_page: str):
+        bought_stock_obj.strengths = new_strength
+        bought_stock_obj.weaknesses = new_weakness
+        bought_stock_obj.wiki_page = new_wiki_page
+        self.db.commit()
+        self.db.refresh(bought_stock_obj)
