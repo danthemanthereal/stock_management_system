@@ -25,8 +25,6 @@ class StrengthWeaknessOfCompanyComponent:
 
         bs4_text_parser = BS4TextParser()
         text = await  bs4_text_parser.get_website_text(url)
-        print("text von der seite ")
-        print(text)
         return self.get_strength_weakness_of_url_with_groq(text)
 
 

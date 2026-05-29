@@ -36,6 +36,8 @@ class WatchlistStockService:
                                                   StockSummary.user_id == str(current_user_id)).first()
 
     def add_to_current_user_to__watchlist(self, name: str, strength: str, weakness: str, user_id: UUID):
+
+
         new_watchlist_stock = StockSummary(
             name=name,
             strength=strength,
@@ -46,3 +48,7 @@ class WatchlistStockService:
         self.db.add(new_watchlist_stock)
         self.db.commit()
         self.db.refresh(new_watchlist_stock)
+
+
+    def get_watch_list_stock_with_id(self, id:int) -> StockSummary:
+        return self.db.query(StockSummary).filter(StockSummary.id == id).first()

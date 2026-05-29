@@ -109,3 +109,6 @@ class BoughtStockService:
     def get_of_current_user_stock_by_name(self, current_user_id:UUID, stock_name)->BoughtStock:
         return self.db.query(BoughtStock).filter(BoughtStock.user_id == str(current_user_id),
                                                  BoughtStock.name ==stock_name ).first()
+
+    def get_bought_stock_by_id(self, id: int)->BoughtStock:
+        return self.db.query(BoughtStock).filter(BoughtStock.id == id).first()

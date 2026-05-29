@@ -16,6 +16,7 @@ class StockSummary(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     name = Column(String,unique=True, index=True)
+    ticker = Column(String, index=True)
     strength = Column(String, index=True)
     weakness = Column(String, index=True)
     is_on_watch_list = Column(Boolean)
