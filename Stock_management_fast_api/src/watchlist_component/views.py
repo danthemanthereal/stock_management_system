@@ -16,6 +16,7 @@ from src.ticker_stock_component.ticker_stock import TickerStock
 from src.html__text_parser_component.bs4_text_parser import BS4TextParser
 from src.youtube_transcript_component.yt_transcript_component import \
     YoutubeTranscriptComponent
+from src.bought_stock_component.service import BoughtStockService
 
 templates = Jinja2Templates(directory="templates")
 
@@ -43,7 +44,7 @@ async def add_to_watchlist_and_evaluation(
 
 
 
-        evaluator = Evaluator(db,"llama-3.3-70b-versatile")
+        evaluator = Evaluator(db,"openai/gpt-oss-120b")
         trajectory, reasoning, recommendation = await evaluator.evaluate_new_information(current_user_id,
                                                                                    company.company_name,
                                                                                    company.strength,
@@ -53,6 +54,7 @@ async def add_to_watchlist_and_evaluation(
                                                                                    )
 
         watchlist_service = WatchlistStockService(db)
+        bought_stock_service = BoughtStockService(db)
 
         ticker_component = TickerStock()
         ticker = ticker_component.get_ticker_of_a_stock(company.company_name)
@@ -61,13 +63,36 @@ async def add_to_watchlist_and_evaluation(
 
         if company.url:
             html_parser = BS4TextParser()
-            new_content = await html_parser.get_website_text(url)
+            new_content = await html_parser.get_website_text(company.url)
 
         if company.yt_url:
             yt_transcript_component = YoutubeTranscriptComponent()
-            new_content = yt_transcript_component.get_summary_of_yt_video(yt_url)
+            new_content = yt_transcript_component.get_summary_of_yt_video(company.yt_url)
 
-        watchlist_service.add_to_current_user_to__watchlist(
+        if bought_stock_service.user_already_bought_stock(current_user_id, ticker):
+            print("in if weil kombi schon gekaufter aktie ")
+            from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
+            current_stock = bought_stock_service.get_of_current_user_stock_by_name(current_user_id, ticker)
+            llm_wiki = LLMWiki(db,"openai/gpt-oss-120b")
+            (new_combined_strengths,
+             new_combined_weaknesses,
+             new_combined_wiki_page
+             ) = llm_wiki.ingest(watch_list_stock_id=None,
+                            bought_stock_id=current_stock.id,
+                            company_name=company.company_name,
+                            ticker=ticker,
+                            new_strengths=company.strength,
+                            new_weaknesses=company.weakness,
+                            new_content=new_content)
+            bought_stock_service.update_strength_weakness_wiki_page_of_stock(
+                bought_stock_obj=current_stock,
+                new_strength=new_combined_strengths,
+                new_weakness=new_combined_weaknesses,
+                new_wiki_page=new_combined_wiki_page
+            )
+
+        else:
+            watchlist_service.add_to_current_user_to__watchlist(
             name=company.company_name,
             ticker=ticker,
             strength=company.strength,

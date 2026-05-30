@@ -47,7 +47,7 @@ class WatchlistStockService:
 
         if self.check_if_user_has_stock_already_in_watchlist(user_id, ticker):
             current_stock = self.get_current_stock_of_user(user_id, ticker)
-            llm_wiki = LLMWiki(self.db, "llama-3.3-70b-versatile")
+            llm_wiki = LLMWiki(self.db, "openai/gpt-oss-120b")
 
 
             (
@@ -86,7 +86,7 @@ class WatchlistStockService:
         self.db.add(new_watchlist_stock)
         self.db.commit()
         self.db.refresh(new_watchlist_stock)
-        llm_wiki = LLMWiki(self.db, "llama-3.3-70b-versatile")
+        llm_wiki = LLMWiki(self.db, "openai/gpt-oss-120b")
         new_strengths, new_weakness, new_wiki_page =  llm_wiki.ingest(
             watch_list_stock_id=new_watchlist_stock.id,
             bought_stock_id=None,

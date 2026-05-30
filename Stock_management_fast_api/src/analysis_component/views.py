@@ -49,7 +49,7 @@ async def analyze_url(request: Request, url: str = Form(...)):
     try:
 
         strength_weakness_company_component = StrengthWeaknessOfCompanyComponent(
-            groq_model_name="llama-3.3-70b-versatile"
+            groq_model_name="openai/gpt-oss-120b"
         )
         companies_array = await strength_weakness_company_component.get_strength_weakness_of_company(url)
 
@@ -80,7 +80,7 @@ def get_yt_transcript(request: Request, url: str = Form(...)):
     try:
 
         strength_weakness_company_component = StrengthWeaknessOfCompanyComponent(
-            groq_model_name="llama-3.3-70b-versatile"
+            groq_model_name="openai/gpt-oss-120b"
         )
         companies_array = strength_weakness_company_component.get_strength_weakness_of_youtube(url)
 

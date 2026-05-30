@@ -26,7 +26,7 @@ class BoughtStockService:
         get_ticker_component = TickerStock()
         ticker = get_ticker_component.get_ticker_of_a_stock(name)
         if self.user_already_bought_stock(current_user_id=current_user_id, ticker=ticker):
-            llm_wiki = LLMWiki(self.db, "llama-3.3-70b-versatile")
+            llm_wiki = LLMWiki(self.db, "openai/gpt-oss-120b")
 
             current_stock = self.get_of_current_user_stock_by_name(current_user_id=current_user_id, ticker=ticker)
             current_stock.amount += amount
