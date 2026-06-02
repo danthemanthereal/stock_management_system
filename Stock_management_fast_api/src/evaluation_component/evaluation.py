@@ -6,7 +6,6 @@ import json
 from src.watchlist_component.service import WatchlistStockService
 import os
 from dotenv import load_dotenv
-from src.combining_stock_infos_llm.combine_stock import CombineComponent
 from src.ticker_stock_component.ticker_stock import TickerStock
 from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.bought_stock_component.service import BoughtStockService

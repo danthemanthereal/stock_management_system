@@ -9,10 +9,11 @@ from fastapi.templating import Jinja2Templates
 from src.database.db import get_db
 import json
 from starlette.responses import HTMLResponse
+
+from src.financial_metric_analysis_component.evaluation_ai_financial_metrics import FinancialMetricAIEvaluator
+from src.financial_metric_analysis_component.financial_metric_evaluator import FinancialMetricEvaluator
 from src.utils.utils import render_localized
 from src.authenticator_component.authenticator import get_current_user_id
-from src.database.models import IndustryProfile, ProfileMetricConfiguration, FinancialMetric, \
-    FinancialMetricCategory
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.template_component.service import TemplateService
 from src.financial_metric_category_component.service import FinancialMetricCategoryService
@@ -24,8 +25,7 @@ from src.get_news_component.get_news import NewsFinderComponent
 import os
 from dotenv import load_dotenv
 from src.financial_metric_analysis_component.utils import merge_financial_summary_triples
-from src.html__text_parser_component.html_text_parser import TextExtractor
-from src.configs.used_model import STRENGTH_WEAKNESS_MODEL
+from src.configs.used_model import STRENGTH_WEAKNESS_MODEL, FINANCIAL_METRIC_EVALUATION_MODEL
 
 load_dotenv()
 
@@ -435,6 +435,23 @@ def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(r
         )
         years = ["2022", "2023", "2024", "2025"]
 
+        ai_financial_metric_evaluator = FinancialMetricAIEvaluator(
+            db=db,
+            model_name=FINANCIAL_METRIC_EVALUATION_MODEL
+        )
+
+        ai_evaluation = ai_financial_metric_evaluator.evaluate_financial_metrics(
+            satisfied_by_category= satisfied_metrics_by_category,
+        unsatisfied_by_category = unsatisfied_metrics_by_category,
+        satisfied_only_reference_value = satisfied_benchmarks_by_category,
+        unsatisfied_only_reference_value= unsatisfied_benchmarks_by_category,
+        satisfied_only_development= satisfied_development_by_category,
+        unsatisfied_only_development= unsatisfied_development_by_category,
+        )
+        print("ai answer")
+        print(ai_evaluation)
+
+
         return render_localized(
             request=request,
             template_name="analysis/show_financial_metrics.html",
@@ -454,6 +471,7 @@ def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(r
                     summary_benchmark,
                     summary_development,
                 ),
+                "evaluation": ai_evaluation,
             })
     except Exception as e:
         print(e)

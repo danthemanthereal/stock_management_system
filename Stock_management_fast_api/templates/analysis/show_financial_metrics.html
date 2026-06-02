@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -213,11 +211,13 @@
             width: 250px;
         }
 
+
+
     </style>
 </head>
 <body>
 <div class="header">
-<h2>📈 Stock Analyzer</h2>
+    <h2>📈 Stock Analyzer</h2>
     <!-- Dieser Link bringt den Nutzer von jeder Seite zurück ins Menü -->
     <a href="/">Zurück zum Menü</a>
     <p style="text-align:center;">
@@ -226,54 +226,54 @@
 </div>
 <style>
     .breadcrumb-nav {
-    display: flex;
-    align-items: center;
-    background: #f8f9fc;
-    padding: 12px 20px;
-    border-radius: 10px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-    font-size: 0.95rem;
-    border: 1px solid #e9ecef;
-}
+        display: flex;
+        align-items: center;
+        background: #f8f9fc;
+        padding: 12px 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        font-size: 0.95rem;
+        border: 1px solid #e9ecef;
+    }
 
-.breadcrumb-link {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: color 0.2s;
-}
+    .breadcrumb-link {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.2s;
+    }
 
-.breadcrumb-link:hover {
-    color: #0056b3;
-}
+    .breadcrumb-link:hover {
+        color: #0056b3;
+    }
 
-/* Kleines Home-Symbol vor dem Link (optional) */
-.breadcrumb-link::before {
-    content: "";
-    font-size: 0.9em;
-    opacity: 0.7;
-}
+    /* Kleines Home-Symbol vor dem Link (optional) */
+    .breadcrumb-link::before {
+        content: "";
+        font-size: 0.9em;
+        opacity: 0.7;
+    }
 
-.breadcrumb-separator {
-    margin: 0 10px;
-    color: #adb5bd;
-    font-size: 1.2em;
-    font-weight: 300;
-    user-select: none;
-}
+    .breadcrumb-separator {
+        margin: 0 10px;
+        color: #adb5bd;
+        font-size: 1.2em;
+        font-weight: 300;
+        user-select: none;
+    }
 
-.breadcrumb-current {
-    color: #495057;
-    font-weight: 600;
-    background: #e7f1ff;
-    padding: 4px 12px;
-    border-radius: 20px;
-    letter-spacing: 0.3px;
-}
+    .breadcrumb-current {
+        color: #495057;
+        font-weight: 600;
+        background: #e7f1ff;
+        padding: 4px 12px;
+        border-radius: 20px;
+        letter-spacing: 0.3px;
+    }
 </style>
 <nav class="breadcrumb-nav" aria-label="Breadcrumb">
     <a href="/analysis/" class="breadcrumb-link">Analyse</a>
@@ -307,307 +307,307 @@
     const years = {{ years | tojson }};
 
     const customTranslations = {
-       "wacc": "WACC (Gewichtete Kapitalkosten)",
-  "net_ppe": "Netto-Sachanlagen",
-  "snoa": "Strategisches Netto-Betriebsvermögen (SNOA)",
-  "intangiblesToTotalAssets": "Immaterielle Vermögenswerte zu Bilanzsumme",
-  "enterprise_value_to_ebit": "Enterprise Value zu EBIT (EV/EBIT)",
-  "enterprise_value_to_ebitda": "Enterprise Value zu EBITDA (EV/EBITDA)",
-  "enterprise_value_to_fcf": "Enterprise Value zu Free Cashflow (EV/FCF)",
-  "enterprise_value_to_ocf": "Enterprise Value zu operativem Cashflow (EV/OCF)",
-  "enterprise_value_to_revenue": "Enterprise Value zu Umsatz (EV/Sales)",
-  "pb_ratio": "Kurs-Buchwert-Verhältnis (KBV)",
-  "pe_ratio": "Kurs-Gewinn-Verhältnis (KGV)",
-  "peg_ratio": "PEG-Verhältnis (KGV zu Gewinnwachstum)",
-  "price_to_free_cash_flow": "Kurs-Free-Cashflow-Verhältnis (K4F)",
-  "price_to_gf_value": "Kurs zu GF-Value",
-  "price_to_operating_cash_flow": "Kurs-Cashflow-Verhältnis (KCV)",
-  "price_to_owner_earnings": "Kurs zu Eigentümer-Gewinn (Owner Earnings)",
-  "price_to_tangible_book": "Kurs zu materiellem Buchwert",
-  "ps_ratio": "Kurs-Umsatz-Verhältnis (KUV)",
-  "rank_balancesheet": "Bilanz-Ranking",
-  "rank_gf_value": "GF-Value-Ranking",
-  "rank_growth": "Wachstums-Ranking",
-  "rank_momentum": "Momentum-Ranking",
-  "rank_predictability": "Vorhersehbarkeits-Ranking",
-  "rank_profitability": "Rentabilitäts-Ranking",
-  "shiller_pe_ratio": "Shiller-KGV (CAPE)",
-  "priceToEarningsRatio": "Kurs-Gewinn-Verhältnis (KGV)",
-  "priceToEarningsGrowthRatio": "PEG-Verhältnis",
-  "forwardPriceToEarningsGrowthRatio": "Erwartetes PEG-Verhältnis (Forward PEG)",
-  "priceToBookRatio": "Kurs-Buchwert-Verhältnis (KBV)",
-  "priceToSalesRatio": "Kurs-Umsatz-Verhältnis (KUV)",
-  "priceToFreeCashFlowRatio": "Kurs-Free-Cashflow-Verhältnis",
-  "priceToOperatingCashFlowRatio": "Kurs-Cashflow-Verhältnis (KCV)",
-  "cost_of_goods_sold_to_revenue": "Herstellungskostenquote am Umsatz",
-  "ebitda_margin": "EBITDA-Marge",
-  "fcf_margin": "Free-Cashflow-Marge",
-  "free_cash_flow_per_share": "Free Cashflow je Aktie",
-  "gross_margin": "Bruttomarge",
-  "gross_profit_to_asset": "Bruttogewinn zu Gesamtvermögen",
-  "growth_per_share_ebitda": "EBITDA-Wachstum je Aktie",
-  "growth_per_share_eps": "Gewinnwachstum (EPS) je Aktie",
-  "growth_revenue_per_share": "Umsatzwachstum je Aktie",
-  "inventory_to_revenue": "Lagerbestand im Verhältnis zum Umsatz",
-  "net_margin": "Nettomarge",
-  "ocf_margin": "Operative Cashflow-Marge",
-  "ocf_yield": "Operative Cashflow-Rendite",
-  "operating_margin": "Operative Marge (EBIT-Marge)",
-  "rate_of_return_value": "Renditewert",
-  "return_on_tangible_equity": "Materiell Eigenkapitalrendite (ROTE)",
-  "roa": "Gesamtkapitalrendite (ROA)",
-  "roce": "Rendite auf das eingesetzte Kapital (ROCE)",
-  "roe": "Eigenkapitalrendite (ROE)",
-  "roic": "Rendite auf das investierte Kapital (ROIC)",
-  "freeCashFlowToEquity": "Free Cashflow to Equity (FCFE)",
-  "ebitMargin": "EBIT-Marge",
-  "operatingProfitMargin": "Betriebsergebnismarge",
-  "pretaxProfitMargin": "EBT-Marge (Vorsteuer-Marge)",
-  "netProfitMargin": "Nettogewinnmarge",
-  "workingCapitalTurnoverRatio": "Working Capital Umschlagshäufigkeit",
-  "operatingCashFlowSalesRatio": "Operativer Cashflow zu Umsatz",
-  "freeCashFlowOperatingCashFlowRatio": "Free Cashflow zu operativem Cashflow",
-  "revenue_per_employee": "Umsatz pro Mitarbeiter",
-  "dividends": "Dividenden",
-  "dividends_per_share": "Dividende je Aktie",
-  "is_preferred_dividends": "Vorzugsdividenden",
-  "degree_of_financial_leverage": "Finanzieller Hebelgrad (DFL)",
-  "degree_of_operating_leverage": "Operativer Hebelgrad (DOL)",
-  "fscore": "Piotroski F-Score",
-  "gf_score": "GF Score",
-  "gf_value": "GF Value",
-  "graham_number": "Graham-Nummer",
-  "mscore": "Beneish M-Score",
-  "peter_lynch_fair_value": "Fairer Wert nach Peter Lynch",
-  "zscore": "Altman Z-Score",
-  "financialLeverageRatio": "Finanzierungshebel",
-  "debt_to_asset": "Verschuldungsgrad (Schulden/Gesamtvermögen)",
-  "debt_to_equity": "Verschuldungsgrad (Gearing / Schulden zu Eigenkapital)",
-  "defensive_interval_ratio": "Defensive Interval Ratio (Reichweite der Liquidität)",
-  "equity_to_asset": "Eigenkapitalquote",
-  "fcf_yield": "Free Cashflow-Rendite",
-  "interest_coverage": "Zinsdeckungsgrad",
-  "liabilities_to_assets": "Verbindlichkeitenquote",
-  "net_issuance_of_debt": "Netto-Neuverschuldung",
-  "net_net_working_capital": "Net-Net Working Capital (NNWC)",
-  "sloan_ratio": "Sloan-Ratio (Bilanzqualität)",
-  "solvencyRatio": "Solvenzquote",
-  "debtToAssetsRatio": "Schulden-Vermögens-Verhältnis",
-  "debtToEquityRatio": "Verschuldungsgrad (Schulden/Eigenkapital)",
-  "debtToCapitalRatio": "Schulden-Kapital-Verhältnis",
-  "longTermDebtToCapitalRatio": "Langfristige Schulden zum Gesamtkapital",
-  "operatingCashFlowRatio": "Operative Cashflow-Quote",
-  "debtServiceCoverageRatio": "Schuldendienstdeckungsgrad (DSCR)",
-  "interestCoverageRatio": "Zinsdeckungsgrad (ICR)",
-  "shortTermOperatingCashFlowCoverageRatio": "Kurzfristige Deckung durch operativen Cashflow",
-  "operatingCashFlowCoverageRatio": "Operative Cashflow-Deckungsquote",
-  "capitalExpenditureCoverageRatio": "Investitionsdeckungsquote (Capex Coverage)",
-  "dividendPaidAndCapexCoverageRatio": "Dividenden- und Capex-Deckungsquote",
-  "gearing": "Verschuldungsgrad (Gearing)",
-  "netDebtToEBITDA": "Nettofinanzschulden zu EBITDA",
-  "dynamic debt degree": "Dynamischer Verschuldungsgrad",
-  "current_asset_intensity": "Umlaufvermögensintensität",
-  "non_current_asset_intensity": "Anlagevermögensintensität",
-  "asset_cover_ratio_one": "Anlagendeckungsgrad I",
-  "asset_cover_ratio_two": "Anlagendeckungsgrad II",
-  "good_will_ratio": "Goodwill-Quote",
-  "cash_ratio": "Liquiditätsgrad 1 (Barliquidität)",
-  "current_ratio": "Liquiditätsgrad 3 (Aktuelle Liquidität)",
-  "days_inventory": "Lagerdauer (in Tagen)",
-  "days_payable": "Zahlungsziel Verbindlichkeiten (in Tagen)",
-  "days_sales_outstanding": "Forderungslaufzeit (DSO in Tagen)",
-  "inventory_turnover": "Lagerumschlagshäufigkeit",
-  "quick_ratio": "Liquiditätsgrad 2 (Einzugsliquidität)",
-  "receivables_turnover": "Forderungsumschlag",
-  "daysOfPayablesOutstanding": "Zahlungsziel der Verbindlichkeiten (DPO)",
-  "daysOfInventoryOutstanding": "Lagerdauer (DIO)",
-  "payablesTurnover": "Kreditorenumschlagshäufigkeit",
-  "fixedAssetTurnover": "Anlagenumschlagshäufigkeit",
-  "capex_to_operating_cash_flow": "Capex zu operativem Cashflow",
-  "capex_to_operating_income": "Capex zum Betriebsergebnis",
-  "capex_to_revenue": "Investitionsquote (Capex zu Umsatz)",
-  "rd2rev": "F&E-Quote (Forschungs- und Entwicklungskosten zu Umsatz)",
-  "salesGeneralAndAdministrativeToRevenue": "Vertriebs- und Verwaltungskostenquote (Vertrieb/Verwaltung zu Umsatz)",
-  "researchAndDevelopementToRevenue": "F&E-Aufwendungen zu Umsatz",
-  "capexToDepreciation": "Investitionen zu Abschreibungen (Capex/AfA)",
-  "accounts_payable": "Verbindlichkeiten aus Lieferungen und Leistungen",
-  "accounts_payable_accrued_expense": "Verbindlichkeiten aus L&L und passive Rechnungsabgrenzung",
-  "accounts_receivable": "Forderungen aus Lieferungen und Leistungen",
-  "accumulated_depreciation": "Kumulierte Abschreibungen",
-  "accumulated_other_comprehensive_income": "Kumuliertes sonstiges Eigenkapital (AOCI)",
-  "additional_paid_in_capital": "Kapitalrücklage",
-  "asset_impairment_charge": "Wertminderungsaufwendungen (Impairment)",
-  "beginning_cash_position": "Finanzmittelbestand zu Beginn der Periode",
-  "beta": "Beta-Faktor",
-  "book_value_per_share": "Buchwert je Aktie",
-  "bs_current_deferred_liabilities": "Kurzfristige passive Rechnungsabgrenzungsposten / Steuerabgrenzung",
-  "bs_share": "Bilanzanteil",
-  "buildings_and_improvements": "Bauten und Gebäudeinvestitionen",
-  "buyback_yield": "Aktienrückkauf-Rendite",
-  "cash_and_cash_equivalents": "Flüssige Mittel (Cash und Cash-Äquivalente)",
-  "cash_conversion_cycle": "Geldumschlagzyklus (Cash Conversion Cycle)",
-  "cash_equivalents_marketable_securities": "Zahlungsmitteläquivalente und Wertpapiere des Umlaufvermögens",
-  "cash_flow_capital_expenditure": "Cashflow für Investitionen (Capex)",
-  "cash_flow_deferred_tax": "Cashflow aus latente Steuern",
-  "cash_flow_depreciation_depletion_amortization": "Cashflow-wirksame Abschreibungen (AfA)",
-  "cash_flow_for_lease_financing": "Cashflow aus Leasingfinanzierung",
-  "cash_flow_from_investing": "Cashflow aus der Investitionstätigkeit",
-  "cash_flow_from_operations": "Cashflow aus der Geschäftstätigkeit (Operativer Cashflow)",
-  "cash_flow_from_operations_per_share": "Operativer Cashflow je Aktie",
-  "cash_flow_from_others": "Sonstiger Cashflow",
-  "cash_from_discontinued_investing_activities": "Investitions-Cashflow aus aufgegebenen Geschäftsbereichen",
-  "cash_from_discontinued_operating_activities": "Operativer Cashflow aus aufgegebenen Geschäftsbereichen",
-  "cash_from_financing": "Cashflow aus der Finanzierungstätigkeit",
-  "cash_from_other_investing_activities": "Cashflow aus sonstigen Investitionsaktivitäten",
-  "cash_per_share": "Flüssige Mittel je Aktie",
-  "change_in_inventory": "Veränderung der Vorräte",
-  "change_in_other_working_capital": "Veränderung des sonstigen Working Capitals",
-  "change_in_payables_and_accrued_expense": "Veränderung der Verbindlichkeiten aus L&L und Abgrenzungen",
-  "change_in_prepaid_assets": "Veränderung der aktiven Rechnungsabgrenzungsposten",
-  "change_in_receivables": "Veränderung der Forderungen aus L&L",
-  "change_in_working_capital": "Veränderung des Working Capitals",
-  "common_stock": "Stammkapital / Gezeichnetes Kapital",
-  "construction_in_progress": "Anlagen im Bau",
-  "cost_of_goods_sold": "Herstellungskosten der verkauften Produkte (COGS)",
-  "current_accrued_expenses": "Kurzfristige Rückstellungen / sonstige Verbindlichkeiten",
-  "current_deferred_revenue": "Kurzfristige erhaltene Anzahlungen / passive Rechnungsabgrenzung",
-  "current_deferred_taxes_liabilities": "Kurzfristige passive latente Steuern",
-  "cyclically_adjusted_pb_ratio": "Zyklisch bereinigtes KBV",
-  "cyclically_adjusted_price_to_fcf": "Zyklisch bereinigtes Kurs-FCF-Verhältnis",
-  "cyclically_adjusted_ps_ratio": "Zyklisch bereinigtes KUV",
-  "debt_issuance": "Aufnahme von Finanzschulden",
-  "debt_payments": "Tilgung von Finanzschulden",
-  "depreciation_depletion_amortization": "Abschreibungen auf Sachanlagen und immaterielle Vermögenswerte",
-  "earning_per_share_diluted": "Verwässertes Ergebnis je Aktie (Verwässertes EPS)",
-  "earning_yield_greenblatt": "Gewinnrendite nach Joel Greenblatt",
-  "earnings_release_date": "Datum der Ergebnisbekanntgabe (Earnings Release)",
-  "ebit": "EBIT (Betriebsergebnis)",
-  "ebit_per_share": "EBIT je Aktie",
-  "ebitda": "EBITDA",
-  "ebitda_5y_growth": "5-Jahres EBITDA-Wachstum",
-  "ebitda_per_share": "EBITDA je Aktie",
-  "effect_of_exchange_rate_changes": "Wechselkurseffekte auf Finanzmittel",
-  "effective_interest_rate": "Effektiver Zinssatz",
-  "ending_cash_position": "Finanzmittelbestand am Ende der Periode",
-  "enterprise_value": "Enterprise Value (Unternehmenswert)",
-  "eps_basic": "Unverwässertes Ergebnis je Aktie (Basis-EPS)",
-  "eps_diluated": "Verwässertes Ergebnis je Aktie",
-  "eps_without_nri": "EPS bereinigt um Einmaleffekte",
-  "epv": "Ertragswert des Unternehmens (Earnings Power Value)",
-  "filing_date": "Veröffentlichungsdatum (Bericht)",
-  "filing_date_aor": "Offizielles Veröffentlichungsdatum (AOR)",
-  "finished_goods": "Fertigerzeugnisse",
-  "forex_rate": "Wechselkurs",
-  "good_will": "Geschäfts- oder Firmenwert (Goodwill)",
-  "gross_ppe": "Brutto-Sachanlagen",
-  "gross_profit": "Bruttoergebnis vom Umsatz / Rohertrag",
-  "intangibles": "Immaterielle Vermögenswerte",
-  "interest_expense": "Zinsaufwand",
-  "interest_income": "Zinsertrag",
-  "intrinsic_value_projected_fcf": "Innerer Wert (basierend auf FCF-Prognose)",
-  "inventories_adjustments_allowances": "Wertberichtigungen auf Vorräte",
-  "inventory": "Vorräte / Lagerbestand",
-  "investments_and_advances": "Finanzanlagen und langfristige Forderungen",
-  "issuance_of_stock": "Ausgabe neuer Aktien (Kapitalerhöhung)",
-  "land_and_improvements": "Grundstücke und Grundstücksverbesserungen",
-  "loans_receivable": "Ausgeliehene Darlehen / Kreditforderungen",
-  "long_term_capital_lease_obligation": "Langfristige Verbindlichkeiten aus Finanzierungsleasing",
-  "long_term_debt": "Langfristige Finanzschulden",
-  "long_term_debt_and_capital_lease_obligation": "Langfristige Finanzschulden und Leasingverbindlichkeiten",
-  "machinery_furniture_equipment": "Maschinen, Betriebs- und Geschäftsausstattung",
-  "marke_table_securities": "Börsengängige Wertpapiere",
-  "medpsvalue": "Median des EPS-Werts",
-  "minority_interest": "Minderheitenanteile (Nicht beherrschende Anteile)",
-  "mktcap": "Marktkapitalisierung",
-  "month_end_stock_price": "Aktienkurs zum Monatsende",
-  "net_cash_per_share": "Nettoliquidität je Aktie",
-  "net_change_in_cash": "Nettoveränderung der Finanzmittel",
-  "net_current_asset_value": "Nettoumlaufvermögen (NCAV)",
-  "net_income": "Jahresüberschuss / Nettogewinn",
-  "net_income_continuing_operations": "Ergebnis aus fortgeführten Geschäftsbereichen",
-  "net_income_discontinued_operations": "Ergebnis aus aufgegebenen Geschäftsbereichen",
-  "net_income_from_continuing_operations": "Ergebnis aus fortgeführten Aktivitäten",
-  "net_income_including_noncontrolling_interests": "Konzernergebnis inkl. Minderheitenanteile",
-  "net_intangibles_purchase_and_sale": "Netto-Investitionen in immaterielle Vermögenswerte",
-  "net_interest_income": "Zinsüberschuss",
-  "net_issuance_of_preferred": "Netto-Emission von Vorzugsaktien",
-  "non_current_deferred_income_tax": "Langfristige latente Steuern (Aktiv/Passiv)",
-  "non_current_deferred_liabilities": "Langfristige passive Rechnungsabgrenzung / sonstige Verpflichtungen",
-  "non_current_deferred_revenue": "Langfristige abgegrenzte Umsatzerlöse",
-  "notes_receivable": "Besitzwechsel / Wechselforderungen",
-  "number_of_share_holders": "Anzahl der Aktionäre",
-  "operating_income": "Betriebsergebnis (Operativer Gewinn)",
-  "other_current_assets": "Sonstige kurzfristige Vermögenswerte",
-  "other_current_liabilities": "Sonstige kurzfristige Verbindlichkeiten",
-  "other_current_payables": "Sonstige kurzfristige Verbindlichkeiten aus L&L",
-  "other_current_receivables": "Sonstige kurzfristige Forderungen",
-  "other_equity": "Sonstiges Eigenkapital",
-  "other_financing": "Sonstige Finanzierungsaktivitäten",
-  "other_gross_ppe": "Sonstige Brutto-Sachanlagen",
-  "other_income_expense": "Sonstiges neutrales Ergebnis (Ertrag/Aufwand)",
-  "other_income_minority_interest": "Sonstige Erträge aus Minderheitenanteilen",
-  "other_inventories": "Sonstige Vorräte",
-  "other_long_term_assets": "Sonstige langfristige Vermögenswerte",
-  "other_long_term_liabilities": "Sonstige langfristige Verbindlichkeiten",
-  "other_net_income_loss": "Sonstiges neutrales Ergebnis",
-  "other_operating_charges": "Sonstige betriebliche Aufwendungen",
-  "owner_earnings": "Eigentümer-Gewinn (Owner Earnings nach Buffett)",
-  "payout": "Ausschüttung",
-  "penri": "KGV bereinigt (ohne Einmaleffekte)",
-  "pension_and_retirement_benefit": "Pensionsrückstellungen und ähnliche Verpflichtungen",
-  "preferred_stock": "Vorzugsaktien",
-  "preliminary": "Vorläufiges Ergebnis",
-  "pretax_income": "Ergebnis vor Steuern (EBT)",
-  "price_high": "Höchstkurs",
-  "price_low": "Tiefstkurs",
-  "purchase_of_business": "Kauf von Unternehmen (M&A)",
-  "purchase_of_investment": "Kauf von Finanzanlagen",
-  "purchase_of_ppe": "Investitionen in Sachanlagen (CapEx)",
-  "raw_materials": "Roh-, Hilfs- und Betriebsstoffe",
-  "repurchase_of_stock": "Aktienrückkauf",
-  "research_development": "Forschung und Entwicklung (F&E)",
-  "retained_earnings": "Gewinnrücklagen",
-  "return_on_tangible_asset": "Rendite auf das materielle Vermögen (ROTA)",
-  "revenue": "Umsatzerlöse",
-  "revenue_per_share": "Umsatz je Aktie",
-  "roc_joel": "Return on Capital nach Joel Greenblatt",
-  "roe_adj": "Bereinigte Eigenkapitalrendite",
-  "roiic_1y": "Rendite auf inkrementell investiertes Kapital (1 Jahr)",
-  "rore_5y": "Rendite auf einbehaltene Gewinne (5 Jahre)",
-  "sale_of_business": "Verkauf von Geschäftsbereichen/Unternehmen",
-  "sale_of_investment": "Verkauf von Finanzanlagen",
-  "sale_of_ppe": "Abgänge von Sachanlagen",
-  "selling_general_admin_expense": "Vertriebs- und Verwaltungskosten (SG&A)",
-  "share_buyback_ratio": "Aktienrückkauf-Quote",
-  "shareholder_yield": "Aktionärsrendite (Dividende + Buybacks)",
-  "shares_basic": "Ausgegebene Aktien (unverwässert)",
-  "shares_outstanding": "Ausstehende Aktien",
-  "short_term_capital_lease_obligation": "Kurzfristige Leasingverbindlichkeiten",
-  "short_term_debt": "Kurzfristige Finanzschulden",
-  "short_term_debt_and_capital_lease_obligation": "Kurzfristige Finanzschulden und Leasingverbindlichkeiten",
-  "stock_based_compensation": "Aktienbasierte Vergütung",
-  "tangibles_book_per_share": "Materieller Buchwert je Aktie",
-  "tax_provision": "Steuerrückstellungen / Steueraufwand",
-  "tax_rate": "Effektiver Steuersatz",
-  "total_assets": "Bilanzsumme (Gesamtvermögen)",
-  "total_current_assets": "Umlaufvermögen",
-  "total_current_liabilities": "Kurzfristige Verbindlichkeiten",
-  "total_debt_per_share": "Gesamtschulden je Aktie",
-  "total_employee_number": "Mitarbeiteranzahl",
-  "total_equity": "Eigenkapital gesamt",
-  "total_free_cash_flow": "Free Cashflow gesamt",
-  "total_liabilities": "Fremdkapital (Gesamtverbindlichkeiten)",
-  "total_non_current_assets": "Anlagevermögen",
-  "total_non_current_liabilities_net_minority_interest": "Langfristiges Fremdkapital (exkl. Minderheiten)",
-  "total_operating_expense": "Operative Gesamtaufwendungen",
-  "total_receivables": "Forderungen gesamt",
-  "total_stockholders_equity": "Eigenkapital der Aktionäre",
-  "total_tax_payable": "Steuerverbindlichkeiten gesamt",
-  "treasury_stock": "Eigene Anteile (Eigene Aktien)",
-  "turnover": "Umsatz / Umschlag",
-  "work_in_process": "Unfertige Erzeugnisse",
-  "yield": "Rendite",
-  "freeCashFlowToFirm": "Free Cashflow to Firm (FCFF)"
+        "wacc": "WACC (Gewichtete Kapitalkosten)",
+        "net_ppe": "Netto-Sachanlagen",
+        "snoa": "Strategisches Netto-Betriebsvermögen (SNOA)",
+        "intangiblesToTotalAssets": "Immaterielle Vermögenswerte zu Bilanzsumme",
+        "enterprise_value_to_ebit": "Enterprise Value zu EBIT (EV/EBIT)",
+        "enterprise_value_to_ebitda": "Enterprise Value zu EBITDA (EV/EBITDA)",
+        "enterprise_value_to_fcf": "Enterprise Value zu Free Cashflow (EV/FCF)",
+        "enterprise_value_to_ocf": "Enterprise Value zu operativem Cashflow (EV/OCF)",
+        "enterprise_value_to_revenue": "Enterprise Value zu Umsatz (EV/Sales)",
+        "pb_ratio": "Kurs-Buchwert-Verhältnis (KBV)",
+        "pe_ratio": "Kurs-Gewinn-Verhältnis (KGV)",
+        "peg_ratio": "PEG-Verhältnis (KGV zu Gewinnwachstum)",
+        "price_to_free_cash_flow": "Kurs-Free-Cashflow-Verhältnis (K4F)",
+        "price_to_gf_value": "Kurs zu GF-Value",
+        "price_to_operating_cash_flow": "Kurs-Cashflow-Verhältnis (KCV)",
+        "price_to_owner_earnings": "Kurs zu Eigentümer-Gewinn (Owner Earnings)",
+        "price_to_tangible_book": "Kurs zu materiellem Buchwert",
+        "ps_ratio": "Kurs-Umsatz-Verhältnis (KUV)",
+        "rank_balancesheet": "Bilanz-Ranking",
+        "rank_gf_value": "GF-Value-Ranking",
+        "rank_growth": "Wachstums-Ranking",
+        "rank_momentum": "Momentum-Ranking",
+        "rank_predictability": "Vorhersehbarkeits-Ranking",
+        "rank_profitability": "Rentabilitäts-Ranking",
+        "shiller_pe_ratio": "Shiller-KGV (CAPE)",
+        "priceToEarningsRatio": "Kurs-Gewinn-Verhältnis (KGV)",
+        "priceToEarningsGrowthRatio": "PEG-Verhältnis",
+        "forwardPriceToEarningsGrowthRatio": "Erwartetes PEG-Verhältnis (Forward PEG)",
+        "priceToBookRatio": "Kurs-Buchwert-Verhältnis (KBV)",
+        "priceToSalesRatio": "Kurs-Umsatz-Verhältnis (KUV)",
+        "priceToFreeCashFlowRatio": "Kurs-Free-Cashflow-Verhältnis",
+        "priceToOperatingCashFlowRatio": "Kurs-Cashflow-Verhältnis (KCV)",
+        "cost_of_goods_sold_to_revenue": "Herstellungskostenquote am Umsatz",
+        "ebitda_margin": "EBITDA-Marge",
+        "fcf_margin": "Free-Cashflow-Marge",
+        "free_cash_flow_per_share": "Free Cashflow je Aktie",
+        "gross_margin": "Bruttomarge",
+        "gross_profit_to_asset": "Bruttogewinn zu Gesamtvermögen",
+        "growth_per_share_ebitda": "EBITDA-Wachstum je Aktie",
+        "growth_per_share_eps": "Gewinnwachstum (EPS) je Aktie",
+        "growth_revenue_per_share": "Umsatzwachstum je Aktie",
+        "inventory_to_revenue": "Lagerbestand im Verhältnis zum Umsatz",
+        "net_margin": "Nettomarge",
+        "ocf_margin": "Operative Cashflow-Marge",
+        "ocf_yield": "Operative Cashflow-Rendite",
+        "operating_margin": "Operative Marge (EBIT-Marge)",
+        "rate_of_return_value": "Renditewert",
+        "return_on_tangible_equity": "Materiell Eigenkapitalrendite (ROTE)",
+        "roa": "Gesamtkapitalrendite (ROA)",
+        "roce": "Rendite auf das eingesetzte Kapital (ROCE)",
+        "roe": "Eigenkapitalrendite (ROE)",
+        "roic": "Rendite auf das investierte Kapital (ROIC)",
+        "freeCashFlowToEquity": "Free Cashflow to Equity (FCFE)",
+        "ebitMargin": "EBIT-Marge",
+        "operatingProfitMargin": "Betriebsergebnismarge",
+        "pretaxProfitMargin": "EBT-Marge (Vorsteuer-Marge)",
+        "netProfitMargin": "Nettogewinnmarge",
+        "workingCapitalTurnoverRatio": "Working Capital Umschlagshäufigkeit",
+        "operatingCashFlowSalesRatio": "Operativer Cashflow zu Umsatz",
+        "freeCashFlowOperatingCashFlowRatio": "Free Cashflow zu operativem Cashflow",
+        "revenue_per_employee": "Umsatz pro Mitarbeiter",
+        "dividends": "Dividenden",
+        "dividends_per_share": "Dividende je Aktie",
+        "is_preferred_dividends": "Vorzugsdividenden",
+        "degree_of_financial_leverage": "Finanzieller Hebelgrad (DFL)",
+        "degree_of_operating_leverage": "Operativer Hebelgrad (DOL)",
+        "fscore": "Piotroski F-Score",
+        "gf_score": "GF Score",
+        "gf_value": "GF Value",
+        "graham_number": "Graham-Nummer",
+        "mscore": "Beneish M-Score",
+        "peter_lynch_fair_value": "Fairer Wert nach Peter Lynch",
+        "zscore": "Altman Z-Score",
+        "financialLeverageRatio": "Finanzierungshebel",
+        "debt_to_asset": "Verschuldungsgrad (Schulden/Gesamtvermögen)",
+        "debt_to_equity": "Verschuldungsgrad (Gearing / Schulden zu Eigenkapital)",
+        "defensive_interval_ratio": "Defensive Interval Ratio (Reichweite der Liquidität)",
+        "equity_to_asset": "Eigenkapitalquote",
+        "fcf_yield": "Free Cashflow-Rendite",
+        "interest_coverage": "Zinsdeckungsgrad",
+        "liabilities_to_assets": "Verbindlichkeitenquote",
+        "net_issuance_of_debt": "Netto-Neuverschuldung",
+        "net_net_working_capital": "Net-Net Working Capital (NNWC)",
+        "sloan_ratio": "Sloan-Ratio (Bilanzqualität)",
+        "solvencyRatio": "Solvenzquote",
+        "debtToAssetsRatio": "Schulden-Vermögens-Verhältnis",
+        "debtToEquityRatio": "Verschuldungsgrad (Schulden/Eigenkapital)",
+        "debtToCapitalRatio": "Schulden-Kapital-Verhältnis",
+        "longTermDebtToCapitalRatio": "Langfristige Schulden zum Gesamtkapital",
+        "operatingCashFlowRatio": "Operative Cashflow-Quote",
+        "debtServiceCoverageRatio": "Schuldendienstdeckungsgrad (DSCR)",
+        "interestCoverageRatio": "Zinsdeckungsgrad (ICR)",
+        "shortTermOperatingCashFlowCoverageRatio": "Kurzfristige Deckung durch operativen Cashflow",
+        "operatingCashFlowCoverageRatio": "Operative Cashflow-Deckungsquote",
+        "capitalExpenditureCoverageRatio": "Investitionsdeckungsquote (Capex Coverage)",
+        "dividendPaidAndCapexCoverageRatio": "Dividenden- und Capex-Deckungsquote",
+        "gearing": "Verschuldungsgrad (Gearing)",
+        "netDebtToEBITDA": "Nettofinanzschulden zu EBITDA",
+        "dynamic debt degree": "Dynamischer Verschuldungsgrad",
+        "current_asset_intensity": "Umlaufvermögensintensität",
+        "non_current_asset_intensity": "Anlagevermögensintensität",
+        "asset_cover_ratio_one": "Anlagendeckungsgrad I",
+        "asset_cover_ratio_two": "Anlagendeckungsgrad II",
+        "good_will_ratio": "Goodwill-Quote",
+        "cash_ratio": "Liquiditätsgrad 1 (Barliquidität)",
+        "current_ratio": "Liquiditätsgrad 3 (Aktuelle Liquidität)",
+        "days_inventory": "Lagerdauer (in Tagen)",
+        "days_payable": "Zahlungsziel Verbindlichkeiten (in Tagen)",
+        "days_sales_outstanding": "Forderungslaufzeit (DSO in Tagen)",
+        "inventory_turnover": "Lagerumschlagshäufigkeit",
+        "quick_ratio": "Liquiditätsgrad 2 (Einzugsliquidität)",
+        "receivables_turnover": "Forderungsumschlag",
+        "daysOfPayablesOutstanding": "Zahlungsziel der Verbindlichkeiten (DPO)",
+        "daysOfInventoryOutstanding": "Lagerdauer (DIO)",
+        "payablesTurnover": "Kreditorenumschlagshäufigkeit",
+        "fixedAssetTurnover": "Anlagenumschlagshäufigkeit",
+        "capex_to_operating_cash_flow": "Capex zu operativem Cashflow",
+        "capex_to_operating_income": "Capex zum Betriebsergebnis",
+        "capex_to_revenue": "Investitionsquote (Capex zu Umsatz)",
+        "rd2rev": "F&E-Quote (Forschungs- und Entwicklungskosten zu Umsatz)",
+        "salesGeneralAndAdministrativeToRevenue": "Vertriebs- und Verwaltungskostenquote (Vertrieb/Verwaltung zu Umsatz)",
+        "researchAndDevelopementToRevenue": "F&E-Aufwendungen zu Umsatz",
+        "capexToDepreciation": "Investitionen zu Abschreibungen (Capex/AfA)",
+        "accounts_payable": "Verbindlichkeiten aus Lieferungen und Leistungen",
+        "accounts_payable_accrued_expense": "Verbindlichkeiten aus L&L und passive Rechnungsabgrenzung",
+        "accounts_receivable": "Forderungen aus Lieferungen und Leistungen",
+        "accumulated_depreciation": "Kumulierte Abschreibungen",
+        "accumulated_other_comprehensive_income": "Kumuliertes sonstiges Eigenkapital (AOCI)",
+        "additional_paid_in_capital": "Kapitalrücklage",
+        "asset_impairment_charge": "Wertminderungsaufwendungen (Impairment)",
+        "beginning_cash_position": "Finanzmittelbestand zu Beginn der Periode",
+        "beta": "Beta-Faktor",
+        "book_value_per_share": "Buchwert je Aktie",
+        "bs_current_deferred_liabilities": "Kurzfristige passive Rechnungsabgrenzungsposten / Steuerabgrenzung",
+        "bs_share": "Bilanzanteil",
+        "buildings_and_improvements": "Bauten und Gebäudeinvestitionen",
+        "buyback_yield": "Aktienrückkauf-Rendite",
+        "cash_and_cash_equivalents": "Flüssige Mittel (Cash und Cash-Äquivalente)",
+        "cash_conversion_cycle": "Geldumschlagzyklus (Cash Conversion Cycle)",
+        "cash_equivalents_marketable_securities": "Zahlungsmitteläquivalente und Wertpapiere des Umlaufvermögens",
+        "cash_flow_capital_expenditure": "Cashflow für Investitionen (Capex)",
+        "cash_flow_deferred_tax": "Cashflow aus latente Steuern",
+        "cash_flow_depreciation_depletion_amortization": "Cashflow-wirksame Abschreibungen (AfA)",
+        "cash_flow_for_lease_financing": "Cashflow aus Leasingfinanzierung",
+        "cash_flow_from_investing": "Cashflow aus der Investitionstätigkeit",
+        "cash_flow_from_operations": "Cashflow aus der Geschäftstätigkeit (Operativer Cashflow)",
+        "cash_flow_from_operations_per_share": "Operativer Cashflow je Aktie",
+        "cash_flow_from_others": "Sonstiger Cashflow",
+        "cash_from_discontinued_investing_activities": "Investitions-Cashflow aus aufgegebenen Geschäftsbereichen",
+        "cash_from_discontinued_operating_activities": "Operativer Cashflow aus aufgegebenen Geschäftsbereichen",
+        "cash_from_financing": "Cashflow aus der Finanzierungstätigkeit",
+        "cash_from_other_investing_activities": "Cashflow aus sonstigen Investitionsaktivitäten",
+        "cash_per_share": "Flüssige Mittel je Aktie",
+        "change_in_inventory": "Veränderung der Vorräte",
+        "change_in_other_working_capital": "Veränderung des sonstigen Working Capitals",
+        "change_in_payables_and_accrued_expense": "Veränderung der Verbindlichkeiten aus L&L und Abgrenzungen",
+        "change_in_prepaid_assets": "Veränderung der aktiven Rechnungsabgrenzungsposten",
+        "change_in_receivables": "Veränderung der Forderungen aus L&L",
+        "change_in_working_capital": "Veränderung des Working Capitals",
+        "common_stock": "Stammkapital / Gezeichnetes Kapital",
+        "construction_in_progress": "Anlagen im Bau",
+        "cost_of_goods_sold": "Herstellungskosten der verkauften Produkte (COGS)",
+        "current_accrued_expenses": "Kurzfristige Rückstellungen / sonstige Verbindlichkeiten",
+        "current_deferred_revenue": "Kurzfristige erhaltene Anzahlungen / passive Rechnungsabgrenzung",
+        "current_deferred_taxes_liabilities": "Kurzfristige passive latente Steuern",
+        "cyclically_adjusted_pb_ratio": "Zyklisch bereinigtes KBV",
+        "cyclically_adjusted_price_to_fcf": "Zyklisch bereinigtes Kurs-FCF-Verhältnis",
+        "cyclically_adjusted_ps_ratio": "Zyklisch bereinigtes KUV",
+        "debt_issuance": "Aufnahme von Finanzschulden",
+        "debt_payments": "Tilgung von Finanzschulden",
+        "depreciation_depletion_amortization": "Abschreibungen auf Sachanlagen und immaterielle Vermögenswerte",
+        "earning_per_share_diluted": "Verwässertes Ergebnis je Aktie (Verwässertes EPS)",
+        "earning_yield_greenblatt": "Gewinnrendite nach Joel Greenblatt",
+        "earnings_release_date": "Datum der Ergebnisbekanntgabe (Earnings Release)",
+        "ebit": "EBIT (Betriebsergebnis)",
+        "ebit_per_share": "EBIT je Aktie",
+        "ebitda": "EBITDA",
+        "ebitda_5y_growth": "5-Jahres EBITDA-Wachstum",
+        "ebitda_per_share": "EBITDA je Aktie",
+        "effect_of_exchange_rate_changes": "Wechselkurseffekte auf Finanzmittel",
+        "effective_interest_rate": "Effektiver Zinssatz",
+        "ending_cash_position": "Finanzmittelbestand am Ende der Periode",
+        "enterprise_value": "Enterprise Value (Unternehmenswert)",
+        "eps_basic": "Unverwässertes Ergebnis je Aktie (Basis-EPS)",
+        "eps_diluated": "Verwässertes Ergebnis je Aktie",
+        "eps_without_nri": "EPS bereinigt um Einmaleffekte",
+        "epv": "Ertragswert des Unternehmens (Earnings Power Value)",
+        "filing_date": "Veröffentlichungsdatum (Bericht)",
+        "filing_date_aor": "Offizielles Veröffentlichungsdatum (AOR)",
+        "finished_goods": "Fertigerzeugnisse",
+        "forex_rate": "Wechselkurs",
+        "good_will": "Geschäfts- oder Firmenwert (Goodwill)",
+        "gross_ppe": "Brutto-Sachanlagen",
+        "gross_profit": "Bruttoergebnis vom Umsatz / Rohertrag",
+        "intangibles": "Immaterielle Vermögenswerte",
+        "interest_expense": "Zinsaufwand",
+        "interest_income": "Zinsertrag",
+        "intrinsic_value_projected_fcf": "Innerer Wert (basierend auf FCF-Prognose)",
+        "inventories_adjustments_allowances": "Wertberichtigungen auf Vorräte",
+        "inventory": "Vorräte / Lagerbestand",
+        "investments_and_advances": "Finanzanlagen und langfristige Forderungen",
+        "issuance_of_stock": "Ausgabe neuer Aktien (Kapitalerhöhung)",
+        "land_and_improvements": "Grundstücke und Grundstücksverbesserungen",
+        "loans_receivable": "Ausgeliehene Darlehen / Kreditforderungen",
+        "long_term_capital_lease_obligation": "Langfristige Verbindlichkeiten aus Finanzierungsleasing",
+        "long_term_debt": "Langfristige Finanzschulden",
+        "long_term_debt_and_capital_lease_obligation": "Langfristige Finanzschulden und Leasingverbindlichkeiten",
+        "machinery_furniture_equipment": "Maschinen, Betriebs- und Geschäftsausstattung",
+        "marke_table_securities": "Börsengängige Wertpapiere",
+        "medpsvalue": "Median des EPS-Werts",
+        "minority_interest": "Minderheitenanteile (Nicht beherrschende Anteile)",
+        "mktcap": "Marktkapitalisierung",
+        "month_end_stock_price": "Aktienkurs zum Monatsende",
+        "net_cash_per_share": "Nettoliquidität je Aktie",
+        "net_change_in_cash": "Nettoveränderung der Finanzmittel",
+        "net_current_asset_value": "Nettoumlaufvermögen (NCAV)",
+        "net_income": "Jahresüberschuss / Nettogewinn",
+        "net_income_continuing_operations": "Ergebnis aus fortgeführten Geschäftsbereichen",
+        "net_income_discontinued_operations": "Ergebnis aus aufgegebenen Geschäftsbereichen",
+        "net_income_from_continuing_operations": "Ergebnis aus fortgeführten Aktivitäten",
+        "net_income_including_noncontrolling_interests": "Konzernergebnis inkl. Minderheitenanteile",
+        "net_intangibles_purchase_and_sale": "Netto-Investitionen in immaterielle Vermögenswerte",
+        "net_interest_income": "Zinsüberschuss",
+        "net_issuance_of_preferred": "Netto-Emission von Vorzugsaktien",
+        "non_current_deferred_income_tax": "Langfristige latente Steuern (Aktiv/Passiv)",
+        "non_current_deferred_liabilities": "Langfristige passive Rechnungsabgrenzung / sonstige Verpflichtungen",
+        "non_current_deferred_revenue": "Langfristige abgegrenzte Umsatzerlöse",
+        "notes_receivable": "Besitzwechsel / Wechselforderungen",
+        "number_of_share_holders": "Anzahl der Aktionäre",
+        "operating_income": "Betriebsergebnis (Operativer Gewinn)",
+        "other_current_assets": "Sonstige kurzfristige Vermögenswerte",
+        "other_current_liabilities": "Sonstige kurzfristige Verbindlichkeiten",
+        "other_current_payables": "Sonstige kurzfristige Verbindlichkeiten aus L&L",
+        "other_current_receivables": "Sonstige kurzfristige Forderungen",
+        "other_equity": "Sonstiges Eigenkapital",
+        "other_financing": "Sonstige Finanzierungsaktivitäten",
+        "other_gross_ppe": "Sonstige Brutto-Sachanlagen",
+        "other_income_expense": "Sonstiges neutrales Ergebnis (Ertrag/Aufwand)",
+        "other_income_minority_interest": "Sonstige Erträge aus Minderheitenanteilen",
+        "other_inventories": "Sonstige Vorräte",
+        "other_long_term_assets": "Sonstige langfristige Vermögenswerte",
+        "other_long_term_liabilities": "Sonstige langfristige Verbindlichkeiten",
+        "other_net_income_loss": "Sonstiges neutrales Ergebnis",
+        "other_operating_charges": "Sonstige betriebliche Aufwendungen",
+        "owner_earnings": "Eigentümer-Gewinn (Owner Earnings nach Buffett)",
+        "payout": "Ausschüttung",
+        "penri": "KGV bereinigt (ohne Einmaleffekte)",
+        "pension_and_retirement_benefit": "Pensionsrückstellungen und ähnliche Verpflichtungen",
+        "preferred_stock": "Vorzugsaktien",
+        "preliminary": "Vorläufiges Ergebnis",
+        "pretax_income": "Ergebnis vor Steuern (EBT)",
+        "price_high": "Höchstkurs",
+        "price_low": "Tiefstkurs",
+        "purchase_of_business": "Kauf von Unternehmen (M&A)",
+        "purchase_of_investment": "Kauf von Finanzanlagen",
+        "purchase_of_ppe": "Investitionen in Sachanlagen (CapEx)",
+        "raw_materials": "Roh-, Hilfs- und Betriebsstoffe",
+        "repurchase_of_stock": "Aktienrückkauf",
+        "research_development": "Forschung und Entwicklung (F&E)",
+        "retained_earnings": "Gewinnrücklagen",
+        "return_on_tangible_asset": "Rendite auf das materielle Vermögen (ROTA)",
+        "revenue": "Umsatzerlöse",
+        "revenue_per_share": "Umsatz je Aktie",
+        "roc_joel": "Return on Capital nach Joel Greenblatt",
+        "roe_adj": "Bereinigte Eigenkapitalrendite",
+        "roiic_1y": "Rendite auf inkrementell investiertes Kapital (1 Jahr)",
+        "rore_5y": "Rendite auf einbehaltene Gewinne (5 Jahre)",
+        "sale_of_business": "Verkauf von Geschäftsbereichen/Unternehmen",
+        "sale_of_investment": "Verkauf von Finanzanlagen",
+        "sale_of_ppe": "Abgänge von Sachanlagen",
+        "selling_general_admin_expense": "Vertriebs- und Verwaltungskosten (SG&A)",
+        "share_buyback_ratio": "Aktienrückkauf-Quote",
+        "shareholder_yield": "Aktionärsrendite (Dividende + Buybacks)",
+        "shares_basic": "Ausgegebene Aktien (unverwässert)",
+        "shares_outstanding": "Ausstehende Aktien",
+        "short_term_capital_lease_obligation": "Kurzfristige Leasingverbindlichkeiten",
+        "short_term_debt": "Kurzfristige Finanzschulden",
+        "short_term_debt_and_capital_lease_obligation": "Kurzfristige Finanzschulden und Leasingverbindlichkeiten",
+        "stock_based_compensation": "Aktienbasierte Vergütung",
+        "tangibles_book_per_share": "Materieller Buchwert je Aktie",
+        "tax_provision": "Steuerrückstellungen / Steueraufwand",
+        "tax_rate": "Effektiver Steuersatz",
+        "total_assets": "Bilanzsumme (Gesamtvermögen)",
+        "total_current_assets": "Umlaufvermögen",
+        "total_current_liabilities": "Kurzfristige Verbindlichkeiten",
+        "total_debt_per_share": "Gesamtschulden je Aktie",
+        "total_employee_number": "Mitarbeiteranzahl",
+        "total_equity": "Eigenkapital gesamt",
+        "total_free_cash_flow": "Free Cashflow gesamt",
+        "total_liabilities": "Fremdkapital (Gesamtverbindlichkeiten)",
+        "total_non_current_assets": "Anlagevermögen",
+        "total_non_current_liabilities_net_minority_interest": "Langfristiges Fremdkapital (exkl. Minderheiten)",
+        "total_operating_expense": "Operative Gesamtaufwendungen",
+        "total_receivables": "Forderungen gesamt",
+        "total_stockholders_equity": "Eigenkapital der Aktionäre",
+        "total_tax_payable": "Steuerverbindlichkeiten gesamt",
+        "treasury_stock": "Eigene Anteile (Eigene Aktien)",
+        "turnover": "Umsatz / Umschlag",
+        "work_in_process": "Unfertige Erzeugnisse",
+        "yield": "Rendite",
+        "freeCashFlowToFirm": "Free Cashflow to Firm (FCFF)"
     };
     // 2. Globaler Scope für die exklusive Namenssuche
     let translationMap = {};
@@ -659,7 +659,9 @@
             const upBtn = document.createElement("button");
             upBtn.innerText = "⬆️ Hoch";
             upBtn.className = "nav-btn";
-            upBtn.onclick = () => { scrollToCharts(); };
+            upBtn.onclick = () => {
+                scrollToCharts();
+            };
 
             // canvas
             const canvas = document.createElement("canvas");
@@ -668,7 +670,9 @@
             const downBtn = document.createElement("button");
             downBtn.innerText = "⬇️ Runter";
             downBtn.className = "nav-btn";
-            downBtn.onclick = () => { scrollToContainer(); };
+            downBtn.onclick = () => {
+                scrollToContainer();
+            };
 
             wrapper.appendChild(upBtn);
             wrapper.appendChild(canvas);
@@ -716,12 +720,12 @@
     // 4. Navigations-Funktionen
     function scrollToContainer() {
         const target = document.querySelector(".container");
-        if (target) target.scrollIntoView({ behavior: "smooth" });
+        if (target) target.scrollIntoView({behavior: "smooth"});
     }
 
     function scrollToCharts() {
         const target = document.getElementById("charts");
-        if (target) target.scrollIntoView({ behavior: "smooth" });
+        if (target) target.scrollIntoView({behavior: "smooth"});
     }
 
     // EXKLUSIVE SUCHE: Filtert und scrollt NUR anhand des übersetzten Anzeigenamens
@@ -747,7 +751,7 @@
         if (foundKey) {
             const target = document.getElementById("chart-" + foundKey);
             if (target) {
-                target.scrollIntoView({ behavior: "smooth" });
+                target.scrollIntoView({behavior: "smooth"});
             }
         } else {
             alert("Keine Kennzahl mit diesem Anzeigenamen gefunden!");
@@ -766,7 +770,7 @@
         for (let i = 0; i < headings.length; i++) {
             const label = headings[i].textContent.trim().toLowerCase();
             if (label === value) {
-                headings[i].scrollIntoView({ behavior: "smooth" });
+                headings[i].scrollIntoView({behavior: "smooth"});
                 return;
             }
         }
@@ -785,14 +789,14 @@
     <div class="box">
         <h2>Erfüllen Entwicklung und Richtwert</h2>
         {% for category_label, metrics in satisfied_metrics_by_category %}
-        <div class="metric-category-block">
-            <h3>{{ category_label }}</h3>
-            {% for metric in metrics %}
-            <div class="satisfied">
-                {{ _(metric)  }}
+            <div class="metric-category-block">
+                <h3>{{ category_label }}</h3>
+                {% for metric in metrics %}
+                    <div class="satisfied">
+                        {{ _(metric) }}
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
         {% endfor %}
     </div>
 
@@ -800,14 +804,14 @@
     <div class="box">
         <h2>Erfüllen weder Richtwert noch Entwicklung</h2>
         {% for category_label, metrics in unsatisfied_metrics_by_category %}
-        <div class="metric-category-block">
-            <h3>{{ category_label }}</h3>
-            {% for metric in metrics %}
-            <div class="unsatisfied">
-                {{ _(metric) }}
+            <div class="metric-category-block">
+                <h3>{{ category_label }}</h3>
+                {% for metric in metrics %}
+                    <div class="unsatisfied">
+                        {{ _(metric) }}
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
         {% endfor %}
     </div>
 
@@ -815,14 +819,14 @@
     <div class="box">
         <h2>Erfüllen Richtwert</h2>
         {% for category_label, metrics in satisfied_benchmarks_by_category %}
-        <div class="metric-category-block">
-            <h3>{{ category_label }}</h3>
-            {% for metric in metrics %}
-            <div class="satisfied">
-                                {{ _(metric) }}
+            <div class="metric-category-block">
+                <h3>{{ category_label }}</h3>
+                {% for metric in metrics %}
+                    <div class="satisfied">
+                        {{ _(metric) }}
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
         {% endfor %}
     </div>
 
@@ -830,14 +834,14 @@
     <div class="box">
         <h2>Erfüllen nicht Richtwert</h2>
         {% for category_label, metrics in unsatisfied_benchmarks_by_category %}
-        <div class="metric-category-block">
-            <h3>{{ category_label }}</h3>
-            {% for metric in metrics %}
-            <div class="unsatisfied">
-                {{ _(metric) }}
+            <div class="metric-category-block">
+                <h3>{{ category_label }}</h3>
+                {% for metric in metrics %}
+                    <div class="unsatisfied">
+                        {{ _(metric) }}
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
         {% endfor %}
     </div>
 
@@ -845,14 +849,14 @@
     <div class="box">
         <h2>Erfüllen Entwicklung</h2>
         {% for category_label, metrics in satisfied_development_by_category %}
-        <div class="metric-category-block">
-            <h3>{{ category_label }}</h3>
-            {% for metric in metrics %}
-            <div class="satisfied">
-                {{ _(metric) }}
+            <div class="metric-category-block">
+                <h3>{{ category_label }}</h3>
+                {% for metric in metrics %}
+                    <div class="satisfied">
+                        {{ _(metric) }}
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
         {% endfor %}
     </div>
 
@@ -860,14 +864,14 @@
     <div class="box">
         <h2>Erfüllen nicht Entwicklung</h2>
         {% for category_label, metrics in unsatisfied_development_by_category %}
-        <div class="metric-category-block">
-            <h3>{{ category_label }}</h3>
-            {% for metric in metrics %}
-            <div class="unsatisfied">
-                {{ _(metric) }}
+            <div class="metric-category-block">
+                <h3>{{ category_label }}</h3>
+                {% for metric in metrics %}
+                    <div class="unsatisfied">
+                        {{ _(metric) }}
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
         {% endfor %}
     </div>
 
@@ -878,26 +882,26 @@
     <h2>Zusammenfassung nach Kategorie</h2>
 
     {% macro summary_pair_cell(part) -%}
-    <div class="summary-pair-cell">
-        <div>
-            <span class="satisfied">Erfüllt:</span>
-            {{ part.satisfied }}/{{ part.total -}}
-            {%- if part.total > 0 -%}
-            <span class="pct"> ({{ part.satisfied_pct }}%)</span>
-            {%- else -%}
-            <span class="pct"> (—)</span>
-            {%- endif %}
+        <div class="summary-pair-cell">
+            <div>
+                <span class="satisfied">Erfüllt:</span>
+                {{ part.satisfied }}/{{ part.total -}}
+                {%- if part.total > 0 -%}
+                    <span class="pct"> ({{ part.satisfied_pct }}%)</span>
+                {%- else -%}
+                    <span class="pct"> (—)</span>
+                {%- endif %}
+            </div>
+            <div>
+                <span class="unsatisfied">Nicht erfüllt:</span>
+                {{ part.unsatisfied }}/{{ part.total -}}
+                {%- if part.total > 0 -%}
+                    <span class="pct"> ({{ part.unsatisfied_pct }}%)</span>
+                {%- else -%}
+                    <span class="pct"> (—)</span>
+                {%- endif %}
+            </div>
         </div>
-        <div>
-            <span class="unsatisfied">Nicht erfüllt:</span>
-            {{ part.unsatisfied }}/{{ part.total -}}
-            {%- if part.total > 0 -%}
-            <span class="pct"> ({{ part.unsatisfied_pct }}%)</span>
-            {%- else -%}
-            <span class="pct"> (—)</span>
-            {%- endif %}
-        </div>
-    </div>
     {%- endmacro %}
 
     <div class="summary-wide-scroll" style="overflow-x:auto;">
@@ -909,14 +913,17 @@
                 <div>Entwicklung · nicht Entwicklung</div>
             </div>
             {% for row in summary_wide_by_category %}
-            <div class="summary-wide-row">
-                <div><strong>{{ row.category }}</strong></div>
-                {{ summary_pair_cell(row.combined) }}
-                {{ summary_pair_cell(row.benchmark) }}
-                {{ summary_pair_cell(row.development) }}
-            </div>
+                <div class="summary-wide-row">
+                    <div><strong>{{ row.category }}</strong></div>
+                    {{ summary_pair_cell(row.combined) }}
+                    {{ summary_pair_cell(row.benchmark) }}
+                    {{ summary_pair_cell(row.development) }}
+                </div>
             {% endfor %}
         </div>
+     <div class="ai-summary">
+        {{ evaluation }}
+    </div>
     </div>
 </div>
 </body>

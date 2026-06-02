@@ -1,15 +1,13 @@
 import uuid
 from typing import List
 from sqlalchemy.orm import Session
-from src.database.models import IndustryProfile, ProfileMetricConfiguration, User, FinancialMetric
-from src.financial_metric_analysis_component.schema import FinancialMetricOverview
-from src.financial_metric_analysis_component.financial_metric_analysis import \
-    FinancialMetricEvaluator
+from src.database.models import  FinancialMetric
 from src.financial_metric_analysis_component.financial_metric_analysis import \
     ActiveFinancialMetricComponent
 
 import os
 from dotenv import load_dotenv
+from src.financial_metric_analysis_component.financial_metric_evaluator import FinancialMetricEvaluator
 
 load_dotenv()
 

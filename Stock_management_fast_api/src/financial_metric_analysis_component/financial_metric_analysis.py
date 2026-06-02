@@ -1,7 +1,6 @@
 import uuid
 import requests
 from sqlalchemy.orm import  Session
-from src.database.models import FinancialMetric, ProfileMetricConfiguration
 import json
 from src.financial_metric_analysis_component.utils import get_needed_metrics_map
 from src.financial_metric_analysis_component.utils import \
@@ -11,8 +10,7 @@ from src.financial_metric_analysis_component.utils import get_key_metrics_from_f
 from src.template_component.service import TemplateService
 from src.template_metric_component.service import TemplateMetricService
 from src.financial_metric_analysis_component.utils import get_alpha_ventage_metrics
-from src.financial_metric_analysis_component.financial_metric_evaluator import \
-    FinancialMetricEvaluator
+
 
 
 
