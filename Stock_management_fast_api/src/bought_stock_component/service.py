@@ -4,10 +4,9 @@ from sqlalchemy.orm import Session
 from src.database.models import BoughtStock
 from src.bought_stock_component.schema import BoughtStockRequest
 from src.watchlist_component.service import WatchlistStockService
-
 from src.ticker_stock_component.ticker_stock import TickerStock
-
 from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
+from src.configs.used_model import LLM_WIKI_MODEL
 
 
 class BoughtStockService:
@@ -26,7 +25,7 @@ class BoughtStockService:
         get_ticker_component = TickerStock()
         ticker = get_ticker_component.get_ticker_of_a_stock(name)
         if self.user_already_bought_stock(current_user_id=current_user_id, ticker=ticker):
-            llm_wiki = LLMWiki(self.db, "openai/gpt-oss-120b")
+            llm_wiki = LLMWiki(self.db, LLM_WIKI_MODEL)
 
             current_stock = self.get_of_current_user_stock_by_name(current_user_id=current_user_id, ticker=ticker)
             current_stock.amount += amount

@@ -1,8 +1,7 @@
 import traceback
-from itertools import groupby
-from typing import List, Tuple, Optional
+from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Request, Depends, BackgroundTasks, Form, requests, Query
+from fastapi import APIRouter, Request, Depends,Form, Query
 from sqlalchemy.orm import Session
 from src.database import db
 from src.database.models import User
@@ -26,6 +25,7 @@ import os
 from dotenv import load_dotenv
 from src.financial_metric_analysis_component.utils import merge_financial_summary_triples
 from src.html__text_parser_component.html_text_parser import TextExtractor
+from src.configs.used_model import STRENGTH_WEAKNESS_MODEL
 
 load_dotenv()
 
@@ -49,7 +49,7 @@ async def analyze_url(request: Request, url: str = Form(...)):
     try:
 
         strength_weakness_company_component = StrengthWeaknessOfCompanyComponent(
-            groq_model_name="openai/gpt-oss-120b"
+            groq_model_name=STRENGTH_WEAKNESS_MODEL
         )
         companies_array = await strength_weakness_company_component.get_strength_weakness_of_company(url)
 
@@ -80,7 +80,7 @@ def get_yt_transcript(request: Request, url: str = Form(...)):
     try:
 
         strength_weakness_company_component = StrengthWeaknessOfCompanyComponent(
-            groq_model_name="openai/gpt-oss-120b"
+            groq_model_name=STRENGTH_WEAKNESS_MODEL
         )
         companies_array = strength_weakness_company_component.get_strength_weakness_of_youtube(url)
 

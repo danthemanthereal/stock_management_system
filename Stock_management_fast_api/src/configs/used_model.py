@@ -1,0 +1,3 @@
+LLM_WIKI_MODEL="openai/gpt-oss-120b"
+EVALUATION_MODEL="llama-3.3-70b-versatile"
+STRENGTH_WEAKNESS_MODEL="openai/gpt-oss-120b"

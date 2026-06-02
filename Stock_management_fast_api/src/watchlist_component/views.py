@@ -17,6 +17,7 @@ from src.html__text_parser_component.bs4_text_parser import BS4TextParser
 from src.youtube_transcript_component.yt_transcript_component import \
     YoutubeTranscriptComponent
 from src.bought_stock_component.service import BoughtStockService
+from src.configs.used_model import LLM_WIKI_MODEL, EVALUATION_MODEL
 
 templates = Jinja2Templates(directory="templates")
 
@@ -44,7 +45,7 @@ async def add_to_watchlist_and_evaluation(
 
 
 
-        evaluator = Evaluator(db,"openai/gpt-oss-120b")
+        evaluator = Evaluator(db,EVALUATION_MODEL)
         trajectory, reasoning, recommendation = await evaluator.evaluate_new_information(current_user_id,
                                                                                    company.company_name,
                                                                                    company.strength,
@@ -70,10 +71,10 @@ async def add_to_watchlist_and_evaluation(
             new_content = yt_transcript_component.get_summary_of_yt_video(company.yt_url)
 
         if bought_stock_service.user_already_bought_stock(current_user_id, ticker):
-            print("in if weil kombi schon gekaufter aktie ")
+
             from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
             current_stock = bought_stock_service.get_of_current_user_stock_by_name(current_user_id, ticker)
-            llm_wiki = LLMWiki(db,"openai/gpt-oss-120b")
+            llm_wiki = LLMWiki(db,LLM_WIKI_MODEL)
             (new_combined_strengths,
              new_combined_weaknesses,
              new_combined_wiki_page
