@@ -168,3 +168,8 @@ class BoughtStockService:
         bought_stock_obj.wiki_page = new_wiki_page
         self.db.commit()
         self.db.refresh(bought_stock_obj)
+
+    def get_current_wiki_page_by_id(self, bought_stock_id: int):
+        if self.get_bought_stock_by_id(bought_stock_id) is not None:
+            return self.get_bought_stock_by_id(bought_stock_id).wiki_page
+        return ""

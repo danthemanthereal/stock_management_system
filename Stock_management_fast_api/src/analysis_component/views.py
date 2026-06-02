@@ -448,8 +448,7 @@ def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(r
         satisfied_only_development= satisfied_development_by_category,
         unsatisfied_only_development= unsatisfied_development_by_category,
         )
-        print("ai answer")
-        print(ai_evaluation)
+
 
 
         return render_localized(

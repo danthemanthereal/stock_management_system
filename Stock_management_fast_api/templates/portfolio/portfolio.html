@@ -1,399 +1,580 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Chart.js & marked.js laden -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Chart.js & marked.js laden -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-<style>
-    /* Modernes Kachel-Design für Boxen */
-    .action-card {
-        background: #ffffff;
-        padding: 25px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        margin-bottom: 25px;
-        border-top: 4px solid #2c3e50;
-    }
-
-    .action-card.success {
-        border-top-color: #27ae60; /* Grüner Rand für das "Hinzufügen" */
-    }
-
-    /* Flexbox für das Formular */
-    .form-row {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .form-row input {
-        flex: 1;
-        min-width: 120px;
-    }
-
-    /* Layout: Tabelle links (2/3), Chart rechts (1/3) */
-    .portfolio-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 25px;
-        align-items: start;
-    }
-
-    @media (max-width: 900px) {
-        .portfolio-grid {
-            grid-template-columns: 1fr; /* Auf Handys untereinander */
+    <style>
+        /* Modernes Kachel-Design für Boxen */
+        .action-card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            border-top: 4px solid #2c3e50;
         }
-    }
 
-    /* Tabellen-Styling (passend zur Watchlist) */
-    .styled-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 15px;
-        background-color: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-    }
+        .action-card.success {
+            border-top-color: #27ae60; /* Grüner Rand für das "Hinzufügen" */
+        }
 
-    .styled-table thead tr {
-        background-color: #2c3e50;
-        color: #ffffff;
-        text-align: left;
-    }
+        /* Flexbox für das Formular */
+        .form-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
 
-    .styled-table th, .styled-table td {
-        padding: 12px 15px;
-        vertical-align: middle;
-    }
+        .form-row input {
+            flex: 1;
+            min-width: 120px;
+        }
 
-    .styled-table tbody tr {
-        border-bottom: 1px solid #ecf0f1;
-    }
+        /* Layout: Tabelle links (2/3), Chart rechts (1/3) */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            align-items: start;
+        }
 
-    .styled-table tbody tr:hover {
-        background-color: #f4f7f6;
-    }
+        @media (max-width: 900px) {
+            .portfolio-grid {
+                grid-template-columns: 1fr; /* Auf Handys untereinander */
+            }
+        }
 
-    .text-right {
-        text-align: right;
-    }
+        /* Tabellen-Styling (passend zur Watchlist) */
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        }
 
-    /* Styling für die bearbeitbaren Felder in der Tabelle */
-    .inline-input {
-        width: 80px;
-        padding: 6px;
-        border: 1px solid #bdc3c7;
-        border-radius: 4px;
-        text-align: right;
-        background-color: #fdfefe;
-        transition: border-color 0.2s;
-    }
+        .styled-table thead tr {
+            background-color: #2c3e50;
+            color: #ffffff;
+            text-align: left;
+        }
 
-    .inline-input:focus {
-        border-color: #3498db;
-        outline: none;
-        background-color: #fff;
-    }
+        .styled-table th, .styled-table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+        }
 
-    /* Zusätzliche Button-Farben */
-    .btn-success {
-        background-color: #27ae60;
-        color: white;
-    }
+        .styled-table tbody tr {
+            border-bottom: 1px solid #ecf0f1;
+        }
 
-    .btn-success:hover {
-        background-color: #2ecc71;
-    }
+        .styled-table tbody tr:hover {
+            background-color: #f4f7f6;
+        }
 
-    /* Markdown-Inhaltsbereiche */
-    .markdown-content h1,
-    .markdown-content h2,
-    .markdown-content h3,
-    .markdown-content h4 {
-        margin: 1.2em 0 0.5em;
-    }
-    .markdown-content h1:first-child,
-    .markdown-content h2:first-child,
-    .markdown-content h3:first-child,
-    .markdown-content h4:first-child {
-        margin-top: 0;
-    }
-    .markdown-content p {
-        margin: 0.5em 0;
-    }
-    .markdown-content ul,
-    .markdown-content ol {
-        margin: 0.5em 0;
-        padding-left: 1.5em;
-    }
-</style>
+        .text-right {
+            text-align: right;
+        }
 
-<h1>💼 Dein Portfolio</h1>
-<p style="color: #7f8c8d; margin-bottom: 30px;">Verwalte deine gekauften Aktien und analysiere die Aufteilung deines
-    Depots.</p>
+        /* Styling für die bearbeitbaren Felder in der Tabelle */
+        .inline-input {
+            width: 80px;
+            padding: 6px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            text-align: right;
+            background-color: #fdfefe;
+            transition: border-color 0.2s;
+        }
 
-<!-- BEREICH 1: Neue Aktie hinzufügen -->
-<div class="action-card success">
-    <h3 style="margin-top: 0; color: #2c3e50;">➕ Neue Position eintragen</h3>
-    <form action="/portfolio/create-new-bought-stock-current-user/" method="post" class="form-row">
-        <input type="text" name="name" placeholder="Name (z.B. Microsoft)" required>
-        <input type="text" name="ticker" placeholder="Ticker (z.B. MSFT)" required style="max-width: 100px;">
-        <input type="number" name="bought_price" placeholder="Kaufpreis (€)" step="0.01" min="0.01" required>
-        <input type="number" name="amount" placeholder="Anzahl" step="0.0001" min="0.0001" required>
-        <button type="submit" class="btn btn-success">Speichern</button>
-    </form>
-</div>
+        .inline-input:focus {
+            border-color: #3498db;
+            outline: none;
+            background-color: #fff;
+        }
 
-<!-- BEREICH 2: Hauptinhalt (Tabelle & Chart) -->
-{% if bought_stocks %}
-<div class="portfolio-grid">
+        /* Zusätzliche Button-Farben */
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
 
-    <!-- Linke Seite: Die Tabelle in einem Formular -->
-    <div>
-        <form action="/portfolio/update-multiple-bought-stock-current-user" method="post" id="portfolio-update-form">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin: 0; color: #2c3e50;">📊 Deine Positionen</h3>
-                <button type="submit" class="btn" style="padding: 8px 15px;">💾 Änderungen speichern</button>
-            </div>
+        .btn-success:hover {
+            background-color: #2ecc71;
+        }
 
-            <table class="styled-table">
-                <thead>
-                <tr>
-                    <th style="width: 40px; text-align: center;">🗑️</th>
-                    <th>Ticker</th>
-                    <th>Name</th>
-                    <th class="text-right">Kaufpreis</th>
-                    <th class="text-right">Anzahl</th>
-                    <th class="text-right">Gesamtwert</th>
-                    <th></th> <!-- Detail-Button -->
-                </tr>
-                </thead>
-                <tbody>
-                {% for stock in bought_stocks %}
-                <tr class="stock-row" data-stock-id="{{ stock.id }}">
-                    <td style="text-align: center;">
-                        <input type="checkbox" class="delete-stock-checkbox" value="{{ stock.id }}"
-                               style="transform: scale(1.2);">
-                    </td>
-                    <td><strong>{{ stock.ticker }}</strong></td>
-                    <td>{{ stock.name }}</td>
+        /* Markdown-Inhaltsbereiche */
+        .markdown-content h1,
+        .markdown-content h2,
+        .markdown-content h3,
+        .markdown-content h4 {
+            margin: 1.2em 0 0.5em;
+        }
 
-                    <td class="text-right">
-                        <input type="number"
-                               class="inline-input inline-stock-price"
-                               data-stock-id="{{ stock.id }}"
-                               value="{{ stock.bought_price }}"
-                               step="0.01" min="0.01">
-                    </td>
+        .markdown-content h1:first-child,
+        .markdown-content h2:first-child,
+        .markdown-content h3:first-child,
+        .markdown-content h4:first-child {
+            margin-top: 0;
+        }
 
-                    <td class="text-right">
-                        <input type="number"
-                               class="inline-input inline-stock-amount"
-                               data-stock-id="{{ stock.id }}"
-                               value="{{ stock.amount }}"
-                               step="0.0001" min="0.0001">
-                    </td>
+        .markdown-content p {
+            margin: 0.5em 0;
+        }
 
-                    <td class="number-cell text-right"
-                        style="font-weight: bold; color: #2c3e50;"
-                        data-value="{{ stock.bought_price * stock.amount }}">
-                        {{ stock.bought_price * stock.amount }}
-                    </td>
+        .markdown-content ul,
+        .markdown-content ol {
+            margin: 0.5em 0;
+            padding-left: 1.5em;
+        }
 
-                    <!-- Detail-Button -->
-                    <td>
-                        <button onclick="toggleDetails({{ stock.id }})" type="button">
-                            Details
-                        </button>
-                    </td>
-                </tr>
+        .chatbot-widget {
+            margin-top: 16px;
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 100%;
+        }
 
-                <!-- Versteckte Detail-Zeile -->
-                <tr id="details-{{ stock.id }}" style="display: none;">
-                    <td colspan="7" style="background: #f9f9f9; padding: 15px;">
+        .chatbot-header {
+            background: #007bff;
+            color: white;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
 
-                        <div style="display: flex; gap: 40px;">
-                            <!-- Strengths -->
-                            <div style="flex: 1;">
-                                <h4 style="color: green;">Stärken</h4>
-                                <div id="strengths-{{ stock.id }}" class="markdown-content"></div>
-                            </div>
-                            <!-- Weaknesses -->
-                            <div style="flex: 1;">
-                                <h4 style="color: red;">Schwächen</h4>
-                                <div id="weaknesses-{{ stock.id }}" class="markdown-content"></div>
-                            </div>
-                        </div>
+        .chatbot-close {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
 
-                        <!-- Wiki Page -->
-                        <div style="margin-top: 15px;">
-                            <h4>Wiki Page</h4>
-                            <div id="wiki-{{ stock.id }}" class="markdown-content"
-                                 style="background: white; padding: 10px; border: 1px solid #ddd;"></div>
-                        </div>
+        .chatbot-messages {
+            height: 220px;
+            padding: 10px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
 
-                        <!-- Versteckte Markdown-Quellen (werden nicht im Browser gerendert) -->
-                        <script type="text/markdown" id="strengths-md-{{ stock.id }}">{{ stock.strengths | safe }}</script>
-                        <script type="text/markdown" id="weaknesses-md-{{ stock.id }}">{{ stock.weaknesses | safe }}</script>
-                        <script type="text/markdown" id="wiki-md-{{ stock.id }}">{{ stock.wiki_page | safe }}</script>
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+        .message {
+            max-width: 85%;
+            padding: 6px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: #007bff;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background: #e9ecef;
+            color: #212529;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chatbot-input-area {
+            display: flex;
+            padding: 8px 10px;
+            border-top: 1px solid #dee2e6;
+            background: white;
+        }
+
+        .chatbot-input {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1px solid #ced4da;
+            border-radius: 16px;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .chatbot-send {
+            margin-left: 6px;
+            padding: 6px 14px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .chatbot-send:hover {
+            background: #0056b3;
+        }
+    </style>
+
+    <h1>💼 Dein Portfolio</h1>
+    <p style="color: #7f8c8d; margin-bottom: 30px;">Verwalte deine gekauften Aktien und analysiere die Aufteilung deines
+        Depots.</p>
+
+    <!-- BEREICH 1: Neue Aktie hinzufügen -->
+    <div class="action-card success">
+        <h3 style="margin-top: 0; color: #2c3e50;">➕ Neue Position eintragen</h3>
+        <form action="/portfolio/create-new-bought-stock-current-user/" method="post" class="form-row">
+            <input type="text" name="name" placeholder="Name (z.B. Microsoft)" required>
+            <input type="text" name="ticker" placeholder="Ticker (z.B. MSFT)" required style="max-width: 100px;">
+            <input type="number" name="bought_price" placeholder="Kaufpreis (€)" step="0.01" min="0.01" required>
+            <input type="number" name="amount" placeholder="Anzahl" step="0.0001" min="0.0001" required>
+            <button type="submit" class="btn btn-success">Speichern</button>
         </form>
     </div>
 
-    <!-- Rechte Seite: Das Chart in einer Kachel -->
-    <div class="action-card" style="border-top-color: #3498db; margin-bottom: 0;">
-        <h3 style="margin-top: 0; text-align: center; color: #2c3e50;">Portfolio-Aufteilung</h3>
-        <div style="position: relative; height: 300px; width: 100%;">
-            <canvas id="portfolioPieChart"></canvas>
+    <!-- BEREICH 2: Hauptinhalt (Tabelle & Chart) -->
+    {% if bought_stocks %}
+        <div class="portfolio-grid">
+
+            <!-- Linke Seite: Die Tabelle in einem Formular -->
+            <div>
+                <form action="/portfolio/update-multiple-bought-stock-current-user" method="post"
+                      id="portfolio-update-form">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="margin: 0; color: #2c3e50;">📊 Deine Positionen</h3>
+                        <button type="submit" class="btn" style="padding: 8px 15px;">💾 Änderungen speichern</button>
+                    </div>
+
+                    <table class="styled-table">
+                        <thead>
+                        <tr>
+                            <th style="width: 40px; text-align: center;">🗑️</th>
+                            <th>Ticker</th>
+                            <th>Name</th>
+                            <th class="text-right">Kaufpreis</th>
+                            <th class="text-right">Anzahl</th>
+                            <th class="text-right">Gesamtwert</th>
+                            <th></th> <!-- Detail-Button -->
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for stock in bought_stocks %}
+                            <tr class="stock-row" data-stock-id="{{ stock.id }}">
+                                <td style="text-align: center;">
+                                    <input type="checkbox" class="delete-stock-checkbox" value="{{ stock.id }}"
+                                           style="transform: scale(1.2);">
+                                </td>
+                                <td><strong>{{ stock.ticker }}</strong></td>
+                                <td>{{ stock.name }}</td>
+
+                                <td class="text-right">
+                                    <input type="number"
+                                           class="inline-input inline-stock-price"
+                                           data-stock-id="{{ stock.id }}"
+                                           value="{{ stock.bought_price }}"
+                                           step="0.01" min="0.01">
+                                </td>
+
+                                <td class="text-right">
+                                    <input type="number"
+                                           class="inline-input inline-stock-amount"
+                                           data-stock-id="{{ stock.id }}"
+                                           value="{{ stock.amount }}"
+                                           step="0.0001" min="0.0001">
+                                </td>
+
+                                <td class="number-cell text-right"
+                                    style="font-weight: bold; color: #2c3e50;"
+                                    data-value="{{ stock.bought_price * stock.amount }}">
+                                    {{ stock.bought_price * stock.amount }}
+                                </td>
+
+                                <!-- Detail-Button -->
+                                <td>
+                                    <button onclick="toggleDetails({{ stock.id }})" type="button">
+                                        Details
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Versteckte Detail-Zeile -->
+                            <tr id="details-{{ stock.id }}" style="display: none;">
+                                <td colspan="7" style="background: #f9f9f9; padding: 15px;">
+
+                                    <div style="display: flex; gap: 40px;">
+                                        <!-- Strengths -->
+                                        <div style="flex: 1;">
+                                            <h4 style="color: green;">Stärken</h4>
+                                            <div id="strengths-{{ stock.id }}" class="markdown-content"></div>
+                                        </div>
+                                        <!-- Weaknesses -->
+                                        <div style="flex: 1;">
+                                            <h4 style="color: red;">Schwächen</h4>
+                                            <div id="weaknesses-{{ stock.id }}" class="markdown-content"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Wiki Page -->
+                                    <div style="margin-top: 15px;">
+                                        <h4>Wiki Page</h4>
+                                        <div id="wiki-{{ stock.id }}" class="markdown-content"
+                                             style="background: white; padding: 10px; border: 1px solid #ddd;"></div>
+                                    </div>
+
+                                    <!-- Versteckte Markdown-Quellen (werden nicht im Browser gerendert) -->
+                                    <script type="text/markdown"
+                                            id="strengths-md-{{ stock.id }}">{{ stock.strengths | safe }}</script>
+                                    <script type="text/markdown"
+                                            id="weaknesses-md-{{ stock.id }}">{{ stock.weaknesses | safe }}</script>
+                                    <script type="text/markdown"
+                                            id="wiki-md-{{ stock.id }}">{{ stock.wiki_page | safe }}</script>
+                                    <div class="chatbot-placeholder">
+                                        <div class="chatbot-widget" id="chatbot-{{ stock.id }}">
+                                            <div class="chatbot-header">
+                                                <span>🤖 KI-Assistent</span>
+                                                <button class="chatbot-close" onclick="closeChatbot('{{ stock.id }}')"
+                                                        type="button">✖
+                                                </button>
+                                            </div>
+                                            <div class="chatbot-messages" id="chatbot-messages-{{ stock.id }}"></div>
+                                            <div class="chatbot-input-area">
+                                                <input type="text" class="chatbot-input"
+                                                       id="chatbot-input-{{ stock.id }}"
+                                                       placeholder="Frage zu dieser Aktie..."/>
+                                                <button class="chatbot-send" onclick="sendMessage('{{ stock.id }}')"
+                                                        type="button">Senden
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+
+            <!-- Rechte Seite: Das Chart in einer Kachel -->
+            <div class="action-card" style="border-top-color: #3498db; margin-bottom: 0;">
+                <h3 style="margin-top: 0; text-align: center; color: #2c3e50;">Portfolio-Aufteilung</h3>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="portfolioPieChart"></canvas>
+                </div>
+            </div>
+
         </div>
-    </div>
+    {% else %}
+        <div class="action-card" style="text-align: center; padding: 40px;">
+            <h3 style="color: #7f8c8d; margin-bottom: 10px;">Dein Portfolio ist noch leer</h3>
+            <p style="color: #95a5a6;">Füge oben deine erste Position hinzu, um dein Depot zu analysieren.</p>
+        </div>
+    {% endif %}
 
-</div>
-{% else %}
-<div class="action-card" style="text-align: center; padding: 40px;">
-    <h3 style="color: #7f8c8d; margin-bottom: 10px;">Dein Portfolio ist noch leer</h3>
-    <p style="color: #95a5a6;">Füge oben deine erste Position hinzu, um dein Depot zu analysieren.</p>
-</div>
-{% endif %}
+    <!-- JavaScript -->
+    <script>
+        // Details ein-/ausblenden und Markdown parsen
+        function toggleDetails(stockId) {
+            const row = document.getElementById(`details-${stockId}`);
+            if (!row) return;
 
-<!-- JavaScript -->
-<script>
-    // Details ein-/ausblenden und Markdown parsen
-    function toggleDetails(stockId) {
-        const row = document.getElementById(`details-${stockId}`);
-        if (!row) return;
-
-        if (row.style.display === "none" || row.style.display === "") {
-            // Zeige die Zeile
-            row.style.display = "table-row";
-            // Markdown parsen und einfügen (nur wenn noch nicht geparst)
-            parseAndInsertMarkdown(stockId);
-        } else {
-            row.style.display = "none";
+            if (row.style.display === "none" || row.style.display === "") {
+                // Zeige die Zeile
+                row.style.display = "table-row";
+                // Markdown parsen und einfügen (nur wenn noch nicht geparst)
+                parseAndInsertMarkdown(stockId);
+            } else {
+                row.style.display = "none";
+            }
         }
-    }
 
-    function parseAndInsertMarkdown(stockId) {
-        const strengthsDiv = document.getElementById(`strengths-${stockId}`);
-        // Verhindere mehrfaches Parsen (Attribut 'data-parsed' als Flag)
-        if (strengthsDiv && !strengthsDiv.hasAttribute('data-parsed')) {
-            const strengthsMd = document.getElementById(`strengths-md-${stockId}`).textContent;
-            const weaknessesMd = document.getElementById(`weaknesses-md-${stockId}`).textContent;
-            const wikiMd = document.getElementById(`wiki-md-${stockId}`).textContent;
+        function parseAndInsertMarkdown(stockId) {
+            const strengthsDiv = document.getElementById(`strengths-${stockId}`);
+            // Verhindere mehrfaches Parsen (Attribut 'data-parsed' als Flag)
+            if (strengthsDiv && !strengthsDiv.hasAttribute('data-parsed')) {
+                const strengthsMd = document.getElementById(`strengths-md-${stockId}`).textContent;
+                const weaknessesMd = document.getElementById(`weaknesses-md-${stockId}`).textContent;
+                const wikiMd = document.getElementById(`wiki-md-${stockId}`).textContent;
 
-            strengthsDiv.innerHTML = marked.parse(strengthsMd);
-            document.getElementById(`weaknesses-${stockId}`).innerHTML = marked.parse(weaknessesMd);
-            document.getElementById(`wiki-${stockId}`).innerHTML = marked.parse(wikiMd);
+                strengthsDiv.innerHTML = marked.parse(strengthsMd);
+                document.getElementById(`weaknesses-${stockId}`).innerHTML = marked.parse(weaknessesMd);
+                document.getElementById(`wiki-${stockId}`).innerHTML = marked.parse(wikiMd);
 
-            // Als geparst markieren
-            strengthsDiv.setAttribute('data-parsed', 'true');
-            document.getElementById(`weaknesses-${stockId}`).setAttribute('data-parsed', 'true');
-            document.getElementById(`wiki-${stockId}`).setAttribute('data-parsed', 'true');
+                // Als geparst markieren
+                strengthsDiv.setAttribute('data-parsed', 'true');
+                document.getElementById(`weaknesses-${stockId}`).setAttribute('data-parsed', 'true');
+                document.getElementById(`wiki-${stockId}`).setAttribute('data-parsed', 'true');
+            }
         }
-    }
 
-    // Formular-Submit vorbereiten (IDs zum Löschen/Ändern sammeln)
-    if (document.getElementById('portfolio-update-form')) {
-        document.getElementById('portfolio-update-form').addEventListener('submit', function (e) {
-            const deleteCheckboxes = document.querySelectorAll('.delete-stock-checkbox:checked');
-            const idsToDelete = Array.from(deleteCheckboxes).map(cb => cb.value);
+        // Formular-Submit vorbereiten (IDs zum Löschen/Ändern sammeln)
+        if (document.getElementById('portfolio-update-form')) {
+            document.getElementById('portfolio-update-form').addEventListener('submit', function (e) {
+                const deleteCheckboxes = document.querySelectorAll('.delete-stock-checkbox:checked');
+                const idsToDelete = Array.from(deleteCheckboxes).map(cb => cb.value);
 
-            const stockRows = document.querySelectorAll('.stock-row');
-            const updateTriplets = [];
+                const stockRows = document.querySelectorAll('.stock-row');
+                const updateTriplets = [];
 
-            stockRows.forEach(row => {
-                const stockId = row.getAttribute('data-stock-id');
-                if (idsToDelete.includes(stockId)) return;
+                stockRows.forEach(row => {
+                    const stockId = row.getAttribute('data-stock-id');
+                    if (idsToDelete.includes(stockId)) return;
 
-                const priceInput = document.querySelector(`.inline-stock-price[data-stock-id="${stockId}"]`);
-                const amountInput = document.querySelector(`.inline-stock-amount[data-stock-id="${stockId}"]`);
+                    const priceInput = document.querySelector(`.inline-stock-price[data-stock-id="${stockId}"]`);
+                    const amountInput = document.querySelector(`.inline-stock-amount[data-stock-id="${stockId}"]`);
 
-                const price = priceInput ? parseFloat(priceInput.value) || 0 : 0;
-                const amount = amountInput ? parseFloat(amountInput.value) || 0 : 0;
+                    const price = priceInput ? parseFloat(priceInput.value) || 0 : 0;
+                    const amount = amountInput ? parseFloat(amountInput.value) || 0 : 0;
 
-                updateTriplets.push(`${stockId}|${price}|${amount}`);
+                    updateTriplets.push(`${stockId}|${price}|${amount}`);
+                });
+
+                const hiddenDeleteInput = document.createElement('input');
+                hiddenDeleteInput.type = 'hidden';
+                hiddenDeleteInput.name = 'delete_ids';
+                hiddenDeleteInput.value = idsToDelete.join(',');
+                this.appendChild(hiddenDeleteInput);
+
+                const hiddenUpdateInput = document.createElement('input');
+                hiddenUpdateInput.type = 'hidden';
+                hiddenUpdateInput.name = 'update_triplets';
+                hiddenUpdateInput.value = updateTriplets.join(',');
+                this.appendChild(hiddenUpdateInput);
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const currentLocale = "{{ current_locale }}" || "de";
+            const numberFormatter = new Intl.NumberFormat(currentLocale === 'de' ? 'de-DE' : 'en-US', {
+                style: 'currency',
+                currency: 'EUR'
             });
 
-            const hiddenDeleteInput = document.createElement('input');
-            hiddenDeleteInput.type = 'hidden';
-            hiddenDeleteInput.name = 'delete_ids';
-            hiddenDeleteInput.value = idsToDelete.join(',');
-            this.appendChild(hiddenDeleteInput);
+            // Zahlen in Tabellenzellen formatieren
+            document.querySelectorAll('.number-cell').forEach(td => {
+                const rawValue = parseFloat(td.getAttribute('data-value'));
+                if (!isNaN(rawValue)) {
+                    td.textContent = numberFormatter.format(rawValue);
+                }
+            });
 
-            const hiddenUpdateInput = document.createElement('input');
-            hiddenUpdateInput.type = 'hidden';
-            hiddenUpdateInput.name = 'update_triplets';
-            hiddenUpdateInput.value = updateTriplets.join(',');
-            this.appendChild(hiddenUpdateInput);
-        });
-    }
+            // --- CHART.JS ---
+            const labels = [];
+            const values = [];
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const currentLocale = "{{ current_locale }}" || "de";
-        const numberFormatter = new Intl.NumberFormat(currentLocale === 'de' ? 'de-DE' : 'en-US', {
-            style: 'currency',
-            currency: 'EUR'
-        });
+            {% if bought_stocks %}
+                {% for stock in bought_stocks %}
+                    labels.push("{{ stock.ticker }}");
+                    values.push({{ stock.bought_price * stock.amount }});
+                {% endfor %}
+            {% endif %}
 
-        // Zahlen in Tabellenzellen formatieren
-        document.querySelectorAll('.number-cell').forEach(td => {
-            const rawValue = parseFloat(td.getAttribute('data-value'));
-            if (!isNaN(rawValue)) {
-                td.textContent = numberFormatter.format(rawValue);
+            if (labels.length > 0) {
+                const ctx = document.getElementById('portfolioPieChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: [
+                                '#3498db', '#2ecc71', '#f1c40f', '#e74c3c', '#9b59b6',
+                                '#34495e', '#e67e22', '#1abc9c', '#d35400', '#7f8c8d'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {position: 'bottom'},
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return ` ${context.label}: ${numberFormatter.format(context.raw)}`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
             }
         });
 
-        // --- CHART.JS ---
-        const labels = [];
-        const values = [];
+        /* ----- Nachricht senden (stockId wird übergeben) ----- */
+        async function sendMessage(stockId) {
+            const input = document.getElementById(`chatbot-input-${stockId}`);
+            const message = input.value.trim();
+            if (!message) return;
 
-        {% if bought_stocks %}
-        {% for stock in bought_stocks %}
-        labels.push("{{ stock.ticker }}");
-        values.push({{ stock.bought_price * stock.amount }});
-        {% endfor %}
-        {% endif %}
+            addMessageToChat(stockId, "user", message);
+            input.value = "";
 
-        if (labels.length > 0) {
-            const ctx = document.getElementById('portfolioPieChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: [
-                            '#3498db', '#2ecc71', '#f1c40f', '#e74c3c', '#9b59b6',
-                            '#34495e', '#e67e22', '#1abc9c', '#d35400', '#7f8c8d'
-                        ],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {position: 'bottom'},
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    return ` ${context.label}: ${numberFormatter.format(context.raw)}`;
-                                }
-                            }
-                        }
-                    },
-                    cutout: '60%'
-                }
-            });
+            try {
+                const response = await fetch("/portfolio/chat-to-current-stock-wiki-page", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        message: message,
+                        stock_id: stockId
+                    })
+                });
+
+                if (!response.ok) throw new Error("Serverfehler");
+                const data = await response.json();
+                addMessageToChat(stockId, "bot", data.response);
+            } catch (error) {
+                addMessageToChat(stockId, "bot", "❌ " + error.message);
+            }
         }
-    });
-</script>
+
+        function addMessageToChat(stockId, sender, text) {
+            const container = document.getElementById(`chatbot-messages-${stockId}`);
+            if (!container) return;
+
+            const div = document.createElement("div");
+            div.classList.add("message");
+            div.classList.add(sender === "user" ? "user-message" : "bot-message");
+            div.textContent = text;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        /* Chat leeren (z.B. bei manuellem Schließen) */
+        function clearChat(stockId) {
+            const container = document.getElementById(`chatbot-messages-${stockId}`);
+            if (container) container.innerHTML = "";
+        }
+
+        /* Manuelles Schließen des Chatfensters (optional – blendet das ganze Widget aus) */
+        function closeChatbot(stockId) {
+            const widget = document.getElementById(`chatbot-${stockId}`);
+            if (widget) {
+                widget.style.display = "none";
+            }
+        }
+
+        /* Enter-Taste in allen Chat-Inputs */
+        document.addEventListener("keypress", function (e) {
+            if (e.key === "Enter" && e.target.classList.contains("chatbot-input")) {
+                const stockId = e.target.id.replace("chatbot-input-", "");
+                sendMessage(stockId);
+            }
+        });
+    </script>
+
 {% endblock %}

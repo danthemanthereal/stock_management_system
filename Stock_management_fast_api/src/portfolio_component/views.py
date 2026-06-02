@@ -4,9 +4,13 @@ from fastapi import APIRouter, Request, Depends, Form
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+
+from src.configs.used_model import LLM_WIKI_MODEL
 from src.database.db import get_db
 from src.authenticator_component.authenticator import get_current_user_id
 from src.database.models import BoughtStock
+from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
+from src.portfolio_component.schema import ChatRequest
 from src.utils.utils import render_localized
 from src.bought_stock_component.service import BoughtStockService
 
@@ -106,3 +110,21 @@ async def update_multiple_portfolio_entries(
         print(f"Fehler bei der Massenverarbeitung des Portfolios: {e}")
         traceback.print_exc()
         return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
+
+@portfolio_router.post("/chat-to-current-stock-wiki-page")
+async def chat_endpoint(request: ChatRequest,
+                        db: Session = Depends(get_db),):
+
+    bought_stock_service = BoughtStockService(db=db)
+
+    llm_wiki = LLMWiki(db=db,
+                       groq_model_name=LLM_WIKI_MODEL)
+
+    current_stock_wiki_page = bought_stock_service.get_current_wiki_page_by_id(int(request.stock_id))
+
+    answer = llm_wiki.query_on_wiki_page(
+        question=request.message,
+        current_wiki_page=current_stock_wiki_page
+    )
+
+    return {"response": answer}

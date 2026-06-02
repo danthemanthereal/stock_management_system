@@ -128,3 +128,49 @@ class LLMWiki:
 
         content = response.choices[0].message.content
         return content
+
+    def query_on_wiki_page(self, question: str, current_wiki_page: str):
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+        system_prompt = self.system_prompt_for_query()
+
+        user_prompt = self.user_prompt_for_query(
+            question=question,
+            context=current_wiki_page
+        )
+
+        response = client.chat.completions.create(
+            model=self.groq_model_name,
+            messages=[
+                {"role": "system",
+                 "content": system_prompt
+                 },
+                {
+                    "role": "user",
+                    "content": user_prompt
+                }
+            ])
+
+        content = response.choices[0].message.content
+        return content
+
+
+    def system_prompt_for_query(self):
+        return """
+
+        You are a knowledgeable assistant with access to a curated wiki knowledge base.
+        Answer the user's question using ONLY the provided wiki pages as your source.
+        Cite which wiki pages you drew from using [Page Title] notation.
+        If the wiki pages do not contain sufficient information, say so explicitly.
+        Be concise but complete.
+        """
+
+    def user_prompt_for_query(self, question: str, context):
+        return f"""
+        ## Question
+        {question}
+
+        ## Relevant Wiki Pages
+        {context}
+
+        Answer the question based on the wiki content above."""
