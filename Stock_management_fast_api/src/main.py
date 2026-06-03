@@ -1,15 +1,10 @@
+import asyncio
 from uuid import UUID
-
-from fastapi import FastAPI, Request, Form, Depends, HTTPException, status, Query
+from fastapi import FastAPI, Request,  Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
-from typing import List, Tuple, Optional
-from src.database.models import FinancialMetric, IndustryProfile, ProfileMetricConfiguration, FinancialMetricCategory, \
-    BoughtStock, StockSummary, User
-from src.database.db import engine, SessionLocal
-from sqlalchemy.orm import Session
-from src.database import models
-
+from typing import  Optional
+from src.database.db import engine, Base
 from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,7 +13,6 @@ import os
 from src.authenticator_component.views import authentication_router
 from src.authenticator_component.authenticator import get_current_user_id
 from src.core.rate_limit import configure_rate_limit
-from src.database.db import get_db
 from src.portfolio_component.views import portfolio_router
 from src.watchlist_component.views import watchlist_router
 from src.analysis_component.views import analysis_router
@@ -26,7 +20,6 @@ from src.bought_stock_component.views import bought_stock_router
 
 load_dotenv()
 
-models.Base.metadata.create_all(bind=engine)
 
 
 
@@ -36,6 +29,11 @@ class SummaryRequest(BaseModel):
 
 
 app = FastAPI()
+
+@app.on_event("startup")
+async def init_models():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 origins = [
     "*"

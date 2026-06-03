@@ -1,7 +1,7 @@
 import json
 import re
 from groq import Groq
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from dotenv import load_dotenv
 import os
 
@@ -10,9 +10,8 @@ load_dotenv()
 
 class FinancialMetricAIEvaluator:
 
-    def __init__(self, db: Session,
+    def __init__(self,
                  model_name: str):
-        self.db = db
         self.model_name = model_name
 
     def evaluate_financial_metrics(self,

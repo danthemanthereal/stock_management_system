@@ -1,7 +1,9 @@
 import uuid
 import requests
-from sqlalchemy.orm import  Session
+from sqlalchemy.ext.asyncio import AsyncSession
 import json
+import aiofiles
+import httpx
 from src.financial_metric_analysis_component.utils import get_needed_metrics_map
 from src.financial_metric_analysis_component.utils import \
     get_financial_metric_name_to_calculate
@@ -16,7 +18,7 @@ from src.financial_metric_analysis_component.utils import get_alpha_ventage_metr
 
 class ActiveFinancialMetricComponent:
 
-    def __init__(self, db: Session, company_name: str,
+    def __init__(self, db: AsyncSession, company_name: str,
                  fmp_api_key: str,
                  alpha_vantage_api_key: str):
         self.db = db
@@ -26,15 +28,15 @@ class ActiveFinancialMetricComponent:
 
 
 
-    def get_total_financial_metrics_of_current_template(self, current_user_id: uuid.UUID)->dict:
+    async def get_total_financial_metrics_of_current_template(self, current_user_id: uuid.UUID)->dict:
         total_financial_metric_map = {}
-        total_financial_metric_map = self.get_financial_metrics_by_guro_focus(total_financial_metric_map, current_user_id)
-        total_financial_metric_map = self.get_financial_metrics_with_alpha_ventage_api(total_financial_metric_map, current_user_id)
-        total_financial_metric_map = self.get_financial_metrics_with_fmp_api(total_financial_metric_map, current_user_id)
-        total_financial_metric_map = self.get_calculated_metrics(total_financial_metric_map, current_user_id)
+        total_financial_metric_map = await self.get_financial_metrics_by_guro_focus(total_financial_metric_map, current_user_id)
+        total_financial_metric_map = await self.get_financial_metrics_with_alpha_ventage_api(total_financial_metric_map, current_user_id)
+        total_financial_metric_map = await self.get_financial_metrics_with_fmp_api(total_financial_metric_map, current_user_id)
+        total_financial_metric_map = await self.get_calculated_metrics(total_financial_metric_map, current_user_id)
         return  total_financial_metric_map
 
-    def get_financial_metrics_by_guro_focus(self, financial_metric_map: dict,
+    async def get_financial_metrics_by_guro_focus(self, financial_metric_map: dict,
                                             current_user_id: uuid.UUID)->dict:
         """async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
@@ -53,8 +55,9 @@ class ActiveFinancialMetricComponent:
             return data"""
 
 
-        with open("/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/src/financial_metric_analysis_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
-            financial_metrics = json.load(financial_metrics_file)
+        async with aiofiles.open("/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/src/financial_metric_analysis_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
+            metrics = await financial_metrics_file.read()
+            financial_metrics = json.loads(metrics)
 
 
         annuals = financial_metrics.get("annual", [])
@@ -62,7 +65,7 @@ class ActiveFinancialMetricComponent:
         template_metric_service = TemplateMetricService(db=self.db)
 
         template_service = TemplateService(self.db)
-        current_used_template_id = template_service.get_last_selected_template_id_of_user(current_user_id)
+        current_used_template_id = await template_service.get_last_selected_template_id_of_user(current_user_id)
         from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 
         financial_metric_service = MetricsService(db=self.db)
@@ -70,9 +73,9 @@ class ActiveFinancialMetricComponent:
             for key, value in current_year_map.items():
                 if key == "date":
                     continue
-                current_financial_metric_id = financial_metric_service.get_id_of_current_metric_by_name(key)
+                current_financial_metric_id = await financial_metric_service.get_id_of_current_metric_by_name(key)
 
-                if template_metric_service.check_if_current_user_activated_this_metric_in_current_template(
+                if await template_metric_service.check_if_current_user_activated_this_metric_in_current_template(
                         current_used_template_id,
                         current_financial_metric_id):
                     financial_metric_map.setdefault(key, []).append(value)
@@ -80,21 +83,24 @@ class ActiveFinancialMetricComponent:
         return financial_metric_map
 
 
-    def get_financial_metrics_with_alpha_ventage_api(self, financial_metric_map,
+    async def get_financial_metrics_with_alpha_ventage_api(self, financial_metric_map,
                                                      current_user_id: uuid.UUID):
 
         url = f'https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol={self.company_name}&apikey={self.alpha_vantage_api_key}'
-        r = requests.get(url)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            data =  response.json()
+
+
         financial_metric_to_get = get_alpha_ventage_metrics()
 
         ## 22, 23, 24, 25
 
-        data = r.json()
         annual_reports = list(reversed(data.get('annualReports', [])))[-4:]
         template_metric_service = TemplateMetricService(db=self.db)
 
         template_service = TemplateService(self.db)
-        current_used_template_id = template_service.get_last_selected_template_id_of_user(current_user_id)
+        current_used_template_id = await template_service.get_last_selected_template_id_of_user(current_user_id)
         from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 
         financial_metric_service = MetricsService(self.db)
@@ -102,15 +108,15 @@ class ActiveFinancialMetricComponent:
             for (key, value) in annual_report.items():
                 if key not in financial_metric_to_get:
                     continue
-                current_financial_metric_id = financial_metric_service.get_id_of_current_metric_by_name(key)
+                current_financial_metric_id = await financial_metric_service.get_id_of_current_metric_by_name(key)
 
-                if template_metric_service.check_if_current_user_activated_this_metric_in_current_template(
+                if await template_metric_service.check_if_current_user_activated_this_metric_in_current_template(
                             current_used_template_id,
                             current_financial_metric_id):
                     financial_metric_map.setdefault(key, []).append(value)
         return financial_metric_map
 
-    def get_financial_metrics_with_fmp_api(self,financial_metric_map,
+    async def get_financial_metrics_with_fmp_api(self,financial_metric_map,
                                            current_user_id: uuid.UUID):
 
         key_metrics_to_consider = get_key_metrics_from_fmp()
@@ -120,13 +126,15 @@ class ActiveFinancialMetricComponent:
         url = f"https://financialmodelingprep.com/stable/key-metrics?symbol={self.company_name}&apikey={self.fmp_api_key}"
         r = requests.get(url)
         ## 22, 23, 24, 25
-        data = r.json()
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            data =  response.json()
 
         annual_reports = list(reversed(data))[-4:]
         template_metric_service = TemplateMetricService(db=self.db)
 
         template_service = TemplateService(self.db)
-        current_used_template_id = template_service.get_last_selected_template_id_of_user(current_user_id)
+        current_used_template_id = await template_service.get_last_selected_template_id_of_user(current_user_id)
         from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 
         financial_metric_service = MetricsService(self.db)
@@ -134,16 +142,20 @@ class ActiveFinancialMetricComponent:
             for (key, value) in annual_report.items():
                 if key not in key_metrics_to_consider:
                     continue
-                current_financial_metric_id = financial_metric_service.get_id_of_current_metric_by_name(key)
+                current_financial_metric_id = await financial_metric_service.get_id_of_current_metric_by_name(key)
 
-                if template_metric_service.check_if_current_user_activated_this_metric_in_current_template(
+                if await template_metric_service.check_if_current_user_activated_this_metric_in_current_template(
                             current_used_template_id,
                             current_financial_metric_id):
                     financial_metric_map.setdefault(key, []).append(value)
 
 
         ratio_url = f"https://financialmodelingprep.com/stable/ratios?symbol={self.company_name}&apikey={self.fmp_api_key}"
-        ratio_response = requests.get(ratio_url).json()
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(ratio_url)
+            ratio_response =  response.json()
+
         ## 22, 23, 24, 25
         annual_reports_because_of_ratio = list(reversed(ratio_response))[-4:]
 
@@ -151,19 +163,19 @@ class ActiveFinancialMetricComponent:
             for (key, value) in annual_report.items():
                 if key not  in ratio_metrics_to_consider:
                     continue
-                current_financial_metric_id = financial_metric_service.get_id_of_current_metric_by_name(key)
+                current_financial_metric_id = await financial_metric_service.get_id_of_current_metric_by_name(key)
 
-                if template_metric_service.check_if_current_user_activated_this_metric_in_current_template(
+                if await template_metric_service.check_if_current_user_activated_this_metric_in_current_template(
                         current_used_template_id,
                         current_financial_metric_id):
                     financial_metric_map.setdefault(key, []).append(value)
 
         return financial_metric_map
 
-    def get_calculated_metrics(self, financial_metric_map,
+    async def get_calculated_metrics(self, financial_metric_map,
                                current_user_id: uuid.UUID):
 
-        needed_financial_metrics_map = get_needed_metrics_map()
+        needed_financial_metrics_map = await get_needed_metrics_map()
 
         employee_numbers = needed_financial_metrics_map.get("total_employee_number", [])
         revenues = needed_financial_metrics_map.get("revenue", [])
@@ -176,19 +188,19 @@ class ActiveFinancialMetricComponent:
         total_assets = needed_financial_metrics_map.get("total_assets", [])
         total_good_will = needed_financial_metrics_map.get("good_will", [])
 
-        calculated_metrics_name = get_financial_metric_name_to_calculate(self.db)
+        calculated_metrics_name = await get_financial_metric_name_to_calculate(self.db)
 
         template_metric_service = TemplateMetricService(db=self.db)
 
         template_service = TemplateService(self.db)
-        current_used_template_id = template_service.get_last_selected_template_id_of_user(current_user_id)
+        current_used_template_id = await template_service.get_last_selected_template_id_of_user(current_user_id)
         from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 
         financial_metric_service = MetricsService(self.db)
         for current_metric in calculated_metrics_name:
-            current_financial_metric_id = financial_metric_service. get_id_of_current_metric_by_name(current_metric)
+            current_financial_metric_id = await financial_metric_service.get_id_of_current_metric_by_name(current_metric)
 
-            if template_metric_service.check_if_current_user_activated_this_metric_in_current_template(current_used_template_id,
+            if await template_metric_service.check_if_current_user_activated_this_metric_in_current_template(current_used_template_id,
                                                                                                        current_financial_metric_id):
                 financial_metric_map = add_to_metric_map_current_calculation(
                     revenue_last_for_years=revenues,

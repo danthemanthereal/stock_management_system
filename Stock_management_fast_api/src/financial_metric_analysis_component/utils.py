@@ -2,18 +2,25 @@ import json
 import re
 from collections import defaultdict
 from typing import List, Optional, Tuple
-
-from sqlalchemy.orm import Session, joinedload
+import aiofiles
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from src.database.models import FinancialMetric
 
 
-def get_financial_metric_name_to_calculate(db: Session):
-    return [metric.display_name_reference for metric in
-            list(db.query(FinancialMetric).filter(FinancialMetric.is_calculated == True).all())]
+async def get_financial_metric_name_to_calculate(db: AsyncSession):
+    stmt = select(FinancialMetric).where(
+        FinancialMetric.is_calculated.is_(True)
+    )
+
+    result = await db.execute(stmt)
+    metrics = result.scalars().all()
+    return [m.display_name_reference for m in metrics]
 
 
-def get_needed_metrics_map():
+async def get_needed_metrics_map():
     considered_financial_metrics = ["revenue",
                                     "total_employee_number",
                                     "total_equity",
@@ -26,9 +33,10 @@ def get_needed_metrics_map():
                                     "total_assets",
                                     "good_will"]
 
-    with open(
+    async with aiofiles.open(
             "/Users/danielschmidt/Desktop/stock_management_system/Stock_management_fast_api/src/financial_metric_analysis_component/current_financial_metrics_guro_focus.json") as financial_metrics_file:
-        financial_metrics = json.load(financial_metrics_file)
+        metrics = await financial_metrics_file.read()
+        financial_metrics = json.loads(metrics)
 
     annuals = financial_metrics.get("annual", [])
 
@@ -267,20 +275,22 @@ def calculate_good_will_ratio(
     return financial_metric_map
 
 
-def group_financial_metrics_map_by_category(
+async def group_financial_metrics_map_by_category(
             financial_metrics_map: dict,
-            db: Session,
+            db: AsyncSession,
     ) -> List[dict]:
         try:
             if not financial_metrics_map:
                 return []
             metric_names = list(financial_metrics_map.keys())
-            rows = (
-                db.query(FinancialMetric)
+            stmt = (
+                select(FinancialMetric)
                 .options(joinedload(FinancialMetric.category_rel))
-                .filter(FinancialMetric.name.in_(metric_names))
-                .all()
+                .where(FinancialMetric.name.in_(metric_names))
             )
+
+            result = await db.execute(stmt)
+            rows = result.scalars().all()
             name_to_category = {
                 r.name: r.category_name for r in rows
             }
@@ -309,20 +319,22 @@ def group_financial_metrics_map_by_category(
             return []
 
 
-def group_metric_names_by_category(
+async def group_metric_names_by_category(
             metric_names: List[str],
-            db: Session,
+            db: AsyncSession,
     ) -> List[Tuple[str, List[str]]]:
         try:
             if not metric_names:
                 return []
             names = list(metric_names)
-            rows = (
-                db.query(FinancialMetric)
+            stmt = (
+                select(FinancialMetric)
                 .options(joinedload(FinancialMetric.category_rel))
-                .filter(FinancialMetric.name.in_(set(names)))
-                .all()
+                .where(FinancialMetric.name.in_(set(names)))
             )
+
+            result = await db.execute(stmt)
+            rows = list(result.scalars().all())
             name_to_category = {
                 r.name: r.category_name for r in rows
             }

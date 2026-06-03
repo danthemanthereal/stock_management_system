@@ -1,9 +1,8 @@
 import uuid
-
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, Float, DateTime, UUID, Text
 from sqlalchemy.orm import relationship
 from .db import Base
-from datetime import datetime, timezone
+from datetime import  timezone
 from sqlalchemy.sql import func
 from pydantic import BaseModel as PydanticBase, Field
 from uuid import uuid4

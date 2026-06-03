@@ -2,6 +2,7 @@ import traceback
 from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Request, Depends,Form, Query
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from src.database import db
 from src.database.models import User
@@ -415,8 +416,8 @@ def find_potential_stocks(filters: dict):
 
 
 @analysis_router.post("/get-financial-metrics", response_class=HTMLResponse)
-def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(request: Request, company: str = Form(...),
-                                                  db: Session = Depends(get_db),
+async def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(request: Request, company: str = Form(...),
+                                                  db: AsyncSession = Depends(get_db),
                                                   current_user_id: UUID = Depends(get_current_user_id)):
     try:
 
@@ -430,13 +431,12 @@ def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(r
          unsatisfied_development_by_category,
          summary_combined,
          summary_benchmark,
-         summary_development) = financial_metric_service.get_evaluation_of_over_all_reference_value_development(
+         summary_development) = await financial_metric_service.get_evaluation_of_over_all_reference_value_development(
             company_name=company, current_user_id=current_user_id
         )
         years = ["2022", "2023", "2024", "2025"]
 
         ai_financial_metric_evaluator = FinancialMetricAIEvaluator(
-            db=db,
             model_name=FINANCIAL_METRIC_EVALUATION_MODEL
         )
 
