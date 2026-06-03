@@ -114,19 +114,19 @@ def get_yt_transcript(request: Request, url: str = Form(...)):
 
 
 @analysis_router.api_route("/show-saved-financial-metrics", methods=["GET", "POST"], response_class=HTMLResponse)
-def show_saved_financial_metrics_page(
+async def show_saved_financial_metrics_page(
         request: Request,
-        db: Session = Depends(get_db),
+        db: AsyncSession = Depends(get_db),
         current_user_id: UUID = Depends(get_current_user_id),
 ):
     try:
         financial_metric_service = MetricsService(db)
         template_service = TemplateService(db)
         template_metric_service = TemplateMetricService(db)
-        last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
-        available_metrics = financial_metric_service.get_available_metrics()
-        current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
-        financial_metrics_of_last_selected_template_per_category = template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+        last_selected_branch_profile_id = await template_service.get_last_selected_template_id_of_user(current_user_id)
+        available_metrics = await financial_metric_service.get_available_metrics()
+        current_user_created_templates = await template_service.get_current_user_created_templates(current_user_id)
+        financial_metrics_of_last_selected_template_per_category = await template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
 
         return render_localized(
@@ -146,18 +146,18 @@ def show_saved_financial_metrics_page(
 
 
 @analysis_router.post("/add-metric-to-current-template", response_class=HTMLResponse)
-def add_to_current_selected_template_new_financial_metric(
+async def add_to_current_selected_template_new_financial_metric(
         request: Request,
         last_selected_branch_profile_id: int = Form(...),
         financial_metric_id: int = Form(...),
-        reference_value: float = Form(...),
+        reference_value: int = Form(...),
         should_rise: bool = Form(False),
-        db: Session = Depends(get_db),
+        db: AsyncSession = Depends(get_db),
         current_user_id: UUID = Depends(get_current_user_id)
 ):
     try:
         template_financial_metric_service = TemplateMetricService(db)
-        template_financial_metric_service.add_metric_to_profile(
+        await template_financial_metric_service.add_metric_to_profile(
             profile_id=last_selected_branch_profile_id,
             metric_id=financial_metric_id,
             reference_value=reference_value,
@@ -167,10 +167,10 @@ def add_to_current_selected_template_new_financial_metric(
         financial_metric_service = MetricsService(db)
         template_metric_service = TemplateMetricService(db)
         template_service = TemplateService(db)
-        last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
-        available_metrics = financial_metric_service.get_available_metrics()
-        current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
-        financial_metrics_of_last_selected_template_per_category = template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+        last_selected_branch_profile_id = await template_service.get_last_selected_template_id_of_user(current_user_id)
+        available_metrics = await financial_metric_service.get_available_metrics()
+        current_user_created_templates = await template_service.get_current_user_created_templates(current_user_id)
+        financial_metrics_of_last_selected_template_per_category = await template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
 
         return render_localized(
@@ -190,26 +190,26 @@ def add_to_current_selected_template_new_financial_metric(
 
 
 @analysis_router.post("/create-new-template-with-current-properties", response_class=HTMLResponse)
-def create_new_template_of_current_financial_metrics_properties(
+async def create_new_template_of_current_financial_metrics_properties(
         request: Request,
         branch_profile_name: str = Form(...),
         metric_data_triplets: Optional[str] = Form(None),
-        db: Session = Depends(get_db),
+        db: AsyncSession = Depends(get_db),
         current_user_id: UUID = Depends(get_current_user_id)
 ):
     try:
         template_service = TemplateService(db)
         template_metric_service = TemplateMetricService(db)
-        (template_service.create_template_from_active_metrics(
+        await (template_service.create_template_from_active_metrics(
             user_id=current_user_id,
             new_profile_name=branch_profile_name,
             triplets_str=metric_data_triplets))
         financial_metric_service = MetricsService(db)
         template_service = TemplateService(db)
-        last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
-        available_metrics = financial_metric_service.get_available_metrics()
-        current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
-        financial_metrics_of_last_selected_template_per_category = template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+        last_selected_branch_profile_id = await template_service.get_last_selected_template_id_of_user(current_user_id)
+        available_metrics = await financial_metric_service.get_available_metrics()
+        current_user_created_templates = await template_service.get_current_user_created_templates(current_user_id)
+        financial_metrics_of_last_selected_template_per_category = await template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
 
         return render_localized(
@@ -229,21 +229,21 @@ def create_new_template_of_current_financial_metrics_properties(
 
 
 @analysis_router.post("/change-selected-template")
-def change_selected_template(
+async def change_selected_template(
         request: Request,
         branch_profile_id: int = Form(...),
-        db: Session = Depends(get_db),
+        db: AsyncSession = Depends(get_db),
         current_user_id: UUID = Depends(get_current_user_id)
 ):
     try:
         financial_metric_service = MetricsService(db)
         template_service = TemplateService(db)
         template_metric_service = TemplateMetricService(db)
-        template_service.update_last_selected_template_id(branch_profile_id, current_user_id)
-        last_selected_branch_profile_id = template_service.get_last_selected_template_id_of_user(current_user_id)
-        available_metrics = financial_metric_service.get_available_metrics()
-        current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
-        financial_metrics_of_last_selected_template_per_category = template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+        await template_service.update_last_selected_template_id(branch_profile_id, current_user_id)
+        last_selected_branch_profile_id = await  template_service.get_last_selected_template_id_of_user(current_user_id)
+        available_metrics = await financial_metric_service.get_available_metrics()
+        current_user_created_templates = await template_service.get_current_user_created_templates(current_user_id)
+        financial_metrics_of_last_selected_template_per_category = await template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
 
         return render_localized(

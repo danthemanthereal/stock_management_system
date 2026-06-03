@@ -1,16 +1,14 @@
 import traceback
 from uuid import UUID
 from fastapi import APIRouter, Request, Depends, HTTPException, status, Form
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from src.database.db import get_db
 from src.authenticator_component.authenticator import get_current_user_id
-from src.database.models import BoughtStock, StockSummary
-from src.utils.utils import render_localized
 from src.watchlist_component.schemas import WatchlistRequest
 from src.watchlist_component.service import WatchlistStockService
-from src.watchlist_component.schemas import DeleteWatchListStockRequest
 from src.evaluation_component.evaluation import Evaluator
 from src.ticker_stock_component.ticker_stock import TickerStock
 from src.html__text_parser_component.bs4_text_parser import BS4TextParser
@@ -25,10 +23,10 @@ watchlist_router = APIRouter(prefix="/watchlist", tags=["watchlist"])
 
 
 @watchlist_router.get("/")
-def watch_list(request: Request, db: Session = Depends(get_db), current_user_id: UUID = Depends(get_current_user_id)):
+async def watch_list(request: Request, db: AsyncSession = Depends(get_db), current_user_id: UUID = Depends(get_current_user_id)):
 
     watchlist_service = WatchlistStockService(db)
-    watch_list_stocks = watchlist_service.get_watchlist_stocks_of_current_user(current_user_id)
+    watch_list_stocks = await watchlist_service.get_watchlist_stocks_of_current_user(current_user_id)
     return templates.TemplateResponse(request=request,
                                       name="watchlist/watchlist.html",
                                       context={"request": request,
@@ -38,7 +36,7 @@ def watch_list(request: Request, db: Session = Depends(get_db), current_user_id:
 @watchlist_router.post("/add-to-watchlist-from-url-analysis")
 async def add_to_watchlist_and_evaluation(
         company: WatchlistRequest,
-        db: Session = Depends(get_db),
+        db: AsyncSession = Depends(get_db),
         current_user_id: UUID = Depends(get_current_user_id),
 ):
     try:
@@ -78,14 +76,14 @@ async def add_to_watchlist_and_evaluation(
             (new_combined_strengths,
              new_combined_weaknesses,
              new_combined_wiki_page
-             ) = llm_wiki.ingest(watch_list_stock_id=None,
+             ) = await llm_wiki.ingest(watch_list_stock_id=None,
                             bought_stock_id=current_stock.id,
                             company_name=company.company_name,
                             ticker=ticker,
                             new_strengths=company.strength,
                             new_weaknesses=company.weakness,
                             new_content=new_content)
-            bought_stock_service.update_strength_weakness_wiki_page_of_stock(
+            await bought_stock_service.update_strength_weakness_wiki_page_of_stock(
                 bought_stock_obj=current_stock,
                 new_strength=new_combined_strengths,
                 new_weakness=new_combined_weaknesses,
@@ -93,7 +91,7 @@ async def add_to_watchlist_and_evaluation(
             )
 
         else:
-            watchlist_service.add_to_current_user_to__watchlist(
+            await watchlist_service.add_to_current_user_to__watchlist(
             name=company.company_name,
             ticker=ticker,
             strength=company.strength,

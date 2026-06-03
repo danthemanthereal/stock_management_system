@@ -3,6 +3,9 @@ from uuid import UUID
 from groq import Groq
 import re
 import json
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.watchlist_component.service import WatchlistStockService
 import os
 from dotenv import load_dotenv
@@ -18,7 +21,7 @@ load_dotenv()
 
 class Evaluator:
 
-    def __init__(self, db, model_name):
+    def __init__(self, db: AsyncSession, model_name: str):
         self.db = db
         self.model_name = model_name
 
@@ -47,7 +50,7 @@ class Evaluator:
             current_user_id, ticker
         )
 
-        current_watchlist_id = watchlist_service.get_watchlist_stock_id_by_ticker(ticker)
+        current_watchlist_id = await watchlist_service.get_watchlist_stock_id_by_ticker(ticker)
 
         await self.update_strength_weakness_wiki_page(
             watchlist_stock_id=current_watchlist_id,
@@ -217,7 +220,7 @@ reasoning:
             yt_transcript_component = YoutubeTranscriptComponent()
             new_content = yt_transcript_component.get_summary_of_yt_video(yt_url)
 
-        (new_combined_strengths, new_combined_weakness, new_combined_wiki_page) = llm_wiki_component.ingest(
+        (new_combined_strengths, new_combined_weakness, new_combined_wiki_page) = await llm_wiki_component.ingest(
             watch_list_stock_id=watchlist_stock_id,
             bought_stock_id=bought_stock_id,
             company_name=company_name,
@@ -230,7 +233,7 @@ reasoning:
         if watchlist_stock_id:
             watchlist_stock_service = WatchlistStockService(db=self.db)
             watchlist_stock = watchlist_stock_service.get_watch_list_stock_with_id(watchlist_stock_id)
-            watchlist_stock_service.update_strength_weakness_wiki_page_of_watchlist_stock(
+            await watchlist_stock_service.update_strength_weakness_wiki_page_of_watchlist_stock(
                 watchlist_stock_obj=watchlist_stock,
                 new_strength=new_combined_strengths,
                 new_weakness=new_combined_weakness,
@@ -240,7 +243,7 @@ reasoning:
         elif bought_stock_id:
             bought_stock_service = BoughtStockService(db=self.db)
             bought_stock = bought_stock_service.get_bought_stock_by_id(bought_stock_id)
-            bought_stock.update_strength_weakness_wiki_page_of_bought_stock(
+            await bought_stock.update_strength_weakness_wiki_page_of_bought_stock(
                 bought_stock_obj=bought_stock,
                 new_combined_strengths=new_combined_strengths,
                 new_combined_weakness=new_combined_weakness,
