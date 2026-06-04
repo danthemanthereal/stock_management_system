@@ -1,7 +1,6 @@
 import json
 import re
 from groq import Groq
-from sqlalchemy.ext.asyncio import AsyncSession
 from dotenv import load_dotenv
 import os
 

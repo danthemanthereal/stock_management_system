@@ -4,6 +4,8 @@ from uuid import UUID
 from fastapi import APIRouter, Request, Depends,Form, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
+
+from src.bought_stock_component.service import BoughtStockService
 from src.database import db
 from src.database.models import User
 from fastapi.templating import Jinja2Templates
@@ -13,6 +15,7 @@ from starlette.responses import HTMLResponse
 
 from src.financial_metric_analysis_component.evaluation_ai_financial_metrics import FinancialMetricAIEvaluator
 from src.financial_metric_analysis_component.financial_metric_evaluator import FinancialMetricEvaluator
+from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.utils.utils import render_localized
 from src.authenticator_component.authenticator import get_current_user_id
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
@@ -26,7 +29,8 @@ from src.get_news_component.get_news import NewsFinderComponent
 import os
 from dotenv import load_dotenv
 from src.financial_metric_analysis_component.utils import merge_financial_summary_triples
-from src.configs.used_model import STRENGTH_WEAKNESS_MODEL, FINANCIAL_METRIC_EVALUATION_MODEL
+from src.configs.used_model import STRENGTH_WEAKNESS_MODEL, FINANCIAL_METRIC_EVALUATION_MODEL, LLM_WIKI_MODEL
+from src.watchlist_component.service import WatchlistStockService
 
 load_dotenv()
 
@@ -449,6 +453,74 @@ async def get_evaluation_of_financial_metrics_of_current_user_last_selected_temp
         satisfied_only_development= satisfied_development_by_category,
         unsatisfied_only_development= unsatisfied_development_by_category,
         )
+
+        llm_wiki = LLMWiki(
+            db=db,
+            groq_model_name=LLM_WIKI_MODEL
+        )
+
+        watchlist_stock_service = WatchlistStockService(db)
+
+        bought_stock_service = BoughtStockService(db)
+
+        if await bought_stock_service.user_already_bought_stock(current_user_id=current_user_id,
+                                                                ticker=company):
+            current_bought_stock = await  bought_stock_service.get_of_current_user_stock_by_name(
+                current_user_id=current_user_id,
+                ticker=company
+            )
+            bought_stock_id = current_bought_stock.id
+            (
+                new_combined_strengths,
+                new_combined_weakness,
+                new_combined_wiki
+            ) = await llm_wiki.ingest(
+                watch_list_stock_id=None,
+                bought_stock_id=bought_stock_id,
+                company_name="",
+                ticker=company,
+                new_strengths="",
+                new_weaknesses="",
+                new_content=ai_evaluation
+            )
+            await bought_stock_service.update_strength_weakness_wiki_page_of_stock(
+                bought_stock_obj=current_bought_stock,
+                new_strength=new_combined_strengths,
+                new_weakness=new_combined_weakness,
+                new_wiki_page=new_combined_wiki
+            )
+        elif await watchlist_stock_service.check_if_user_has_stock_already_in_watchlist(current_user_id=current_user_id,
+                                                                                        ticker=company):
+            current_watch_list_stock = await watchlist_stock_service.get_current_stock_of_user(
+                current_user_id=current_user_id,
+                ticker_of_stock=company,
+            )
+
+            current_watch_list_stock_id = current_watch_list_stock.id
+
+            (
+                new_combined_strengths,
+                new_combined_weakness,
+                new_combined_wiki
+            ) = await llm_wiki.ingest(
+                watch_list_stock_id=current_watch_list_stock_id,
+                bought_stock_id=None,
+                company_name="",
+                ticker=company,
+                new_strengths="",
+                new_weaknesses="",
+                new_content=ai_evaluation
+            )
+
+            await watchlist_stock_service.update_strength_weakness_wiki_page_of_watchlist_stock(
+                watchlist_stock_obj=current_watch_list_stock,
+                new_strength=new_combined_strengths,
+                new_weakness=new_combined_weakness,
+                new_wiki_page=new_combined_wiki
+            )
+
+
+
 
 
 
