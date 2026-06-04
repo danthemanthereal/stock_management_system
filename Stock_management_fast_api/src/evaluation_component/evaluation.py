@@ -46,6 +46,8 @@ class Evaluator:
         ticker_component = TickerStock()
         ticker = ticker_component.get_ticker_of_a_stock(company_name)
 
+        current_strengths, current_weakness, current_wiki_page = "", "", ""
+
         if await bought_stock_service.user_already_bought_stock(current_user_id, ticker):
             current_bought_stock = await bought_stock_service.get_of_current_user_stock_by_name(
                 current_user_id, ticker
@@ -63,54 +65,28 @@ class Evaluator:
                 url=used_url,
                 yt_url=used_yt_url
             )
-            system_prompt = self.get_system_prompt()
-            user_prompt = self.get_user_prompt(company_name,
-                                               ticker,
-                                               current_strengths,
-                                               new_strength,
-                                               current_weakness,
-                                               new_weakness,
-                                               current_wiki_page)
-            response = client.chat.completions.create(
-                model=self.model_name,
-                messages=[
-                    {"role": "system",
-                     "content": system_prompt
-                     },
-                    {
-                        "role": "user",
-                        "content": user_prompt
-                    }
-                ])
-
-            content = response.choices[0].message.content
-            data = self.safe_parse(content)
-            trajectory = data.get("trajectory", "")
-            reasoning = data.get("reasoning", "")
-            recommendation = data.get("recommendation", "")
-
-            return trajectory, reasoning, recommendation
+        else:
 
 
 
-        (current_strengths,
-         current_weaknesses,
-         current_wiki_page) = await watchlist_service.get_of_current_watchlist_stock_strengths_weakness_wiki_page(
-            current_user_id, ticker
-        )
+            (current_strengths,
+             current_weakness,
+             current_wiki_page) = await watchlist_service.get_of_current_watchlist_stock_strengths_weakness_wiki_page(
+                current_user_id, ticker
+            )
 
-        current_watchlist_id = await watchlist_service.get_watchlist_stock_id_by_ticker(ticker)
+            current_watchlist_id = await watchlist_service.get_watchlist_stock_id_by_ticker(ticker)
 
-        await self.update_strength_weakness_wiki_page(
-            watchlist_stock_id=current_watchlist_id,
-            bought_stock_id=None,
-            company_name=company_name,
-            ticker=ticker,
-            new_strengths=new_strength,
-            new_weaknesses=new_weakness,
-            url=used_url,
-            yt_url=used_yt_url
-        )
+            await self.update_strength_weakness_wiki_page(
+                watchlist_stock_id=current_watchlist_id,
+                bought_stock_id=None,
+                company_name=company_name,
+                ticker=ticker,
+                new_strengths=new_strength,
+                new_weaknesses=new_weakness,
+                url=used_url,
+                yt_url=used_yt_url
+            )
 
 
         system_prompt = self.get_system_prompt()
@@ -118,7 +94,7 @@ class Evaluator:
                                            ticker,
                                            current_strengths,
                                            new_strength,
-                                           current_weaknesses,
+                                           current_weakness,
                                            new_weakness,
                                            current_wiki_page)
         response = client.chat.completions.create(
