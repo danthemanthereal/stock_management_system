@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Request, Depends, BackgroundTasks, Form
 from slowapi.util import get_remote_address
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
-from src.database import db
 from src.database.models import User
-from src.authenticator_component.exception import AuthenticationFailed, PermissionDenied
-from src.authenticator_component.schemas import LoginRequest, LoginResponseData, UserStatus
+from src.authenticator_component.exception import AuthenticationFailed
+from src.authenticator_component.schemas import LoginResponseData
 from src.authenticator_component.authenticator import Auth
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -27,9 +28,12 @@ async def login(
         request: Request,
         username: str = Form(...),
         password: str = Form(...),
-        db: Session = Depends(get_db)
+        db: AsyncSession = Depends(get_db)
 ):
-    user = db.query(User).filter(User.user_name == username).first()
+    result = await db.execute(
+        select(User).where(User.user_name == username)
+    )
+    user = result.scalar_one_or_none()
     if not user:
         raise AuthenticationFailed(detail="Invalid username.")
 

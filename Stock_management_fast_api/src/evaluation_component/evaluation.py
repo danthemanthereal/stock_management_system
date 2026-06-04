@@ -42,11 +42,60 @@ class Evaluator:
                                  used_yt_url: str ):
         client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         watchlist_service = WatchlistStockService(self.db)
+        bought_stock_service = BoughtStockService(self.db)
         ticker_component = TickerStock()
         ticker = ticker_component.get_ticker_of_a_stock(company_name)
+
+        if await bought_stock_service.user_already_bought_stock(current_user_id, ticker):
+            current_bought_stock = await bought_stock_service.get_of_current_user_stock_by_name(
+                current_user_id, ticker
+            )
+            current_bought_stock_id = current_bought_stock.id
+
+            current_strengths, current_weakness, current_wiki_page = await bought_stock_service.get_bought_stock_strengths_weakness_wiki_page_with_id(current_bought_stock_id)
+            await self.update_strength_weakness_wiki_page(
+                watchlist_stock_id=None,
+                bought_stock_id=current_bought_stock_id,
+                company_name=company_name,
+                ticker=ticker,
+                new_strengths=new_strength,
+                new_weaknesses=new_weakness,
+                url=used_url,
+                yt_url=used_yt_url
+            )
+            system_prompt = self.get_system_prompt()
+            user_prompt = self.get_user_prompt(company_name,
+                                               ticker,
+                                               current_strengths,
+                                               new_strength,
+                                               current_weakness,
+                                               new_weakness,
+                                               current_wiki_page)
+            response = client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {"role": "system",
+                     "content": system_prompt
+                     },
+                    {
+                        "role": "user",
+                        "content": user_prompt
+                    }
+                ])
+
+            content = response.choices[0].message.content
+            data = self.safe_parse(content)
+            trajectory = data.get("trajectory", "")
+            reasoning = data.get("reasoning", "")
+            recommendation = data.get("recommendation", "")
+
+            return trajectory, reasoning, recommendation
+
+
+
         (current_strengths,
          current_weaknesses,
-         current_wiki_page) = watchlist_service.get_of_current_watchlist_stock_strengths_weakness_wiki_page(
+         current_wiki_page) = await watchlist_service.get_of_current_watchlist_stock_strengths_weakness_wiki_page(
             current_user_id, ticker
         )
 
@@ -232,7 +281,7 @@ reasoning:
 
         if watchlist_stock_id:
             watchlist_stock_service = WatchlistStockService(db=self.db)
-            watchlist_stock = watchlist_stock_service.get_watch_list_stock_with_id(watchlist_stock_id)
+            watchlist_stock = await  watchlist_stock_service.get_watch_list_stock_with_id(watchlist_stock_id)
             await watchlist_stock_service.update_strength_weakness_wiki_page_of_watchlist_stock(
                 watchlist_stock_obj=watchlist_stock,
                 new_strength=new_combined_strengths,
@@ -242,10 +291,10 @@ reasoning:
 
         elif bought_stock_id:
             bought_stock_service = BoughtStockService(db=self.db)
-            bought_stock = bought_stock_service.get_bought_stock_by_id(bought_stock_id)
-            await bought_stock.update_strength_weakness_wiki_page_of_bought_stock(
+            bought_stock = await bought_stock_service.get_bought_stock_by_id(bought_stock_id)
+            await bought_stock_service.update_strength_weakness_wiki_page_of_stock(
                 bought_stock_obj=bought_stock,
-                new_combined_strengths=new_combined_strengths,
-                new_combined_weakness=new_combined_weakness,
-                new_combined_wiki_page=new_combined_wiki_page
+                new_strength=new_combined_strengths,
+                new_weakness=new_combined_weakness,
+                new_wiki_page=new_combined_wiki_page
             )

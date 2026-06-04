@@ -85,7 +85,7 @@ class WatchlistStockService:
                 new_content=new_content
             )
 
-            self.update_strength_weakness_wiki_page_of_watchlist_stock(
+            await self.update_strength_weakness_wiki_page_of_watchlist_stock(
                 watchlist_stock_obj=current_stock,
                 new_strength=new_combined_strengths,
                 new_weakness=new_combined_weakness,
@@ -118,7 +118,7 @@ class WatchlistStockService:
             new_content=new_content
         )
 
-        self.update_strength_weakness_wiki_page_of_watchlist_stock(
+        await self.update_strength_weakness_wiki_page_of_watchlist_stock(
             watchlist_stock_obj=new_watchlist_stock,
             new_strength=new_strengths,
             new_weakness=new_weakness,

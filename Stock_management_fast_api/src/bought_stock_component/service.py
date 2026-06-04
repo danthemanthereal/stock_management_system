@@ -126,7 +126,7 @@ class BoughtStockService:
 
 
         try:
-            if self.user_already_bought_stock(current_user_id=current_user_id, ticker=ticker):
+            if await self.user_already_bought_stock(current_user_id=current_user_id, ticker=ticker):
 
                 pass
 

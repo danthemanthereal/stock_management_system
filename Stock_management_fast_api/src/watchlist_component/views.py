@@ -68,10 +68,10 @@ async def add_to_watchlist_and_evaluation(
             yt_transcript_component = YoutubeTranscriptComponent()
             new_content = yt_transcript_component.get_summary_of_yt_video(company.yt_url)
 
-        if bought_stock_service.user_already_bought_stock(current_user_id, ticker):
+        if await bought_stock_service.user_already_bought_stock(current_user_id, ticker):
 
             from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
-            current_stock = bought_stock_service.get_of_current_user_stock_by_name(current_user_id, ticker)
+            current_stock = await bought_stock_service.get_of_current_user_stock_by_name(current_user_id, ticker)
             llm_wiki = LLMWiki(db,LLM_WIKI_MODEL)
             (new_combined_strengths,
              new_combined_weaknesses,
