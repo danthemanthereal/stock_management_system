@@ -415,8 +415,9 @@ def find_potential_stocks(filters: dict):
 
 
 
-@analysis_router.post("/get-financial-metrics", response_class=HTMLResponse)
-async def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(request: Request, company: str = Form(...),
+@analysis_router.get("/get-financial-metrics", response_class=HTMLResponse)
+async def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(request: Request,
+                                                                                     company: str,
                                                   db: AsyncSession = Depends(get_db),
                                                   current_user_id: UUID = Depends(get_current_user_id)):
     try:

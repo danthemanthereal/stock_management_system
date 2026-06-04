@@ -85,6 +85,12 @@
                            style="width: 100%; box-sizing: border-box;">
                     <button type="submit" class="btn" style="padding: 8px; font-size: 14px;">💾 Einbuchen</button>
                 </form>
+                <form action="/watchlist/analyse-financial-metrics-watchlist-stock" method="post">
+                    <input type="hidden" name="name" value="{{ stock.name }}">
+                    <button type="submit" class="btn">
+                         Kennzahlen Analyse von Aktie auf Watchlist starten
+                    </button>
+                </form>
             </td>
         </tr>
     {% else %}
