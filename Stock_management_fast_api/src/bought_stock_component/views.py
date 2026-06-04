@@ -2,6 +2,7 @@ import traceback
 from uuid import UUID
 from fastapi import APIRouter, Request, Depends, Form
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.responses import RedirectResponse, HTMLResponse
 from starlette.templating import Jinja2Templates
 from src.database.db import get_db
 from src.authenticator_component.authenticator import get_current_user_id
@@ -58,3 +59,14 @@ async def add_stock_from_watchlist(
         print(error)
         traceback.print_exc()
         return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
+
+
+@bought_stock_router.post("/analyse-financial-metrics-watchlist-stock", response_class=HTMLResponse)
+async def analyse_finmetrics_stock_on_watchlist(name: str = Form(...)):
+
+    ticker_component = TickerStock()
+    ticker_of_stock = ticker_component.get_ticker_of_a_stock(name)
+    return RedirectResponse(
+        url=f"/analysis/get-financial-metrics?company={ticker_of_stock}",
+        status_code=303
+    )

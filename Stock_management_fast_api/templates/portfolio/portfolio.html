@@ -305,6 +305,12 @@
                                     <button onclick="toggleDetails({{ stock.id }})" type="button">
                                         Details
                                     </button>
+                                    <form action="/bought-stock/analyse-financial-metrics-watchlist-stock" method="post">
+                                        <input type="hidden" name="name" value="{{ stock.name }}">
+                                        <button type="submit" class="btn">
+                                             Kennzahlen Analyse von Aktie auf Watchlist starten
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
 

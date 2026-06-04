@@ -147,7 +147,6 @@ async def analyse_finmetrics_stock_on_watchlist(name: str = Form(...)):
 
     ticker_component = TickerStock()
     ticker_of_stock = ticker_component.get_ticker_of_a_stock(name)
-    ticker_of_stock="AMD"
     return RedirectResponse(
         url=f"/analysis/get-financial-metrics?company={ticker_of_stock}",
         status_code=303
