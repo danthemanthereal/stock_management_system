@@ -1,0 +1,2 @@
+class FinancialMetricCalculator:
+    pass

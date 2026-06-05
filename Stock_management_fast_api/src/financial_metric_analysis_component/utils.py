@@ -97,11 +97,6 @@ def get_ratio_metrics_of_fmp() -> list[str]:
         "capitalExpenditureCoverageRatio",
         "dividendPaidAndCapexCoverageRatio"]
 
-def get_alpha_ventage_metrics()-> list[str]:
-    return [
-        "costOfRevenue"
-    ]
-
 
 def add_to_metric_map_current_calculation(
         revenue_last_for_years: list,
