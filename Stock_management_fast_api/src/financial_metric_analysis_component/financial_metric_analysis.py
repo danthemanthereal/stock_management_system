@@ -28,6 +28,8 @@ class ActiveFinancialMetricComponent:
         total_financial_metric_map = {}
         results = [await f.fetch(self.company_name) for f in self.financial_metric_fetchers]
         total_financial_metrics_map = merge_all_financial_metrics_map(*results)
+        print("total fin metric map")
+        print(total_financial_metrics_map)
 
         total_financial_metric_map = await self.get_calculated_metrics(total_financial_metric_map, current_user_id)
         return  total_financial_metric_map

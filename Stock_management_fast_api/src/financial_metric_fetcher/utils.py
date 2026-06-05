@@ -163,6 +163,8 @@ def get_guro_metrics() -> list[str]:
         "zscore"
     ]
 
+def metric_will_be_considered(metric: str, financial_metrics_to_consider:list[str]) -> bool:
+    return metric in financial_metrics_to_consider
 
 def merge_all_financial_metrics_map(*maps: dict) -> dict:
     result = {}
