@@ -1,14 +1,104 @@
-def get_alpha_ventage_metrics()-> list[str]:
+def get_alpha_ventage_metrics() -> list[str]:
+    return [
+        "grossProfit",
+        "totalRevenue",
+        "costOfRevenue",
+        "costofGoodsAndServicesSold",
+        "operatingIncome",
+        "sellingGeneralAndAdministrative",
+        "researchAndDevelopment",
+        "operatingExpenses",
+        "investmentIncomeNet",
+        "netInterestIncome",
+        "interestIncome",
+        "interestExpense",
+        "nonInterestIncome",
+        "otherNonOperatingIncome",
+        "depreciation",
+        "depreciationAndAmortization",
+        "incomeBeforeTax",
+        "incomeTaxExpense",
+        "interestAndDebtExpense",
+        "netIncomeFromContinuingOperations",
+        "comprehensiveIncomeNetOfTax",
+        "ebit",
+        "ebitda",
+        "netIncome",
+        "operatingCashflow",
+        "paymentsForOperatingActivities",
+        "proceedsFromOperatingActivities",
+        "changeInOperatingLiabilities",
+        "changeInOperatingAssets",
+        "depreciationDepletionAndAmortization",
+        "capitalExpenditures",
+        "changeInReceivables",
+        "changeInInventory",
+        "profitLoss",
+        "cashflowFromInvestment",
+        "cashflowFromFinancing",
+        "proceedsFromRepaymentsOfShortTermDebt",
+        "paymentsForRepurchaseOfCommonStock",
+        "paymentsForRepurchaseOfEquity",
+        "paymentsForRepurchaseOfPreferredStock",
+        "dividendPayout",
+        "dividendPayoutCommonStock",
+        "dividendPayoutPreferredStock",
+        "proceedsFromIssuanceOfCommonStock",
+        "proceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet",
+        "proceedsFromIssuanceOfPreferredStock",
+        "proceedsFromRepurchaseOfEquity",
+        "proceedsFromSaleOfTreasuryStock",
+        "stockBasedCompensation",
+        "changeInCashAndCashEquivalents",
+        "changeInExchangeRate",
+        "netIncome",
+        "totalAssets",
+        "totalCurrentAssets",
+        "cashAndCashEquivalentsAtCarryingValue",
+        "cashAndShortTermInvestments",
+        "inventory",
+        "currentNetReceivables",
+        "totalNonCurrentAssets",
+        "propertyPlantEquipment",
+        "accumulatedDepreciationAmortizationPPE",
+        "intangibleAssets",
+        "intangibleAssetsExcludingGoodwill",
+        "goodwill",
+        "investments",
+        "longTermInvestments",
+        "shortTermInvestments",
+        "otherCurrentAssets",
+        "otherNonCurrentAssets",
+        "totalLiabilities",
+        "totalCurrentLiabilities",
+        "currentAccountsPayable",
+        "deferredRevenue",
+        "currentDebt",
+        "shortTermDebt",
+        "totalNonCurrentLiabilities",
+        "capitalLeaseObligations",
+        "longTermDebt",
+        "currentLongTermDebt",
+        "longTermDebtNoncurrent",
+        "shortLongTermDebtTotal",
+        "otherCurrentLiabilities",
+        "otherNonCurrentLiabilities",
+        "totalShareholderEquity",
+        "treasuryStock",
+        "retainedEarnings",
+        "commonStock",
+        "commonStockSharesOutstanding",
+        "MarketCapitalization"
+    ]
+
+
+def get_fmp_metrics() -> list[str]:
     return [
         "costOfRevenue"
     ]
 
-def get_fmp_metrics()-> list[str]:
-    return [
-        "costOfRevenue"
-    ]
 
-def get_guro_metrics()-> list[str]:
+def get_guro_metrics() -> list[str]:
     return [
         "capex_to_operating_cash_flow",
         "capex_to_operating_income",
@@ -72,9 +162,6 @@ def get_guro_metrics()-> list[str]:
         "wacc",
         "zscore"
     ]
-
-
-
 
 
 def merge_all_financial_metrics_map(*maps: dict) -> dict:
