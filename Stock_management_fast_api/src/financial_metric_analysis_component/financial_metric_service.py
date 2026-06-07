@@ -2,7 +2,7 @@ import uuid
 from typing import List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.database.models import  FinancialMetric
+from src.database.models import FinancialMetric, FinancialMetricCategory
 from src.financial_metric_analysis_component.financial_metric_analysis import \
     ActiveFinancialMetricComponent
 import os
@@ -63,3 +63,13 @@ class MetricsService:
         metric_evaluator = FinancialMetricEvaluator(self.db)
         return await metric_evaluator.get_satisfied_unsatisfied_by_category_and_summary(metrics_of_current_user_template,
                                                                                   current_user_id)
+
+    async def get_metrics_by_category_name(self, category_name: str):
+        stmt = (
+            select(FinancialMetric.name)
+            .join(FinancialMetricCategory)
+            .where(FinancialMetricCategory.name == category_name)
+        )
+
+        result = await self.db.execute(stmt)
+        return result.scalars().all()
