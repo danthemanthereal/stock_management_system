@@ -11,9 +11,9 @@ class FinancialMetricCalculator:
     def init_financial_metrics_handler(self):
         metric_handlers = {
             "cost_of_goods_and_service_sold_to_revenue": self.get_cost_of_goods_and_service_sold_to_revenue_last_four_years,
-            "salesGeneralAndAdministrativeToRevenue": self.get_sales_and_administrative_to_revenue_last_four_years,
-            "cost_of_revenue_to_revenue":self.get_cost_of_revenue_to_revenue_last_four_years,
-            "researchAndDevelopementToRevenue": self.get_research_and_development_to_revenue_last_four_years,
+          #  "salesGeneralAndAdministrativeToRevenue": self.get_sales_and_administrative_to_revenue_last_four_years,
+           # "cost_of_revenue_to_revenue":self.get_cost_of_revenue_to_revenue_last_four_years,
+            #"researchAndDevelopementToRevenue": self.get_research_and_development_to_revenue_last_four_years,
             "cash_conversion_cycle": self.get_cash_conversion_cycle_last_four_years,
             "cash_ratio": self.get_cash_ratio_last_four_years,
             "current_ratio":self.get_current_ratio_last_four_years,
@@ -31,23 +31,22 @@ class FinancialMetricCalculator:
           #  "cover_sales_in_days": "",
          #   "book_to_bill_ratio": "",
             "capex_to_operating_cash_flow": self.get_capex_to_operating_cash_flow_last_four_years,
-            "capex_to_operating_income": "",
-            "capex_to_revenue": "",
+            "capex_to_operating_income": self.get_capex_to_operating_income_last_four_years,
+            "capex_to_revenue": self.get_capex_to_revenue_last_four_years,
             "debt_to_asset":self.get_debt_to_asset_last_four_years_last_four_years,
             "debt_to_equity":self.get_debt_to_equity_last_four_years_last_four_years,
             "equity_to_asset": self.get_equity_to_asset_ratio_last_four_years,
-            "interest_coverage": "",
-            "liabilities_to_assets": self.get_liabilities_to_asset_ratio_last_four_years,
-            "sloan_ratio": "",
-            "netDebtToEBITDA": "",
-            "solvencyRatio": "",
-            "debtToCapitalRatio": "",
-            "longTermDebtToCapitalRatio": "",
-            "debtServiceCoverageRatio": "",
-            "interestCoverageRatio": "",
-            "shortTermOperatingCashFlowCoverageRatio": "",
-            "operatingCashFlowCoverageRatio": "",
-            "capitalExpenditureCoverageRatio": "",
+            "interest_coverage": self.get_interest_coverage_last_four_years,
+          #  "liabilities_to_assets": self.get_liabilities_to_asset_ratio_last_four_years,
+            "sloan_ratio": self.get_sloan_ratio_last_four_years,
+         #   "netDebtToEBITDA": "",
+         #   "solvencyRatio": "",
+         #   "debtToCapitalRatio": "",
+          #  "longTermDebtToCapitalRatio": "",
+        #    "debtServiceCoverageRatio": "",
+         #   "shortTermOperatingCashFlowCoverageRatio": "",
+         #   "operatingCashFlowCoverageRatio": "",
+        #    "capitalExpenditureCoverageRatio": "",
             "gearing":self.get_gearing_last_four_years,
             "dynamic_debt_degree":self.get_dynamic_debt_degree_last_four_years,
             "current_asset_intensity": "",
@@ -55,7 +54,7 @@ class FinancialMetricCalculator:
             "asset_cover_ratio_one": "",
             "asset_cover_ratio_two": "",
             "good_will_ratio": "",
-            "investment_to_operative_cashflow": "",
+          #  "investment_to_operative_cashflow": "",
             "useless_degree": "",
             "growth_ratio": "",
             "cash_burn_rate": "",
@@ -239,6 +238,34 @@ class FinancialMetricCalculator:
     def get_capex_to_operating_income_last_four_years(self):
         return self.total_financial_metric_map.get("capex_to_operating_income", [])
 
+    def get_capex_to_revenue_last_four_years(self):
+        return self.total_financial_metric_map.get("capex_to_revenue", [])
+
+    def get_debt_to_asset_last_four_years_last_four_years(self):
+
+        #return self.debt_to_metric_ratio_last_four_years("totalAssets")
+        return self.total_financial_metric_map.get("debt_to_asset", [])
+
+    def get_debt_to_equity_last_four_years_last_four_years(self):
+        #return self.debt_to_metric_ratio_last_four_years("totalShareholderEquity")
+        return self.total_financial_metric_map.get("debt_to_equity", [])
+
+    def get_equity_to_asset_ratio_last_four_years(self):
+
+        #return self.get_value_to_asset_ratio_last_four_years("totalShareholderEquity")
+        return self.total_financial_metric_map.get("equity_to_asset", [])
+
+    def get_interest_coverage_last_four_years(self):
+        return self.total_financial_metric_map.get("interest_coverage", [])
+
+    def get_liabilities_to_asset_ratio_last_four_years(self):
+
+        #return self.get_value_to_asset_ratio_last_four_years("totalLiabilities")
+        pass
+
+    def get_sloan_ratio_last_four_years(self):
+        return self.total_financial_metric_map.get("sloan_ratio", [])
+
 
 
     def calculate_to_revenue_ratio_last_four_years(self, metric_key):
@@ -257,12 +284,6 @@ class FinancialMetricCalculator:
             result.append(ratio)
         return result
 
-    def get_debt_to_asset_last_four_years_last_four_years(self):
-
-        return self.debt_to_metric_ratio_last_four_years("totalAssets")
-
-    def get_debt_to_equity_last_four_years_last_four_years(self):
-        return self.debt_to_metric_ratio_last_four_years("totalShareholderEquity")
 
     def get_debt_to_capital_last_four_years_last_four_years(self):
         debts = self.get_total_debt_last_four_years()
@@ -304,13 +325,6 @@ class FinancialMetricCalculator:
             result.append(ratio)
         return result
 
-    def get_equity_to_asset_ratio_last_four_years(self):
-
-        return self.get_value_to_asset_ratio_last_four_years("totalShareholderEquity")
-
-    def get_liabilities_to_asset_ratio_last_four_years(self):
-
-        return self.get_value_to_asset_ratio_last_four_years("totalLiabilities")
 
     def get_value_to_asset_ratio_last_four_years(self, value:str):
         value_last_four_years = self.total_financial_metric_map.get(value, [])
@@ -329,9 +343,9 @@ class FinancialMetricCalculator:
         return equity_to_asset_last_four_years
 
     def get_gearing_last_four_years(self):
-        total_liabilities_last_four_years = self.total_financial_metric_map.get("totalLiabilities'", [])
-        cash_and_equivalents_last_four_years = self.total_financial_metric_map.get("cashAndCashEquivalentsAtCarryingValue", [])
-        equity_last_four_years = self.total_financial_metric_map.get("totalShareholderEquity", [])
+        total_liabilities_last_four_years = self.total_financial_metric_map.get("total_liabilities", [])
+        cash_and_equivalents_last_four_years = self.total_financial_metric_map.get("cash_and_cash_equivalents", [])
+        equity_last_four_years = self.total_financial_metric_map.get("total_equity", [])
 
         gearing_last_four_years = []
 
@@ -340,7 +354,7 @@ class FinancialMetricCalculator:
             current_cash_and_equivalents = float(cash_and_equivalents_last_four_years[idx])
             current_equity = float(equity_last_four_years[idx])
             val_float = current_liability - current_cash_and_equivalents
-            ratio = round(val_float / current_equity * 100, 2) if current_equity != 0 else None
+            ratio = round(val_float / current_equity, 2) if current_equity != 0 else None
             gearing_last_four_years.append(ratio)
         return gearing_last_four_years
 
