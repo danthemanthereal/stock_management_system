@@ -62,7 +62,7 @@
   "priceToSalesRatio": "KUV",
   "priceToFreeCashFlowRatio": "KFCV",
   "priceToOperatingCashFlowRatio": "KCV",
-  "cost_of_goods_sold_to_revenue": "Materialaufwandsquote",
+  "cost_of_goods_and_service_sold_to_revenue": "Kosten von Service und Material zum Umsatz",
   "ebitda_margin": "EBITDA-Marge",
   "fcf_margin": "Free-Cashflow-Marge",
   "free_cash_flow_per_share": "Free Cashflow je Aktie",
@@ -339,7 +339,7 @@
   "work_in_process": "Unfertige Erzeugnisse",
   "yield": "Rendite",
   "freeCashFlowToFirm": "Free Cashflow to Firm",
-  "cost_of_cost_sales_to_revenue": "Umsatzkostenquote",
+  "cost_of_revenue_to_revenue": "Umsatzkostenquote",
   "link_edit": "Kennzahl bearbeiten",
   "btn_filter_all": "Alle Kennzahlen anzeigen",
   "should_rise": "Sollte Steigen"

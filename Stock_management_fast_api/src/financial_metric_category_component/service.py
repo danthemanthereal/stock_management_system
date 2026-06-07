@@ -11,5 +11,3 @@ class FinancialMetricCategoryService:
         result = await self.db.execute(select(FinancialMetricCategory))
         return result.scalars().all()
 
-
-    async def get_all

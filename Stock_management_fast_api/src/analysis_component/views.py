@@ -425,7 +425,6 @@ async def get_evaluation_of_financial_metrics_of_current_user_last_selected_temp
                                                   db: AsyncSession = Depends(get_db),
                                                   current_user_id: UUID = Depends(get_current_user_id)):
     try:
-
         financial_metric_service = MetricsService(db)
         (data_by_category,
          satisfied_metrics_by_category,
@@ -444,15 +443,15 @@ async def get_evaluation_of_financial_metrics_of_current_user_last_selected_temp
         ai_financial_metric_evaluator = FinancialMetricAIEvaluator(
             model_name=FINANCIAL_METRIC_EVALUATION_MODEL
         )
-
-        ai_evaluation = ai_financial_metric_evaluator.evaluate_financial_metrics(
+        ai_evaluation = ""
+        """ai_evaluation = ai_financial_metric_evaluator.evaluate_financial_metrics(
             satisfied_by_category= satisfied_metrics_by_category,
         unsatisfied_by_category = unsatisfied_metrics_by_category,
         satisfied_only_reference_value = satisfied_benchmarks_by_category,
         unsatisfied_only_reference_value= unsatisfied_benchmarks_by_category,
         satisfied_only_development= satisfied_development_by_category,
         unsatisfied_only_development= unsatisfied_development_by_category,
-        )
+        )"""
 
         llm_wiki = LLMWiki(
             db=db,
