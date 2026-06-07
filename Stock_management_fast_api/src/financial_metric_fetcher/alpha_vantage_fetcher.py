@@ -1,3 +1,5 @@
+import asyncio
+
 import httpx
 
 from src.financial_metric_fetcher.financial_metric_fetcher import FinancialMetricFetcher
@@ -33,13 +35,22 @@ class AlphaVantageFetcher(FinancialMetricFetcher):
     async def get_all_metrics_of_alpha_vantage(self, company_ticker: str) -> list[dict]:
         try:
             metrics_last_four_years = []
-            for url_endpoint in self.DIFFERENT_URL_ENDPOINTS:
-                url = f"https://www.alphavantage.co/query?function={url_endpoint}&symbol={company_ticker}&apikey={self.alpha_vantage_api_key}"
-                ## 22, 23, 24, 25
-                async with httpx.AsyncClient() as client:
-                    response = await client.get(url)
-                    data = response.json()
-                metrics_last_four_years.append(list(reversed(data.get('annualReports', [])))[self.LAST_FOUR_YEARS:])
+            async with httpx.AsyncClient() as client:
+                tasks = []
+                for endpoint in self.DIFFERENT_URL_ENDPOINTS:
+                    url = f"https://www.alphavantage.co/query?function={endpoint}&symbol={company_ticker}&apikey={self.alpha_vantage_api_key}"
+                    tasks.append(client.get(url))
+                responses = await asyncio.gather(*tasks, return_exceptions=True)
+
+                for response in responses:
+                    try:
+                        if not isinstance(response, Exception):
+                            data = response.json()
+                            metrics_last_four_years.extend(list(reversed(data.get('annualReports', [])))[self.LAST_FOUR_YEARS:])
+                        else:
+                            metrics_last_four_years.extend([])
+                    except Exception as e :
+                        print(e)
             return metrics_last_four_years
         except Exception as e :
             print(e)

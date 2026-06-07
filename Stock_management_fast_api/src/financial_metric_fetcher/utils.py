@@ -172,3 +172,10 @@ def merge_all_financial_metrics_map(*maps: dict) -> dict:
         for k, v in m.items():
             result.setdefault(k, v)
     return result
+
+def get_calculated_financial_metrics() -> list[str]:
+    return [
+        "salesGeneralAndAdministrativeToRevenue",
+        "researchAndDevelopementToRevenue",
+        "cost_of_cost_sales_to_revenue"
+    ]

@@ -51,7 +51,7 @@ class TemplateService:
         return new_template.id
 
     async def get_last_selected_template_id_of_user(self, current_user_id: uuid.UUID) -> int:
-        if not self.check_if_user_already_has_template(current_user_id):
+        if not await self.check_if_user_already_has_template(current_user_id):
             over_all_user_template = IndustryProfile(
                 name="Allgemein",
                 user_id=str(current_user_id)
