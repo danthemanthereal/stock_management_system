@@ -104,6 +104,7 @@ def get_guro_metrics() -> list[str]:
         "capex_to_operating_income",
         "capex_to_revenue",
         "cash_ratio",
+        "cash_conversion_cycle",
         "cost_of_goods_sold_to_revenue",
         "current_ratio",
         "days_inventory",
