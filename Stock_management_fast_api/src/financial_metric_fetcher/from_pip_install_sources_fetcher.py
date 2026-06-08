@@ -37,7 +37,7 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
     "Accounts Payable Turnover Ratio": "payablesTurnover",
     "SGA-to-Revenue Ratio": "sga_to_revenue",
     "Fixed Asset Turnover": "fixed_asset_turnover",
-    "Asset Turnover Ratio": "",
+    "Asset Turnover Ratio": "asset_turnover", # noch mal genauer
     "Operating Ratio": "operating_ratio",
     "Current Ratio": "current_ratio",
     "Quick Ratio": "quick_ratio",
@@ -64,7 +64,7 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
     "EV-to-EBIT": "enterprise_value_to_ebit",
     "EV-to-EBITDA": "enterprise_value_to_ebitda",
     "EV-to-Operating-Cash-Flow": "enterprise_value_to_ocf",
-    "Piotroski Score": "",
+    "Piotroski Score": "piotroski",
     "Altman Z-Score": "zscore"
 }
 
@@ -106,6 +106,18 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
             ratio_type="valuation"
         )
 
+        metrics_of_company_from_pip_sources = self.insert_score_by_type(
+            company=company,
+            metrics_dict=metrics_of_company_from_pip_sources,
+            score_type="piotroski"
+        )
+
+        metrics_of_company_from_pip_sources = self.insert_score_by_type(
+            company=company,
+            metrics_dict=metrics_of_company_from_pip_sources,
+            score_type="altman_z"
+        )
+
         return metrics_of_company_from_pip_sources
 
     def insert_metrics_by_type(self, company: Toolkit, metrics_dict: dict[str, list], ratio_type: str) -> dict[
@@ -115,6 +127,22 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
         method_name = f"collect_{ratio_type}_ratios"
         collect_method = getattr(company.ratios, method_name)
         df = collect_method()
+
+        for metric in self.metrics_to_consider:
+            if metric in df.index:
+                values = df.loc[metric, years].tolist()
+                db_key = self.api_metric_database_mapping.get(metric, "")
+                metrics_dict[db_key] = values
+
+        return metrics_dict
+
+    def insert_score_by_type(self, company: Toolkit, metrics_dict: dict[str, list], score_type: str) -> dict[
+        str, list]:
+
+        years = ["2022", "2023", "2024", "2025"]
+        method_name = f"get_{score_type}_score"
+        score_method = getattr(company.models, method_name)
+        df = score_method()
 
         for metric in self.metrics_to_consider:
             if metric in df.index:
