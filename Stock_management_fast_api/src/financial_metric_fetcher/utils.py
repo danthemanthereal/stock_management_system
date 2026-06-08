@@ -96,36 +96,15 @@ def get_fmp_metrics() -> list[str]:
 
 def get_guro_metrics() -> list[str]:
     return [
-      '''  "capex_to_operating_cash_flow",
-        "capex_to_operating_income",
-        "capex_to_revenue",
-        "total_liabilities",
-        "total_current_liabilities",
-        "total_free_cash_flow",
-        "total_current_assets",
-        "total_non_current_assets",
-        "total_assets",
-        "cash_and_cash_equivalents",
-        "total_equity",
-        "cost_of_goods_sold_to_revenue",
-        "cost_of_goods_sold",
-        "accounts_payable",
         "degree_of_financial_leverage",
         "degree_of_operating_leverage",
-        "ebitda_margin",
-        "ebit",
         "enterprise_value_to_fcf",
-        "equity_to_asset",
-        "fcf_margin",
         "fscore",
         "gf_score",
         "gf_value",
         "graham_number",
         "price_to_gf_value",
         "mscore",
-        "gross_profit_to_asset",
-        "inventory_to_revenue",
-        "ocf_margin",
         "ocf_yield",
         "yield",
         "peter_lynch_fair_value",
@@ -136,7 +115,6 @@ def get_guro_metrics() -> list[str]:
         "rank_momentum",
         "rank_predictability",
         "rank_profitability",
-        "rd2rev",
         "return_on_tangible_equity",
         "shiller_pe_ratio",
         "sloan_ratio",
@@ -144,7 +122,6 @@ def get_guro_metrics() -> list[str]:
         "total_employee_number",
         "turnover",
         "wacc",
-        "zscore",
         "cash_per_share",
         "ebitda_per_share",
         "free_cash_flow_per_share",
@@ -154,9 +131,7 @@ def get_guro_metrics() -> list[str]:
         "price_to_operating_cash_flow",
         "price_to_owner_earnings",
         "price_to_tangible_book",
-        "good_will",
-        "intangibles",
-        "defensive_interval_ratio"'''
+        "defensive_interval_ratio"
     ]
 
 def get_considered_financial_metric_of_pip_sources() -> list[str]:
@@ -221,7 +196,25 @@ def get_considered_financial_metric_of_pip_sources() -> list[str]:
 def get_considered_raw_metrics() -> list[str]:
     return [
         "Goodwill",
-        "Total Equity"
+        "Total Equity",
+        "Operating Income"
+        "Total Debt"
+        "EBITDA",
+        "Revenue",
+        "Free Cash Flow",
+        "Operating Cash Flow",
+        "Cash and Cash Equivalents",
+        "Total Liabilities",
+        "Total Assets",
+        "Total Non Current Liabilities",
+        "Total Current Assets",
+        "Gross Profit",
+        "Inventory",
+        "Intangible Assets",
+        "Capital Expenditure",
+        "Cost of Goods Sold",
+        "Long Term Debt and Capital Lease Obligation",
+        "Accumulated Depreciation"
     ]
 
 def metric_will_be_considered(metric: str, financial_metrics_to_consider:list[str]) -> bool:

@@ -37,7 +37,7 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
     "Cash Conversion Efficiency": "cash_conversion_efficiency",
     "Receivables Turnover": "receivables_turnover",
     "Inventory Turnover Ratio": "inventory_turnover",
-    "Accounts Payable Turnover Ratio": "payablesTurnover",
+    "Accounts Payable Turnover Ratio": "payables_turnover",
     "SGA-to-Revenue Ratio": "sga_to_revenue",
     "Fixed Asset Turnover": "fixed_asset_turnover",
     "Asset Turnover Ratio": "asset_turnover", # noch mal genauer
@@ -191,9 +191,7 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
 
         for raw_metric in raw_metrics:
             if metric_will_be_considered(raw_metric, self.raw_metrics_to_consider):
-                print("metric will be considered", raw_metric)
                 values = df_clean.loc[raw_metric, years].tolist()
-                print("raw metric values:", values)
                 metrics_dict[raw_metric] = values
 
         return metrics_dict
