@@ -88,7 +88,6 @@ def get_alpha_ventage_metrics() -> list[str]:
         "retainedEarnings",
         "commonStock",
         "commonStockSharesOutstanding",
-        "MarketCapitalization"
     ]
 
 
@@ -115,6 +114,8 @@ def get_guro_metrics() -> list[str]:
         "cash_and_cash_equivalents",
         "total_equity",
         "cost_of_goods_sold_to_revenue",
+        "cost_of_goods_sold",
+        "accounts_payable",
         "current_ratio",
         "days_inventory",
         "days_payable",
@@ -124,6 +125,7 @@ def get_guro_metrics() -> list[str]:
         "degree_of_financial_leverage",
         "degree_of_operating_leverage",
         "ebitda_margin",
+        "ebit",
         "enterprise_value_to_ebit",
         "enterprise_value_to_ebitda",
         "enterprise_value_to_fcf",
@@ -184,7 +186,11 @@ def get_guro_metrics() -> list[str]:
         "price_to_operating_cash_flow",
         "price_to_owner_earnings",
         "price_to_tangible_book",
-        "revenue_per_share"
+        "revenue_per_share",
+        "revenue",
+        "good_will",
+        "intangibles",
+        "defensive_interval_ratio"
     ]
 
 def metric_will_be_considered(metric: str, financial_metrics_to_consider:list[str]) -> bool:

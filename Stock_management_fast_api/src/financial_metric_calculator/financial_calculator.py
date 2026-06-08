@@ -11,22 +11,22 @@ class FinancialMetricCalculator:
     def init_financial_metrics_handler(self):
         metric_handlers = {
             "cost_of_goods_and_service_sold_to_revenue": self.get_cost_of_goods_and_service_sold_to_revenue_last_four_years,
-          #  "salesGeneralAndAdministrativeToRevenue": self.get_sales_and_administrative_to_revenue_last_four_years,
-           # "cost_of_revenue_to_revenue":self.get_cost_of_revenue_to_revenue_last_four_years,
-            #"researchAndDevelopementToRevenue": self.get_research_and_development_to_revenue_last_four_years,
+            "salesGeneralAndAdministrativeToRevenue": self.get_sales_and_administrative_to_revenue_last_four_years,
+            "cost_of_revenue_to_revenue":self.get_cost_of_revenue_to_revenue_last_four_years,
+            "researchAndDevelopementToRevenue": self.get_research_and_development_to_revenue_last_four_years,
             "cash_conversion_cycle": self.get_cash_conversion_cycle_last_four_years,
             "cash_ratio": self.get_cash_ratio_last_four_years,
             "current_ratio":self.get_current_ratio_last_four_years,
             "days_inventory": self.get_days_inventory_last_four_years,
             "days_payable": self.get_days_payable_last_four_years,
             "days_sales_outstanding": self.get_days_sales_outstanding_last_four_years,
-           # "defensive_interval_ratio": "",
+            "defensive_interval_ratio": self.get_defensive_interval_ratio_last_four_years,
             "inventory_to_revenue": self.get_inventory_to_revenue_last_four_years,
             "inventory_turnover": self.get_inventory_turnover_last_four_years,
             "quick_ratio": self.get_quick_ratio_last_four_years,
             "receivables_turnover": self.get_receivables_turnover_last_four_years,
             "turnover": self.get_turnover_last_four_years,
-          #  "payablesTurnover": "",
+            "payablesTurnover": self.get_accounts_payable_turnover_last_four_years,
           #  "fixedAssetTurnover": "",
           #  "cover_sales_in_days": "",
          #   "book_to_bill_ratio": "",
@@ -37,24 +37,22 @@ class FinancialMetricCalculator:
             "debt_to_equity":self.get_debt_to_equity_last_four_years_last_four_years,
             "equity_to_asset": self.get_equity_to_asset_ratio_last_four_years,
             "interest_coverage": self.get_interest_coverage_last_four_years,
-          #  "liabilities_to_assets": self.get_liabilities_to_asset_ratio_last_four_years,
+            "liabilities_to_assets": self.get_liabilities_to_asset_ratio_last_four_years,
             "sloan_ratio": self.get_sloan_ratio_last_four_years,
          #   "netDebtToEBITDA": "",
          #   "solvencyRatio": "",
          #   "debtToCapitalRatio": "",
           #  "longTermDebtToCapitalRatio": "",
         #    "debtServiceCoverageRatio": "",
-         #   "shortTermOperatingCashFlowCoverageRatio": "",
+            "shortTermOperatingCashFlowCoverageRatio": self.get_shortTermOperatingCashFlowCoverageRatio_last_four_years,
          #   "operatingCashFlowCoverageRatio": "",
-        #    "capitalExpenditureCoverageRatio": "",
             "gearing":self.get_gearing_last_four_years,
             "dynamic_debt_degree":self.get_dynamic_debt_degree_last_four_years,
             "current_asset_intensity": self.get_current_asset_intensity_last_four_years,
             "non_current_asset_intensity": self.get_non_current_asset_intensity_last_four_years,
             "asset_cover_ratio_one": self.get_asset_cover_ratio_one_last_four_years,
             "asset_cover_ratio_two": self.get_asset_cover_ratio_two_last_four_years,
-         #   "good_will_ratio": "",
-          #  "investment_to_operative_cashflow": "",
+            "good_will_ratio": self.get_good_will_ratio_last_four_years ,
          #   "useless_degree": "",
          #   "growth_ratio": "",
          #   "cash_burn_rate": "",
@@ -71,14 +69,12 @@ class FinancialMetricCalculator:
             "rank_predictability": self.get_rank_predictability_last_four_years,
             "rank_profitability": self.get_rank_profitability_last_four_years,
             "zscore": self.get_zscore_last_four_years,
-        #    "daysOfPayablesOutstanding": "",
-        #    "daysOfInventoryOutstanding": "",
           #  "workingCapitalTurnoverRatio": "",
        #     "dividendPaidAndCapexCoverageRatio": "",
          #   "dividends": "",
           #  "dividends_per_share": "",
             "ebitda_margin": self.get_ebitda_margin_last_four_years,
-         #   "ebit_margin": "",
+            "ebit_margin": self.get_ebit_margin_last_four_years,
             "fcf_margin": self.get_fcf_margin_last_four_years,
             "fcf_yield": self.get_fcf_yield_last_four_years,
             "gross_margin": self.get_gross_margin_last_four_years,
@@ -94,15 +90,10 @@ class FinancialMetricCalculator:
             "roe": self.get_roe_last_four_years,
             "roic": self.get_roic_last_four_years,
             "yield": self.get_yield_last_four_years,
-          #  "freeCashFlowToEquity": "",
+            "freeCashFlowToEquity": self.get_freeCashFlowToEquity_last_four_years,
          #   "freeCashFlowToFirm": "",
-          #  "operatingProfitMargin": "",
-          #  "pretaxProfitMargin": "",
-         #   "netProfitMargin": "",
-        #    "operatingCashFlowRatio": "",
-        #    "operatingCashFlowSalesRatio": "",
         #    "freeCashFlowOperatingCashFlowRatio": "",
-         #   "revenue_per_employee": "",
+            "revenue_per_employee":self.get_revenue_per_employee_last_four_years,
          #   "roi": "",
          #   "capital_turnover": "",
             "cash_per_share": self.get_cash_per_share_last_four_years,
@@ -130,7 +121,7 @@ class FinancialMetricCalculator:
             "degree_of_financial_leverage": self.get_degree_of_financial_leverage_last_four_years,
             "degree_of_operating_leverage": self.get_degree_of_operating_leverage_last_four_years,
         #    "capexToDepreciation": "",
-         #   "intangiblesToTotalAssets": "",
+            "intangiblesToTotalAssets": self.get_intangiblesToTotalAssets_last_four_years,
           #  "financialLeverageRatio": "",
             "wacc": self.get_wacc_last_four_years
         }
@@ -183,20 +174,19 @@ class FinancialMetricCalculator:
 
     def get_sales_and_administrative_to_revenue_last_four_years(self):
 
-        #return self.calculate_to_revenue_ratio("sellingGeneralAndAdministrative")
-        #return self.total_financial_metric_map.get("cost_of_goods_sold_to_revenue", [])
-        pass
+        return self.calculate_to_revenue_ratio_last_four_years("sellingGeneralAndAdministrative")
+
 
     def get_cost_of_revenue_to_revenue_last_four_years(self):
-        #return self.calculate_to_revenue_ratio("costOfRevenue")
-        pass
+        return self.calculate_to_revenue_ratio_last_four_years("costOfRevenue")
+
 
     def get_research_and_development_to_revenue_last_four_years(self):
-        #return self.calculate_to_revenue_ratio("researchAndDevelopment")
-        pass
+        return self.calculate_to_revenue_ratio_last_four_years("researchAndDevelopment")
+
 
     def get_cash_conversion_cycle_last_four_years(self):
-        pass
+        return self.total_financial_metric_map.get("cash_conversion_cycle", [])
 
     def get_cash_ratio_last_four_years(self):
         return self.total_financial_metric_map.get("cash_ratio", [])
@@ -213,6 +203,9 @@ class FinancialMetricCalculator:
     def get_days_sales_outstanding_last_four_years(self):
         return self.total_financial_metric_map.get("days_sales_outstanding", [])
 
+    def get_defensive_interval_ratio_last_four_years(self):
+        return self.total_financial_metric_map.get("defensive_interval_ratio", [])
+
     def get_inventory_to_revenue_last_four_years(self):
         return self.total_financial_metric_map.get("inventory_to_revenue", [])
 
@@ -227,6 +220,17 @@ class FinancialMetricCalculator:
 
     def get_turnover_last_four_years(self):
         return self.total_financial_metric_map.get("turnover", [])
+
+    def get_accounts_payable_turnover_last_four_years(self):
+        cost_of_goods_last_four_years = self.total_financial_metric_map.get("cost_of_goods_sold", [])
+        accounts_payable_last_four_years = self.total_financial_metric_map.get("accounts_payable", [])
+
+        accounts_payable_turnover_last_four_years = []
+
+        for cost_of_goods_sold, account_payable in zip(cost_of_goods_last_four_years, accounts_payable_last_four_years):
+            accounts_payable_turnover_last_four_years.append(round(float(cost_of_goods_sold) / float(account_payable), 2))
+
+        return accounts_payable_turnover_last_four_years
 
     def get_payables_turnover_last_four_years(self):
         return self.total_financial_metric_map.get("payablesTurnover", [])
@@ -258,12 +262,32 @@ class FinancialMetricCalculator:
         return self.total_financial_metric_map.get("interest_coverage", [])
 
     def get_liabilities_to_asset_ratio_last_four_years(self):
+        liabilities_last_four_years = self.total_financial_metric_map.get("total_liabilities", [])
+        asset_last_four_years = self.total_financial_metric_map.get("total_assets", [])
 
+        liabilities_to_asset_ratio_last_four_years = []
+
+        for liability, asset in zip(liabilities_last_four_years, asset_last_four_years):
+            liabilities_to_asset_ratio_last_four_years.append(round(float(liability) / float(asset), 2))
+
+        return liabilities_to_asset_ratio_last_four_years
         #return self.get_value_to_asset_ratio_last_four_years("totalLiabilities")
-        pass
+
 
     def get_sloan_ratio_last_four_years(self):
         return self.total_financial_metric_map.get("sloan_ratio", [])
+
+    def get_shortTermOperatingCashFlowCoverageRatio_last_four_years(self):
+        operating_cash_flow_last_four_years = self.total_financial_metric_map.get("operatingCashflow", [])
+        current_liabilities_last_four_years = self.total_financial_metric_map.get("totalCurrentLiabilities", [])
+
+        shortTermOperatingCashFlowCoverageRatio_last_four_years = []
+
+        for ope_cashflow, current_liability in zip(operating_cash_flow_last_four_years,current_liabilities_last_four_years):
+            shortTermOperatingCashFlowCoverageRatio_last_four_years.append(round(float(ope_cashflow) / float(current_liability), 2))
+
+        return shortTermOperatingCashFlowCoverageRatio_last_four_years
+
 
 
 
@@ -428,7 +452,15 @@ class FinancialMetricCalculator:
         return asset_coverage_degree_two_last_four_years
 
     def get_good_will_ratio_last_four_years(self):
-        pass
+        good_will_last_four_years = self.total_financial_metric_map.get("good_will", [])
+        equity_last_four_years = self.total_financial_metric_map.get("total_equity", [])
+
+        good_will_ratio_last_four_years = []
+
+        for good_will, equity in zip(good_will_last_four_years, equity_last_four_years):
+            good_will_ratio_last_four_years.append(round(float(good_will) / float(equity), 2))
+
+        return good_will_ratio_last_four_years
 
     def get_fscore_last_four_years(self):
         return self.total_financial_metric_map.get("fscore", [])
@@ -471,6 +503,17 @@ class FinancialMetricCalculator:
 
     def get_ebitda_margin_last_four_years(self):
         return self.total_financial_metric_map.get("ebitda_margin", [])
+
+    def get_ebit_margin_last_four_years(self):
+        ebit_last_four_years = self.total_financial_metric_map.get("ebit", [])
+        revenue_last_four_years = self.total_financial_metric_map.get("totalRevenue", [])
+
+        ebit_margin_last_four_years = []
+
+        for ebit, revenue in zip(ebit_last_four_years, revenue_last_four_years):
+            ebit_margin_last_four_years.append(round(float(ebit) / float(revenue), 2))
+
+        return ebit_margin_last_four_years
 
     def get_fcf_margin_last_four_years(self):
         return self.total_financial_metric_map.get("fcf_margin", [])
@@ -516,6 +559,27 @@ class FinancialMetricCalculator:
 
     def get_yield_last_four_years(self):
         return self.total_financial_metric_map.get("yield", [])
+
+    def get_freeCashFlowToEquity_last_four_years(self):
+        free_cash_flow_last_four_years = self.total_financial_metric_map.get("total_free_cash_flow", [])
+        equity_last_four_years = self.total_financial_metric_map.get("total_equity", [])
+
+        free_cash_flow_to_equity_last_four_years = []
+
+        for free_cash_flow, equity in zip(free_cash_flow_last_four_years, equity_last_four_years):
+            free_cash_flow_to_equity_last_four_years.append(round(float(free_cash_flow) / float(equity), 2))
+
+        return free_cash_flow_last_four_years
+
+    def get_revenue_per_employee_last_four_years(self):
+        revenue_last_four_years = self.total_financial_metric_map.get("revenue", [])
+        employee_amount_last_four_years = self.total_financial_metric_map.get("total_employee_number", [])
+
+        revenue_per_employee_last_four_years = []
+
+        for revenue, employee_amount in zip(revenue_last_four_years, employee_amount_last_four_years):
+            revenue_per_employee_last_four_years.append(round(float(revenue) / float(employee_amount), 2))
+        return revenue_per_employee_last_four_years
 
     def get_cash_per_share_last_four_years(self):
         return self.total_financial_metric_map.get("cash_per_share", [])
@@ -588,6 +652,18 @@ class FinancialMetricCalculator:
 
     def get_degree_of_operating_leverage_last_four_years(self):
         return self.total_financial_metric_map.get("degree_of_operating_leverage", [])
+
+
+    def get_intangiblesToTotalAssets_last_four_years(self):
+        intangibles_last_four_years = self.total_financial_metric_map.get("intangibles", [])
+        total_assets_last_four_years = self.total_financial_metric_map.get("total_assets", [])
+
+        intangibles_to_assets_last_four_years = []
+
+        for intangible, asset in zip(intangibles_last_four_years, total_assets_last_four_years):
+            intangibles_to_assets_last_four_years.append(round(float(intangible) / float(asset), 2))
+
+        return intangibles_to_assets_last_four_years
 
     def get_wacc_last_four_years(self):
         return self.total_financial_metric_map.get("wacc", [])
