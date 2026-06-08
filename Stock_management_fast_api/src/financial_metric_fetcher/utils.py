@@ -1,6 +1,6 @@
 def get_alpha_ventage_metrics() -> list[str]:
     return [
-        "grossProfit",
+      '''  "grossProfit",
         "totalRevenue",
         "costOfRevenue",
         "costofGoodsAndServicesSold",
@@ -87,7 +87,7 @@ def get_alpha_ventage_metrics() -> list[str]:
         "treasuryStock",
         "retainedEarnings",
         "commonStock",
-        "commonStockSharesOutstanding",
+        "commonStockSharesOutstanding",'''
     ]
 
 
@@ -99,7 +99,7 @@ def get_fmp_metrics() -> list[str]:
 
 def get_guro_metrics() -> list[str]:
     return [
-        "capex_to_operating_cash_flow",
+      '''  "capex_to_operating_cash_flow",
         "capex_to_operating_income",
         "capex_to_revenue",
         "cash_ratio",
@@ -190,7 +190,7 @@ def get_guro_metrics() -> list[str]:
         "revenue",
         "good_will",
         "intangibles",
-        "defensive_interval_ratio"
+        "defensive_interval_ratio"'''
     ]
 
 def get_considered_financial_metric_of_pip_sources() -> list[str]:

@@ -9,8 +9,7 @@ load_dotenv()
 
 class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
 
-    def __init__(self,considered_financial_metric_of_pip_sources: list[str]):
-        self.considered_financial_metric_of_pip_sources = considered_financial_metric_of_pip_sources
+    def __init__(self):
         self.metrics_to_consider = get_considered_financial_metric_of_pip_sources()
         self.api_metric_database_mapping =  {
     "Gross Margin": "gross_margin",
@@ -71,15 +70,23 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
 
     async def fetch(self, company_ticker: str) -> dict[str, list]:
 
-
         metrics_of_company_from_pip_sources = {}
 
-
+        years = ['2022', '2023', '2024', '2025']
 
         company = Toolkit(
         tickers=[company_ticker],
         api_key=os.getenv("FMP_API_KEY"),
         )
+
+        efficiency_df = company.ratios.collect_efficiency_ratios()
+
+        for to_consider_metric in self.metrics_to_consider:
+            if to_consider_metric in efficiency_df.index:
+                values = efficiency_df.loc[to_consider_metric, years].tolist()
+                db_value = self.api_metric_database_mapping.get(to_consider_metric, "")
+                metrics_of_company_from_pip_sources[db_value] = values
+
 
         return metrics_of_company_from_pip_sources
 

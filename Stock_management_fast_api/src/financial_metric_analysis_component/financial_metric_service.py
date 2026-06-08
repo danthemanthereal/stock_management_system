@@ -9,6 +9,7 @@ import os
 from dotenv import load_dotenv
 from src.financial_metric_analysis_component.financial_metric_evaluator import FinancialMetricEvaluator
 from src.financial_metric_fetcher.alpha_vantage_fetcher import AlphaVantageFetcher
+from src.financial_metric_fetcher.from_pip_install_sources_fetcher import FROMPIPInstallSourceFetcher
 from src.financial_metric_fetcher.guro_focus_fetcher import GuroFocusFetcher
 
 load_dotenv()
@@ -57,7 +58,7 @@ class MetricsService:
             db=self.db,
             company_name=company_name,
             financial_metric_fetchers=[AlphaVantageFetcher(alpha_vantage_api_key=os.getenv("ALPHA_VENTAGE_API_KEY")),
-                                       GuroFocusFetcher()]
+                                       GuroFocusFetcher(), FROMPIPInstallSourceFetcher()]
         )
         metrics_of_current_user_template = await get_active_metrics_of_template_component.get_total_financial_metrics_of_current_template(current_user_id)
         metric_evaluator = FinancialMetricEvaluator(self.db)
