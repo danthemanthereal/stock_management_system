@@ -57,8 +57,7 @@ class MetricsService:
         get_active_metrics_of_template_component = ActiveFinancialMetricComponent(
             db=self.db,
             company_name=company_name,
-            financial_metric_fetchers=[AlphaVantageFetcher(alpha_vantage_api_key=os.getenv("ALPHA_VENTAGE_API_KEY")),
-                                       GuroFocusFetcher(), FROMPIPInstallSourceFetcher()]
+            financial_metric_fetchers=[GuroFocusFetcher(), FROMPIPInstallSourceFetcher()]
         )
         metrics_of_current_user_template = await get_active_metrics_of_template_component.get_total_financial_metrics_of_current_template(current_user_id)
         metric_evaluator = FinancialMetricEvaluator(self.db)
