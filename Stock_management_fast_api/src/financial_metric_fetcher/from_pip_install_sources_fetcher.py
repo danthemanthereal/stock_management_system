@@ -72,21 +72,55 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
 
         metrics_of_company_from_pip_sources = {}
 
-        years = ['2022', '2023', '2024', '2025']
-
         company = Toolkit(
         tickers=[company_ticker],
         api_key=os.getenv("FMP_API_KEY"),
         )
 
-        efficiency_df = company.ratios.collect_efficiency_ratios()
+        metrics_of_company_from_pip_sources = self.insert_metrics_by_type(
+            company=company,
+            metrics_dict=metrics_of_company_from_pip_sources,
+            ratio_type="efficiency"
+        )
 
-        for to_consider_metric in self.metrics_to_consider:
-            if to_consider_metric in efficiency_df.index:
-                values = efficiency_df.loc[to_consider_metric, years].tolist()
-                db_value = self.api_metric_database_mapping.get(to_consider_metric, "")
-                metrics_of_company_from_pip_sources[db_value] = values
+        metrics_of_company_from_pip_sources = self.insert_metrics_by_type(
+            company=company,
+            metrics_dict=metrics_of_company_from_pip_sources,
+            ratio_type="liquidity"
+        )
+        metrics_of_company_from_pip_sources = self.insert_metrics_by_type(
+            company=company,
+            metrics_dict=metrics_of_company_from_pip_sources,
+            ratio_type="profitability"
+        )
 
+        metrics_of_company_from_pip_sources = self.insert_metrics_by_type(
+            company=company,
+            metrics_dict=metrics_of_company_from_pip_sources,
+            ratio_type="solvency"
+        )
+
+        metrics_of_company_from_pip_sources = self.insert_metrics_by_type(
+            company=company,
+            metrics_dict=metrics_of_company_from_pip_sources,
+            ratio_type="valuation"
+        )
 
         return metrics_of_company_from_pip_sources
+
+    def insert_metrics_by_type(self, company: Toolkit, metrics_dict: dict[str, list], ratio_type: str) -> dict[
+        str, list]:
+
+        years = ["2022", "2023", "2024", "2025"]
+        method_name = f"collect_{ratio_type}_ratios"
+        collect_method = getattr(company.ratios, method_name)
+        df = collect_method()
+
+        for metric in self.metrics_to_consider:
+            if metric in df.index:
+                values = df.loc[metric, years].tolist()
+                db_key = self.api_metric_database_mapping.get(metric, "")
+                metrics_dict[db_key] = values
+
+        return metrics_dict
 
