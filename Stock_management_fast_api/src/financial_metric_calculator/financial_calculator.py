@@ -39,7 +39,7 @@ class FinancialMetricCalculator:
             "interest_coverage": self.get_interest_coverage_last_four_years,
             "liabilities_to_assets": self.get_liabilities_to_asset_ratio_last_four_years,
             "sloan_ratio": self.get_sloan_ratio_last_four_years,
-         #   "netDebtToEBITDA": "",
+            "netDebtToEBITDA": self.get_netDebtToEBITDA_last_four_years,
          #   "solvencyRatio": "",
          #   "debtToCapitalRatio": "",
           #  "longTermDebtToCapitalRatio": "",
@@ -276,6 +276,9 @@ class FinancialMetricCalculator:
 
     def get_sloan_ratio_last_four_years(self):
         return self.total_financial_metric_map.get("sloan_ratio", [])
+
+    def get_netDebtToEBITDA_last_four_years(self):
+        return self.total_financial_metric_map.get("net_debt_to_ebitda", [])
 
     def get_shortTermOperatingCashFlowCoverageRatio_last_four_years(self):
         operating_cash_flow_last_four_years = self.total_financial_metric_map.get("operatingCashflow", [])
