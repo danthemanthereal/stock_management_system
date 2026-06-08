@@ -11,9 +11,9 @@ class FinancialMetricCalculator:
     def init_financial_metrics_handler(self):
         metric_handlers = {
             "cost_of_goods_and_service_sold_to_revenue": self.get_cost_of_goods_and_service_sold_to_revenue_last_four_years,
-            "salesGeneralAndAdministrativeToRevenue": self.get_sales_and_administrative_to_revenue_last_four_years,
+            "sales_general_and_administrative_to_revenue": self.get_sales_and_administrative_to_revenue_last_four_years,
             "cost_of_revenue_to_revenue":self.get_cost_of_revenue_to_revenue_last_four_years,
-            "researchAndDevelopementToRevenue": self.get_research_and_development_to_revenue_last_four_years,
+            "research_and_developement_to_revenue": self.get_research_and_development_to_revenue_last_four_years,
             "cash_conversion_cycle": self.get_cash_conversion_cycle_last_four_years,
             "cash_ratio": self.get_cash_ratio_last_four_years,
             "current_ratio":self.get_current_ratio_last_four_years,
@@ -39,12 +39,12 @@ class FinancialMetricCalculator:
             "interest_coverage": self.get_interest_coverage_last_four_years,
             "liabilities_to_assets": self.get_liabilities_to_asset_ratio_last_four_years,
             "sloan_ratio": self.get_sloan_ratio_last_four_years,
-            "netDebtToEBITDA": self.get_netDebtToEBITDA_last_four_years,
+            "net_debt_to_ebitda": self.get_netDebtToEBITDA_last_four_years,
          #   "solvencyRatio": "",
          #   "debtToCapitalRatio": "",
           #  "longTermDebtToCapitalRatio": "",
         #    "debtServiceCoverageRatio": "",
-            "shortTermOperatingCashFlowCoverageRatio": self.get_shortTermOperatingCashFlowCoverageRatio_last_four_years,
+            "short_term_operating_cashflow_coverage_ratio": self.get_shortTermOperatingCashFlowCoverageRatio_last_four_years,
          #   "operatingCashFlowCoverageRatio": "",
             "gearing":self.get_gearing_last_four_years,
             "dynamic_debt_degree":self.get_dynamic_debt_degree_last_four_years,
@@ -121,7 +121,7 @@ class FinancialMetricCalculator:
             "degree_of_financial_leverage": self.get_degree_of_financial_leverage_last_four_years,
             "degree_of_operating_leverage": self.get_degree_of_operating_leverage_last_four_years,
         #    "capexToDepreciation": "",
-            "intangiblesToTotalAssets": self.get_intangiblesToTotalAssets_last_four_years,
+            "intangibles_to_total_assets": self.get_intangiblesToTotalAssets_last_four_years,
           #  "financialLeverageRatio": "",
             "wacc": self.get_wacc_last_four_years
         }
@@ -174,7 +174,7 @@ class FinancialMetricCalculator:
 
     def get_sales_and_administrative_to_revenue_last_four_years(self):
 
-        return self.calculate_to_revenue_ratio_last_four_years("sellingGeneralAndAdministrative")
+        return self.calculate_to_revenue_ratio_last_four_years("sales_general_and_administrative_to_revenue")
 
 
     def get_cost_of_revenue_to_revenue_last_four_years(self):
@@ -182,7 +182,7 @@ class FinancialMetricCalculator:
 
 
     def get_research_and_development_to_revenue_last_four_years(self):
-        return self.calculate_to_revenue_ratio_last_four_years("researchAndDevelopment")
+        return self.calculate_to_revenue_ratio_last_four_years("research_and_developement_to_revenue")
 
 
     def get_cash_conversion_cycle_last_four_years(self):
@@ -455,9 +455,10 @@ class FinancialMetricCalculator:
         return asset_coverage_degree_two_last_four_years
 
     def get_good_will_ratio_last_four_years(self):
-        good_will_last_four_years = self.total_financial_metric_map.get("good_will", [])
-        equity_last_four_years = self.total_financial_metric_map.get("total_equity", [])
-
+        good_will_last_four_years = self.total_financial_metric_map.get("Goodwill", [])
+        equity_last_four_years = self.total_financial_metric_map.get("Total Equity", [])
+        print("good will", good_will_last_four_years)
+        print("equity", equity_last_four_years)
         good_will_ratio_last_four_years = []
 
         for good_will, equity in zip(good_will_last_four_years, equity_last_four_years):

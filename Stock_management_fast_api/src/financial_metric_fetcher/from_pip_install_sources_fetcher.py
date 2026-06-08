@@ -1,9 +1,11 @@
+from pandas import DataFrame
+
 from src.financial_metric_fetcher.financial_metric_fetcher import FinancialMetricFetcher
 from financetoolkit import Toolkit
 from dotenv import load_dotenv
 import os
-
-from src.financial_metric_fetcher.utils import get_considered_financial_metric_of_pip_sources
+from src.financial_metric_fetcher.utils import get_considered_financial_metric_of_pip_sources, \
+    get_considered_raw_metrics, metric_will_be_considered
 
 load_dotenv()
 
@@ -11,6 +13,7 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
 
     def __init__(self):
         self.metrics_to_consider = get_considered_financial_metric_of_pip_sources()
+        self.raw_metrics_to_consider = get_considered_raw_metrics()
         self.api_metric_database_mapping =  {
     "Gross Margin": "gross_margin",
     "Operating Margin": "operating_margin",
@@ -77,7 +80,7 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
         api_key=os.getenv("FMP_API_KEY"),
         )
 
-        metrics_of_company_from_pip_sources = self.insert_metrics_by_type(
+        '''metrics_of_company_from_pip_sources = self.insert_metrics_by_type(
             company=company,
             metrics_dict=metrics_of_company_from_pip_sources,
             ratio_type="efficiency"
@@ -88,6 +91,7 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
             metrics_dict=metrics_of_company_from_pip_sources,
             ratio_type="liquidity"
         )
+        
         metrics_of_company_from_pip_sources = self.insert_metrics_by_type(
             company=company,
             metrics_dict=metrics_of_company_from_pip_sources,
@@ -116,6 +120,24 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
             company=company,
             metrics_dict=metrics_of_company_from_pip_sources,
             score_type="altman_z"
+        )'''
+
+        metrics_of_company_from_pip_sources = self.get_raw_metrics_per_data_frame(
+            company=company,
+            metrics_dict=metrics_of_company_from_pip_sources,
+            data_fame_name="income_statement"
+        )
+
+        metrics_of_company_from_pip_sources = self.get_raw_metrics_per_data_frame(
+            company=company,
+            metrics_dict=metrics_of_company_from_pip_sources,
+            data_fame_name="balance_sheet_statement"
+        )
+
+        metrics_of_company_from_pip_sources = self.get_raw_metrics_per_data_frame(
+            company=company,
+            metrics_dict=metrics_of_company_from_pip_sources,
+            data_fame_name="cash_flow_statement"
         )
 
         return metrics_of_company_from_pip_sources
@@ -151,4 +173,29 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
                 metrics_dict[db_key] = values
 
         return metrics_dict
+
+    def get_raw_metrics_per_data_frame(self,company:Toolkit,
+                                       data_fame_name:str,
+                                       metrics_dict: dict[str, list]):
+        import pandas as pd
+
+        # Alle Zeilen und Spalten anzeigen (ohne Kürzung)
+        pd.set_option('display.max_rows', None)
+        pd.set_option('display.max_columns', None)
+        years = ["2022", "2023", "2024", "2025"]
+        dataframe_name = f"_{data_fame_name}"
+        data_frame:DataFrame = getattr(company.ratios,dataframe_name)
+
+        df_clean = data_frame.droplevel(0)
+        raw_metrics = list(df_clean.index)
+
+        for raw_metric in raw_metrics:
+            if metric_will_be_considered(raw_metric, self.raw_metrics_to_consider):
+                print("metric will be considered", raw_metric)
+                values = df_clean.loc[raw_metric, years].tolist()
+                print("raw metric values:", values)
+                metrics_dict[raw_metric] = values
+
+        return metrics_dict
+
 

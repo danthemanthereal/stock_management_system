@@ -30,7 +30,7 @@ class ActiveFinancialMetricComponent:
         calculated_financial_metrics_map = await  financial_metric_calculator.get_calculated_financial_metric_map()
 
 
-        return total_financial_metric_map
+        return calculated_financial_metrics_map
 
 
 

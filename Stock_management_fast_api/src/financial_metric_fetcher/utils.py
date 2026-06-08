@@ -1,7 +1,6 @@
 def get_alpha_ventage_metrics() -> list[str]:
     return [
       '''  "grossProfit",
-        "totalRevenue",
         "costOfRevenue",
         "costofGoodsAndServicesSold",
         "operatingIncome",
@@ -62,8 +61,6 @@ def get_alpha_ventage_metrics() -> list[str]:
         "propertyPlantEquipment",
         "accumulatedDepreciationAmortizationPPE",
         "intangibleAssets",
-        "intangibleAssetsExcludingGoodwill",
-        "goodwill",
         "investments",
         "longTermInvestments",
         "shortTermInvestments",
@@ -157,7 +154,6 @@ def get_guro_metrics() -> list[str]:
         "price_to_operating_cash_flow",
         "price_to_owner_earnings",
         "price_to_tangible_book",
-        "revenue",
         "good_will",
         "intangibles",
         "defensive_interval_ratio"'''
@@ -219,7 +215,13 @@ def get_considered_financial_metric_of_pip_sources() -> list[str]:
         "EV-to-EBITDA",
         "EV-to-Operating-Cash-Flow",
         "Piotroski Score",
-        "Altman Z-Score"
+        "Altman Z-Score",
+    ]
+
+def get_considered_raw_metrics() -> list[str]:
+    return [
+        "Goodwill",
+        "Total Equity"
     ]
 
 def metric_will_be_considered(metric: str, financial_metrics_to_consider:list[str]) -> bool:
