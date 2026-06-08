@@ -26,11 +26,9 @@ class FinancialMetricCalculator:
             "inventory_turnover": self.get_inventory_turnover_last_four_years,
             "quick_ratio": self.get_quick_ratio_last_four_years,
             "receivables_turnover": self.get_receivables_turnover_last_four_years,
-            "turnover": self.get_turnover_last_four_years,
+            "asset_turnover": self.get_asset_turnover_last_four_years, # asset turnover
             "payables_turnover": self.get_accounts_payable_turnover_last_four_years,
             "fixed_asset_turnover": self.get_fixed_asset_turnover_last_four_years,
-          #  "cover_sales_in_days": "",
-         #   "book_to_bill_ratio": "",
             "capex_to_operating_cash_flow": self.get_capex_to_operating_cash_flow_last_four_years,
             "capex_to_operating_income": self.get_capex_to_operating_income_last_four_years,
             "capex_to_revenue": self.get_capex_to_revenue_last_four_years,
@@ -41,7 +39,6 @@ class FinancialMetricCalculator:
             "liabilities_to_assets": self.get_liabilities_to_asset_ratio_last_four_years,
             "sloan_ratio": self.get_sloan_ratio_last_four_years,
             "net_debt_to_ebitda": self.get_netDebtToEBITDA_last_four_years,
-         #   "solvencyRatio": "",
             "debt_to_capital_ratio": self.get_debt_to_capital_ratio_last_four_years,
             "long_term_debt_to_capital_ratio": self.get_long_term_debt_to_capital_ratio_last_four_years,
             "debt_service_coverage_ratio": self.get_debt_service_coverage_ratio_last_four_years,
@@ -54,9 +51,7 @@ class FinancialMetricCalculator:
             "asset_cover_ratio_one": self.get_asset_cover_ratio_one_last_four_years,
             "asset_cover_ratio_two": self.get_asset_cover_ratio_two_last_four_years,
             "good_will_ratio": self.get_good_will_ratio_last_four_years ,
-         #   "useless_degree": "",
-         #   "growth_ratio": "",
-         #   "cash_burn_rate": "",
+            "cash_burn_rate": self.get_cash_burn_rate_last_four_years,
             "fscore": self.get_fscore_last_four_years,
             "gf_score": self.get_gf_score_last_four_years,
             "gf_value": self.get_gf_value_last_four_years,
@@ -70,10 +65,7 @@ class FinancialMetricCalculator:
             "rank_predictability": self.get_rank_predictability_last_four_years,
             "rank_profitability": self.get_rank_profitability_last_four_years,
             "zscore": self.get_zscore_last_four_years,
-           # "working_capital_turnover_ratio": "",
             "dividend_paid_and_capex_coverage_ratio": self.get_dividend_paid_and_capex_coverage_ratio_last_four_years,
-         #   "dividends": "",
-          #  "dividends_per_share": "",
             "ebitda_margin": self.get_ebitda_margin_last_four_years,
             "ebit_margin": self.get_ebit_margin_last_four_years,
             "fcf_margin": self.get_fcf_margin_last_four_years,
@@ -92,7 +84,6 @@ class FinancialMetricCalculator:
             "roic": self.get_roic_last_four_years,
             "yield": self.get_yield_last_four_years,
             "freeCashFlowToEquity": self.get_freeCashFlowToEquity_last_four_years,
-         #   "freeCashFlowToFirm": "",
             "free_cashflow_operating_cashflow_ratio": self.get_free_cashflow_operating_cashflow_ratio_last_four_years,
             "revenue_per_employee":self.get_revenue_per_employee_last_four_years,
          #   "roi": "",
@@ -238,8 +229,8 @@ class FinancialMetricCalculator:
     def get_receivables_turnover_last_four_years(self):
         return self.total_financial_metric_map.get("receivables_turnover", [])
 
-    def get_turnover_last_four_years(self):
-        return self.total_financial_metric_map.get("turnover", [])
+    def get_asset_turnover_last_four_years(self):
+        return self.total_financial_metric_map.get("asset_turnover", [])
 
     def get_accounts_payable_turnover_last_four_years(self):
         return self.total_financial_metric_map.get("payables_turnover", [])
@@ -504,6 +495,16 @@ class FinancialMetricCalculator:
 
         return good_will_ratio_last_four_years
 
+    def get_cash_burn_rate_last_four_years(self):
+        equity_last_four_years = self.total_financial_metric_map.get("Total Equity", [])
+        net_income_last_four_years = self.total_financial_metric_map.get("Net Income", []) # net loss ?
+        cash_burn_rate_last_four_years = []
+
+        for equity, net_income in zip(equity_last_four_years, net_income_last_four_years):
+            cash_burn_rate_last_four_years.append(round(float(equity) / abs(float(net_income)), 2))
+
+        return cash_burn_rate_last_four_years
+
     def get_fscore_last_four_years(self):
         return self.total_financial_metric_map.get("fscore", [])
 
@@ -729,8 +730,8 @@ class FinancialMetricCalculator:
         return self.total_financial_metric_map.get("degree_of_operating_leverage", [])
 
     def get_capex_to_depreciation_last_four_years(self):
-        capex_last_four_years = self.total_financial_metric_map.get("capex_to_depreciation", [])
-        depreciation_last_four_years = self.total_financial_metric_map.get("depreciation", [])
+        capex_last_four_years = self.total_financial_metric_map.get("Capital Expenditure", [])
+        depreciation_last_four_years = self.total_financial_metric_map.get("Accumulated Depreciation", [])
 
         capex_to_depreciation_last_four_years = []
 

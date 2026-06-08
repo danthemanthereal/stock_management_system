@@ -335,6 +335,7 @@
   "growth_ratio": "Wachstumsquote",
   "cash_burn_rate": "Cash-Burn-Rate",
   "cover_sales_in_days": "Auftragsbestand",
+  "capex_to_depreciation": "Wachstumsquote",
   "book_to_bill_ratio":"Book to bill ratio",
   "work_in_process": "Unfertige Erzeugnisse",
   "yield": "Rendite",

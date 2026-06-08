@@ -332,6 +332,7 @@
   "yield": "Yield",
   "roi": "roi",
   "cost_of_revenue_to_revenue": "cost_of_revenue_to_revenue",
+  "capex_to_depreciation": "capex_to_depreciation",
   "capital_turnover": "capital_turnover",
   "useless_degree": "useless_degree",
   "growth_ratio": "growth_ratio",

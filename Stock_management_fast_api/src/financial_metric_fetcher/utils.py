@@ -214,7 +214,8 @@ def get_considered_raw_metrics() -> list[str]:
         "Capital Expenditure",
         "Cost of Goods Sold",
         "Long Term Debt and Capital Lease Obligation",
-        "Accumulated Depreciation"
+        "Accumulated Depreciation",
+        "Net Income"
     ]
 
 def metric_will_be_considered(metric: str, financial_metrics_to_consider:list[str]) -> bool:
