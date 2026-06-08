@@ -10,16 +10,6 @@ from sqlalchemy.orm import joinedload
 from src.database.models import FinancialMetric
 
 
-async def get_financial_metric_name_to_calculate(db: AsyncSession):
-    stmt = select(FinancialMetric).where(
-        FinancialMetric.is_calculated.is_(True)
-    )
-
-    result = await db.execute(stmt)
-    metrics = result.scalars().all()
-    return [m.display_name_reference for m in metrics]
-
-
 async def get_needed_metrics_map():
     considered_financial_metrics = ["revenue",
                                     "total_employee_number",

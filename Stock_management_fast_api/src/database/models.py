@@ -37,7 +37,7 @@ class FinancialMetric(Base):
     category_rel = relationship("FinancialMetricCategory", back_populates="metrics")
     profile_configs = relationship("ProfileMetricConfiguration", back_populates="metric")
     display_name_reference = Column(String)
-    is_calculated = Column(Boolean)
+
 
     @property
     def category_name(self) -> str:
