@@ -124,7 +124,8 @@ class FinancialMetricCalculator:
             "cash_conversion_efficiency":self.get_cash_conversion_efficiency_last_four_years,
             "sga_to_revenue": self.get_sga_to_revenue_last_four_years,
             "operating_ratio":self.get_operating_ratio_last_four_years,
-            "short_term_coverage_ratio":self.get_short_term_coverage_ratio_last_four_years
+            "short_term_coverage_ratio":self.get_short_term_coverage_ratio_last_four_years,
+            "earnings_per_share":self.get_earnings_per_share_last_four_years
         }
         return metric_handlers
 
@@ -846,3 +847,6 @@ class FinancialMetricCalculator:
 
     def get_short_term_coverage_ratio_last_four_years(self):
         return self.total_financial_metric_map.get("short_term_coverage_ratio", [])
+
+    def get_earnings_per_share_last_four_years(self):
+        return self.total_financial_metric_map.get("earnings_per_share", [])
