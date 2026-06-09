@@ -133,7 +133,8 @@ def get_considered_raw_metrics() -> list[str]:
         "Accumulated Depreciation",
         "Net Income",
         "Selling, General and Administrative Expenses",
-        "Research and Development Expenses"
+        "Research and Development Expenses",
+        "Reconciled Cost of Revenue"
     ]
 
 def metric_will_be_considered(metric: str, financial_metrics_to_consider:list[str]) -> bool:

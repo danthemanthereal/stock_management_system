@@ -188,7 +188,15 @@ class FinancialMetricCalculator:
 
 
     def get_cost_of_revenue_to_revenue_last_four_years(self):
-        return self.calculate_to_revenue_ratio_last_four_years("cost_of_revenue_to_revenue")
+        cost_of_revenue_last_four_years = self.total_financial_metric_map.get("Reconciled Cost of Revenue", [])
+        revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
+
+        cost_of_revenue_to_revenue_last_four_years = []
+
+        for cost_of_revenue, revenue in zip(cost_of_revenue_last_four_years,revenue_last_four_years):
+            cost_of_revenue_to_revenue_last_four_years.append(round(float(cost_of_revenue) / float(revenue), 2))
+
+        return cost_of_revenue_to_revenue_last_four_years
 
 
     def get_research_and_development_to_revenue_last_four_years(self):
