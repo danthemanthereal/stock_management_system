@@ -1,3 +1,5 @@
+import asyncio
+
 from pandas import DataFrame
 
 from src.financial_metric_fetcher.financial_metric_fetcher import FinancialMetricFetcher
@@ -73,74 +75,44 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
 
     async def fetch(self, company_ticker: str) -> dict[str, list]:
 
-        metrics_of_company_from_pip_sources = {}
-
         company = Toolkit(
-        tickers=[company_ticker],
-        api_key=os.getenv("FMP_API_KEY"),
+            tickers=[company_ticker],
+            api_key=os.getenv("FMP_API_KEY"),
         )
+        tasks = [
+            asyncio.to_thread(self.insert_metrics_by_type, company, {}, "efficiency"),
+            asyncio.to_thread(self.insert_metrics_by_type, company, {}, "liquidity"),
+            asyncio.to_thread(self.insert_metrics_by_type, company, {}, "profitability"),
+            asyncio.to_thread(self.insert_metrics_by_type, company, {}, "solvency"),
+            asyncio.to_thread(self.insert_metrics_by_type, company, {}, "valuation"),
+            asyncio.to_thread(self.insert_score_by_type, company, {}, "piotroski"),
+            asyncio.to_thread(self.insert_score_by_type, company, {}, "altman_z"),
+            asyncio.to_thread(self.get_raw_metrics_per_data_frame, company, "income_statement", {}),
+            asyncio.to_thread(self.get_raw_metrics_per_data_frame, company,"balance_sheet_statement", {}),
+            asyncio.to_thread(self.get_raw_metrics_per_data_frame, company,"cash_flow_statement", {}),
+        ]
 
-        '''metrics_of_company_from_pip_sources = self.insert_metrics_by_type(
-            company=company,
-            metrics_dict=metrics_of_company_from_pip_sources,
-            ratio_type="efficiency"
-        )
+        results = await asyncio.gather(*tasks)
 
-        metrics_of_company_from_pip_sources = self.insert_metrics_by_type(
-            company=company,
-            metrics_dict=metrics_of_company_from_pip_sources,
-            ratio_type="liquidity"
-        )
-        
-        metrics_of_company_from_pip_sources = self.insert_metrics_by_type(
-            company=company,
-            metrics_dict=metrics_of_company_from_pip_sources,
-            ratio_type="profitability"
-        )
+        final_metrics = {}
+        for i, partial in enumerate(results):
+            if isinstance(partial, Exception):
+                print(f"Task {i} failed: {partial}")
+                # Optional: raise partial wenn du abbrechen willst
+            elif partial is not None:
+                final_metrics.update(partial)
 
-        metrics_of_company_from_pip_sources = self.insert_metrics_by_type(
-            company=company,
-            metrics_dict=metrics_of_company_from_pip_sources,
-            ratio_type="solvency"
-        )
+        print("final metrics:", final_metrics)
+        return final_metrics
 
-        metrics_of_company_from_pip_sources = self.insert_metrics_by_type(
-            company=company,
-            metrics_dict=metrics_of_company_from_pip_sources,
-            ratio_type="valuation"
-        )
+    def _safe_insert_metrics(self, company, ratio_type):
+        """Wrapper, der garantiert, dass ein dict zurückkommt."""
+        metrics = {}
+        return self.insert_metrics_by_type(company, metrics, ratio_type)
 
-        metrics_of_company_from_pip_sources = self.insert_score_by_type(
-            company=company,
-            metrics_dict=metrics_of_company_from_pip_sources,
-            score_type="piotroski"
-        )
-
-        metrics_of_company_from_pip_sources = self.insert_score_by_type(
-            company=company,
-            metrics_dict=metrics_of_company_from_pip_sources,
-            score_type="altman_z"
-        )'''
-
-        metrics_of_company_from_pip_sources = self.get_raw_metrics_per_data_frame(
-            company=company,
-            metrics_dict=metrics_of_company_from_pip_sources,
-            data_fame_name="income_statement"
-        )
-
-        metrics_of_company_from_pip_sources = self.get_raw_metrics_per_data_frame(
-            company=company,
-            metrics_dict=metrics_of_company_from_pip_sources,
-            data_fame_name="balance_sheet_statement"
-        )
-
-        metrics_of_company_from_pip_sources = self.get_raw_metrics_per_data_frame(
-            company=company,
-            metrics_dict=metrics_of_company_from_pip_sources,
-            data_fame_name="cash_flow_statement"
-        )
-
-        return metrics_of_company_from_pip_sources
+        print("final metrics:")
+        print(final_metrics)
+        return final_metrics
 
     def insert_metrics_by_type(self, company: Toolkit, metrics_dict: dict[str, list], ratio_type: str) -> dict[
         str, list]:

@@ -16,7 +16,6 @@ class ActiveFinancialMetricComponent:
         self.financial_metric_fetchers = financial_metric_fetchers
 
     async def get_total_financial_metrics_of_current_template(self, current_user_id: uuid.UUID)->dict:
-        total_financial_metric_map = {}
         fetch_tasks = [f.fetch(self.company_name) for f in self.financial_metric_fetchers]
         results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
 
