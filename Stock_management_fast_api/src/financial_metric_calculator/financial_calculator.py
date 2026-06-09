@@ -889,7 +889,22 @@ class FinancialMetricCalculator:
 
         return gross_profit_to_cost_ratio_last_four_years
 
-    def get_revenue_per_employee_cost_ratio_last_four_years(self):
-        revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
-        r_and_d_last_four_years = self.total_financial_metric_map.get("Research and Development Expenses", [])
-        selling_and_admin_last_four_years = self.total_financial_metric_map.get("Selling, General and Administrative Expenses", [])
+    def get_revenue_per_employee_cost_ratio_last_four_years(self)->list[float]:
+        try:
+            revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
+            r_and_d_last_four_years = self.total_financial_metric_map.get("Research and Development Expenses", [])
+            selling_and_admin_last_four_years = self.total_financial_metric_map.get("Selling, General and Administrative Expenses", [])
+
+            revenue_per_employee_cost_ratio_last_four_years = []
+
+            for idx, revenue in enumerate(revenue_last_four_years):
+                r_and_d = r_and_d_last_four_years[idx]
+                selling_and_admin = selling_and_admin_last_four_years[idx]
+                personal_cost = float(r_and_d) + float(selling_and_admin)
+                revenue_per_employee_cost_ratio_last_four_years.append(round(float(revenue) / float(personal_cost), 2))
+
+            return revenue_per_employee_cost_ratio_last_four_years
+
+        except Exception as e:
+            print(e)
+            return []
