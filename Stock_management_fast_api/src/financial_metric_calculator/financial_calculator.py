@@ -176,8 +176,15 @@ class FinancialMetricCalculator:
 
 
     def get_sales_and_administrative_to_revenue_last_four_years(self):
+        sell_and_admin_expenses_last_four_years = self.total_financial_metric_map.get("Selling, General and Administrative Expenses", [])
+        revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
 
-        return self.calculate_to_revenue_ratio_last_four_years("sales_general_and_administrative_to_revenue")
+        sales_and_administrative_to_revenue_last_four_years = []
+
+        for sell_and_admin_expenses, revenue in zip(sell_and_admin_expenses_last_four_years, revenue_last_four_years):
+            sales_and_administrative_to_revenue_last_four_years.append(round(float(sell_and_admin_expenses) / float(revenue), 2))
+
+        return sales_and_administrative_to_revenue_last_four_years
 
 
     def get_cost_of_revenue_to_revenue_last_four_years(self):
