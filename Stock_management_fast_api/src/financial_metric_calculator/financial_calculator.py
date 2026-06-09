@@ -44,6 +44,7 @@ class FinancialMetricCalculator:
             "debt_service_coverage_ratio": self.get_debt_service_coverage_ratio_last_four_years,
             "short_term_operating_cashflow_coverage_ratio": self.get_shortTermOperatingCashFlowCoverageRatio_last_four_years,
             "operating_cashflow_coverage_ratio": self.get_operating_cashflow_coverage_ratio_last_four_years,
+            "cash_flow_coverage_ratio":self.get_cash_flow_coverage_ratio_last_four_years,
             "gearing":self.get_gearing_last_four_years,
             "dynamic_debt_degree":self.get_dynamic_debt_degree_last_four_years,
             "current_asset_intensity": self.get_current_asset_intensity_last_four_years,
@@ -396,6 +397,9 @@ class FinancialMetricCalculator:
             operative_cashflow_coverage_ratio_last_four_years.append(round(float(operative_cashflow) / float(debt), 2))
 
         return operative_cashflow_coverage_ratio_last_four_years
+
+    def get_cash_flow_coverage_ratio_last_four_years(self):
+        return self.total_financial_metric_map.get("cash_flow_coverage_ratio", [])
 
     def calculate_to_revenue_ratio_last_four_years(self, metric_key):
 
