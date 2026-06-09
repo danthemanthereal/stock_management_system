@@ -98,20 +98,17 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
         for i, partial in enumerate(results):
             if isinstance(partial, Exception):
                 print(f"Task {i} failed: {partial}")
-                # Optional: raise partial wenn du abbrechen willst
             elif partial is not None:
                 final_metrics.update(partial)
 
-        print("final metrics:", final_metrics)
+
         return final_metrics
 
     def _safe_insert_metrics(self, company, ratio_type):
-        """Wrapper, der garantiert, dass ein dict zurückkommt."""
+
         metrics = {}
         return self.insert_metrics_by_type(company, metrics, ratio_type)
 
-        print("final metrics:")
-        print(final_metrics)
         return final_metrics
 
     def insert_metrics_by_type(self, company: Toolkit, metrics_dict: dict[str, list], ratio_type: str) -> dict[
