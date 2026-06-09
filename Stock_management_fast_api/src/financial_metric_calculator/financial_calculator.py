@@ -115,7 +115,8 @@ class FinancialMetricCalculator:
             "capex_to_depreciation": self.get_capex_to_depreciation_last_four_years,
             "intangibles_to_total_assets": self.get_intangiblesToTotalAssets_last_four_years,
             "financial_leverage_ratio": self.get_financial_leverage_ratio_last_four_years,
-            "wacc": self.get_wacc_last_four_years
+            "wacc": self.get_wacc_last_four_years,
+            "income_before_tax_profit_margin":
         }
         return metric_handlers
 
@@ -810,3 +811,6 @@ class FinancialMetricCalculator:
 
     def get_wacc_last_four_years(self):
         return self.total_financial_metric_map.get("wacc", [])
+
+    def get_income_before_tax_profit_margin_last_four_years(self):
+        return self.total_financial_metric_map.get("income_before_tax_profit_margin", [])
