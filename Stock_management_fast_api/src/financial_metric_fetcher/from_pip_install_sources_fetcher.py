@@ -179,7 +179,7 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
                                        metrics_dict: dict[str, list]):
         import pandas as pd
 
-        # Alle Zeilen und Spalten anzeigen (ohne Kürzung)
+     
         pd.set_option('display.max_rows', None)
         pd.set_option('display.max_columns', None)
         years = ["2022", "2023", "2024", "2025"]
