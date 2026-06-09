@@ -130,7 +130,8 @@ class FinancialMetricCalculator:
             "price_to_cashflow":self.get_price_to_cashflow_last_four_years,
             "piotroski": self.get_piotroski_last_four_years,
             "revenue_to_cost":self.get_revenue_to_cost_ratio_last_four_years,
-            "gross_profit_to_cost":self.get_gross_profit_to_cost_last_four_years
+            "gross_profit_to_cost":self.get_gross_profit_to_cost_last_four_years,
+            "revenue_per_employee_cost"
         }
         return metric_handlers
 
@@ -887,3 +888,8 @@ class FinancialMetricCalculator:
             gross_profit_to_cost_ratio_last_four_years.append(round(float(gross_profit) / float(cost_and_expenses), 2))
 
         return gross_profit_to_cost_ratio_last_four_years
+
+    def get_revenue_per_employee_cost_ratio_last_four_years(self):
+        revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
+        r_and_d_last_four_years = self.total_financial_metric_map.get("Research and Development Expenses", [])
+        selling_and_admin_last_four_years = self.total_financial_metric_map.get("Selling, General and Administrative Expenses", [])
