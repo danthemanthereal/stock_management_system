@@ -188,7 +188,7 @@ class FinancialMetricCalculator:
 
 
     def get_cost_of_revenue_to_revenue_last_four_years(self):
-        return self.calculate_to_revenue_ratio_last_four_years("costOfRevenue")
+        return self.calculate_to_revenue_ratio_last_four_years("cost_of_revenue_to_revenue")
 
 
     def get_research_and_development_to_revenue_last_four_years(self):
