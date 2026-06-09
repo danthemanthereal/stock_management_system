@@ -316,7 +316,7 @@ def update_metric_of_current_template(
         financial_metric_template_service = TemplateMetricService(db)
         financial_metric_template_service.update_template_metric_configuration(
             config_id=config_id,
-            new_reference_value=reference_value,
+            new_reference_value=int(reference_value),
             should_rise=should_rise,
             is_active=is_active,
         )

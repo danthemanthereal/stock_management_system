@@ -13,7 +13,6 @@ class TemplateMetricService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-
     async def update_template_metric_configuration(self, config_id, new_reference_value: int, should_rise: bool, is_active: bool):
         try:
             result = await self.db.execute(
@@ -159,5 +158,17 @@ class TemplateMetricService:
         )
         result = await self.db.execute(stmt)
         return result.first()
+
+    async def get_active_metric_names_of_last_selected_template(self, last_selected_template_id: int)-> list[str]:
+        stmt = (
+            select(FinancialMetric.name)
+            .join(ProfileMetricConfiguration, FinancialMetric.id == ProfileMetricConfiguration.metric_id)
+            .where(
+                ProfileMetricConfiguration.profile_id == last_selected_template_id,
+                ProfileMetricConfiguration.is_active == True
+            )
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
 
 
