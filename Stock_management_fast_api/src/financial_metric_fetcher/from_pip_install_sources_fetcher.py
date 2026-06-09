@@ -109,8 +109,6 @@ class FROMPIPInstallSourceFetcher(FinancialMetricFetcher):
         metrics = {}
         return self.insert_metrics_by_type(company, metrics, ratio_type)
 
-        return final_metrics
-
     def insert_metrics_by_type(self, company: Toolkit, metrics_dict: dict[str, list], ratio_type: str) -> dict[
         str, list]:
 
