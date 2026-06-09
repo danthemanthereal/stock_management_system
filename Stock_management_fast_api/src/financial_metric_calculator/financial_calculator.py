@@ -192,7 +192,15 @@ class FinancialMetricCalculator:
 
 
     def get_research_and_development_to_revenue_last_four_years(self):
-        return self.calculate_to_revenue_ratio_last_four_years("research_and_developement_to_revenue")
+        research_development_expense_last_four_years = self.total_financial_metric_map.get("Research and Development Expenses", [])
+        revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
+
+        r_and_d_to_revenue_last_four_years = []
+
+        for r_and_d, revenue in zip(research_development_expense_last_four_years, revenue_last_four_years):
+            r_and_d_to_revenue_last_four_years.append(round(float(r_and_d) / float(revenue), 2))
+
+        return r_and_d_to_revenue_last_four_years
 
 
     def get_cash_conversion_cycle_last_four_years(self):
