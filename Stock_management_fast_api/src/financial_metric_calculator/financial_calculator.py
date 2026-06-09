@@ -87,7 +87,7 @@ class FinancialMetricCalculator:
             "free_cashflow_operating_cashflow_ratio": self.get_free_cashflow_operating_cashflow_ratio_last_four_years,
             "revenue_per_employee":self.get_revenue_per_employee_last_four_years,
             "roi": self.get_roi_last_four_years,
-         #   "capital_turnover": "",
+            "capital_turnover": self.get_capital_turnover_last_four_years,
             "cash_per_share": self.get_cash_per_share_last_four_years,
             "ebitda_per_share": self.get_ebitda_per_share_last_four_years,
             "enterprise_value_to_ebit": self.get_enterprise_value_to_ebit_last_four_years,
@@ -667,6 +667,17 @@ class FinancialMetricCalculator:
             roi_last_four_years.append(round(float(operating_income) / float(total_asset), 2))
 
         return roi_last_four_years
+
+    def get_capital_turnover_last_four_years(self):
+        revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
+        total_assets_last_four_years = self.total_financial_metric_map.get("Total Assets", [])
+
+        capital_turnover_last_four_years = []
+
+        for revenue,total_asset in zip(revenue_last_four_years, total_assets_last_four_years):
+            capital_turnover_last_four_years.append(round(float(revenue) / float(total_asset), 2))
+
+        return capital_turnover_last_four_years
 
     def get_cash_per_share_last_four_years(self):
         return self.total_financial_metric_map.get("cash_per_share", [])
