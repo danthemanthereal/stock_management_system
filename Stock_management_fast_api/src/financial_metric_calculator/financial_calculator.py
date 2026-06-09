@@ -128,7 +128,8 @@ class FinancialMetricCalculator:
             "earnings_per_share":self.get_earnings_per_share_last_four_years,
             "book_value_per_share":self.get_book_value_per_share_last_four_years,
             "price_to_cashflow":self.get_price_to_cashflow_last_four_years,
-            "piotroski": self.get_piotroski_last_four_years
+            "piotroski": self.get_piotroski_last_four_years,
+            "revenue_to_cost":
         }
         return metric_handlers
 
@@ -862,3 +863,15 @@ class FinancialMetricCalculator:
 
     def get_piotroski_last_four_years(self):
         return self.total_financial_metric_map.get("piotroski", [])
+
+    def get_revenue_to_cost_ratio_last_four_years(self):
+        revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
+        cost_and_expenses_last_four_years = self.total_financial_metric_map.get("Cost and Expenses", [])
+
+        revenue_to_cost_ratio_last_four_years = []
+
+        for revenue, cost_and_expenses in zip(revenue_last_four_years, cost_and_expenses_last_four_years):
+            revenue_to_cost_ratio_last_four_years.append(round(float(revenue) / float(cost_and_expenses), 2))
+
+
+        return revenue_to_cost_ratio_last_four_years

@@ -134,7 +134,8 @@ def get_considered_raw_metrics() -> list[str]:
         "Net Income",
         "Selling, General and Administrative Expenses",
         "Research and Development Expenses",
-        "Reconciled Cost of Revenue"
+        "Reconciled Cost of Revenue",
+        "Cost and Expenses"
     ]
 
 def metric_will_be_considered(metric: str, financial_metrics_to_consider:list[str]) -> bool:
