@@ -127,7 +127,8 @@ class FinancialMetricCalculator:
             "short_term_coverage_ratio":self.get_short_term_coverage_ratio_last_four_years,
             "earnings_per_share":self.get_earnings_per_share_last_four_years,
             "book_value_per_share":self.get_book_value_per_share_last_four_years,
-            "price_to_cashflow":self.get_price_to_cashflow_last_four_years
+            "price_to_cashflow":self.get_price_to_cashflow_last_four_years,
+            "piotroski": self.get_piotroski_last_four_years
         }
         return metric_handlers
 
@@ -858,3 +859,6 @@ class FinancialMetricCalculator:
 
     def get_price_to_cashflow_last_four_years(self):
         return self.total_financial_metric_map.get("price_to_cashflow", [])
+
+    def get_piotroski_last_four_years(self):
+        return self.total_financial_metric_map.get("piotroski", [])
