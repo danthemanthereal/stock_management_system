@@ -117,7 +117,8 @@ class FinancialMetricCalculator:
             "financial_leverage_ratio": self.get_financial_leverage_ratio_last_four_years,
             "wacc": self.get_wacc_last_four_years,
             "income_before_tax_profit_margin": self.get_income_before_tax_profit_margin_last_four_years,
-            "effective_tax_rate": self.get_effective_tax_rate_last_four_years
+            "effective_tax_rate": self.get_effective_tax_rate_last_four_years,
+            "income_quality_ratio": self.get_income_quality_ratio_last_four_years
         }
         return metric_handlers
 
@@ -818,3 +819,6 @@ class FinancialMetricCalculator:
 
     def get_effective_tax_rate_last_four_years(self):
         return self.total_financial_metric_map.get("effective_tax_rate", [])
+
+    def get_income_quality_ratio_last_four_years(self):
+        return self.total_financial_metric_map.get("income_quality_ratio", [])
