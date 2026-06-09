@@ -131,7 +131,7 @@ class FinancialMetricCalculator:
             "piotroski": self.get_piotroski_last_four_years,
             "revenue_to_cost":self.get_revenue_to_cost_ratio_last_four_years,
             "gross_profit_to_cost":self.get_gross_profit_to_cost_last_four_years,
-            "revenue_per_employee_cost"
+            "revenue_per_employee_cost": self.get_revenue_per_employee_cost_ratio_last_four_years
         }
         return metric_handlers
 
