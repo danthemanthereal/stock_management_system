@@ -120,7 +120,8 @@ class FinancialMetricCalculator:
             "effective_tax_rate": self.get_effective_tax_rate_last_four_years,
             "income_quality_ratio": self.get_income_quality_ratio_last_four_years,
             "operating_cycle":self.get_operating_cycle_last_four_years,
-            "cash_conversion_efficiency":self.get_cash_conversion_efficiency_last_four_years
+            "cash_conversion_efficiency":self.get_cash_conversion_efficiency_last_four_years,
+            "sga_to_revenue": self.get_sga_to_revenue_last_four_years
         }
         return metric_handlers
 
@@ -830,3 +831,6 @@ class FinancialMetricCalculator:
 
     def get_cash_conversion_efficiency_last_four_years(self):
         return self.total_financial_metric_map.get("cash_conversion_efficiency", [])
+
+    def get_sga_to_revenue_last_four_years(self):
+        return self.total_financial_metric_map.get("sga_to_revenue", [])
