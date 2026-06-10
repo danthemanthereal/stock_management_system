@@ -113,7 +113,7 @@ class FinancialMetricCalculator:
             "gross_profit_to_asset": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Gross Profit", []),
                                                                  self.total_financial_metric_map.get("Total Assets", [])),
-            "net_margin": self.get_net_margin_last_four_years,
+            "net_margin": partial(self.get_financial_metric_direct_by_map, "net_margin"),
             "ocf_margin": self.get_ocf_margin_last_four_years,
             "ocf_yield": self.get_ocf_yield_last_four_years,
             "operating_margin": self.get_operating_margin_last_four_years,
@@ -299,8 +299,6 @@ class FinancialMetricCalculator:
 
 
 
-    def get_net_margin_last_four_years(self):
-        return self.total_financial_metric_map.get("net_margin", [])
 
     def get_ocf_margin_last_four_years(self):
         #return self.total_financial_metric_map.get("ocf_margin", [])
