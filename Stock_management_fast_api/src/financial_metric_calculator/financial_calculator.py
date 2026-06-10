@@ -109,7 +109,7 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("Free Cash Flow", []),
                                                                  self.total_financial_metric_map.get("Revenue", [])),
             "fcf_yield": partial(self.get_financial_metric_direct_by_map, "fcf_yield"),
-            "gross_margin": self.get_gross_margin_last_four_years,
+            "gross_margin": partial(self.get_financial_metric_direct_by_map, "gross_margin"),
             "gross_profit_to_asset": self.get_gross_profit_to_asset_last_four_years,
             "net_margin": self.get_net_margin_last_four_years,
             "ocf_margin": self.get_ocf_margin_last_four_years,
@@ -293,8 +293,7 @@ class FinancialMetricCalculator:
 
 
 
-    def get_gross_margin_last_four_years(self):
-        return self.total_financial_metric_map.get("gross_margin", [])
+
 
     def get_gross_profit_to_asset_last_four_years(self):
         gross_profit_last_four_years = self.total_financial_metric_map.get("Gross Profit", [])
