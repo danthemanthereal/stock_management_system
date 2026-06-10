@@ -7,7 +7,6 @@ from src.analysis_component.service import AnalysisService
 from src.bought_stock_component.service import BoughtStockService
 from fastapi.templating import Jinja2Templates
 from src.database.db import get_db
-import json
 from starlette.responses import HTMLResponse
 from src.financial_metric_analysis_component.evaluation_ai_financial_metrics import FinancialMetricAIEvaluator
 from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
@@ -99,23 +98,9 @@ async def show_saved_financial_metrics_page(
 
         analysis_service = AnalysisService(db)
 
-        last_selected_branch_profile_id = await analysis_service.get_last_selected_template_id_of_current_user(current_user_id)
-
-        available_metrics = await analysis_service.get_available_metrics()
-
-        current_user_created_templates = analysis_service.get_current_user_created_templates(current_user_id)
-
-        financial_metrics_of_last_selected_template_per_category = await analysis_service.get_all_financial_metrics_of_last_selected_template_per_category(last_selected_branch_profile_id)
-        return render_localized(
-            template_name="analysis/show_saved_financial_metrics.html",
+        return analysis_service.get_current_start_page(
             request=request,
-            context={
-                "available_metrics": available_metrics,
-                "last_selected_branch_profile_id": last_selected_branch_profile_id,
-                "branch_profiles": current_user_created_templates,
-                "financial_metrics_of_last_selected_template_per_category": financial_metrics_of_last_selected_template_per_category,
-            }
-        )
+        current_user_id=current_user_id)
     except Exception as e:
         print(f"Error: {e}")
         traceback.print_exc()
@@ -140,25 +125,12 @@ async def add_to_current_selected_template_new_financial_metric(
             should_rise=should_rise,
             user_id=current_user_id
         )
-        financial_metric_service = MetricsService(db)
-        template_metric_service = TemplateMetricService(db)
-        template_service = TemplateService(db)
-        last_selected_branch_profile_id = await template_service.get_last_selected_template_id_of_user(current_user_id)
-        available_metrics = await financial_metric_service.get_available_metrics()
-        current_user_created_templates = await template_service.get_current_user_created_templates(current_user_id)
-        financial_metrics_of_last_selected_template_per_category = await template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
-            last_selected_branch_profile_id)
 
-        return render_localized(
-            template_name="analysis/show_saved_financial_metrics.html",
+        analysis_service = AnalysisService(db)
+
+        return analysis_service.get_current_start_page(
             request=request,
-            context={
-                "available_metrics": available_metrics,
-                "last_selected_branch_profile_id": last_selected_branch_profile_id,
-                "branch_profiles": current_user_created_templates,
-                "financial_metrics_of_last_selected_template_per_category": financial_metrics_of_last_selected_template_per_category,
-            }
-        )
+            current_user_id=current_user_id)
     except Exception as e:
         print(f"Error: {e}")
         traceback.print_exc()

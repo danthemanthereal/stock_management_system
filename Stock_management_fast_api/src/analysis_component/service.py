@@ -1,13 +1,13 @@
 import json
 from uuid import UUID
-
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from fastapi import  Request
 from src.configs.used_model import STRENGTH_WEAKNESS_MODEL
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.strength_weakness_company_component.strenth_weakness_comapany import StrengthWeaknessOfCompanyComponent
 from src.template_component.service import TemplateService
 from src.template_metric_component.service import TemplateMetricService
+from src.utils.utils import render_localized
 
 
 class AnalysisService:
@@ -41,6 +41,32 @@ class AnalysisService:
             except json.JSONDecodeError:
                 return []
         return companies_array
+
+    async def get_current_start_page(self,
+                                     request: Request,
+                                     current_user_id: UUID):
+
+
+        last_selected_branch_profile_id = await self.get_last_selected_template_id_of_current_user(
+            current_user_id)
+
+        available_metrics = await self.get_available_metrics()
+
+        current_user_created_templates = self.get_current_user_created_templates(current_user_id)
+
+        financial_metrics_of_last_selected_template_per_category = await self.get_all_financial_metrics_of_last_selected_template_per_category(
+            last_selected_branch_profile_id)
+
+        return render_localized(
+            template_name="analysis/show_saved_financial_metrics.html",
+            request=request,
+            context={
+                "available_metrics": available_metrics,
+                "last_selected_branch_profile_id": last_selected_branch_profile_id,
+                "branch_profiles": current_user_created_templates,
+                "financial_metrics_of_last_selected_template_per_category": financial_metrics_of_last_selected_template_per_category,
+            }
+        )
 
     async def get_available_metrics(self,):
         financial_metric_service = MetricsService(self.db)
