@@ -32,16 +32,12 @@ templates = Jinja2Templates(directory="templates")
 
 analysis_router = APIRouter(prefix="/analysis", tags=["analysis"])
 
-
 @analysis_router.get("/")
 def analysis(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="analysis/analysis.html",
         context={"request": request})
-
-
-
 
 @analysis_router.post("/get-summary-url", response_class=HTMLResponse)
 async def analyze_url(request: Request, url: str = Form(...)):
