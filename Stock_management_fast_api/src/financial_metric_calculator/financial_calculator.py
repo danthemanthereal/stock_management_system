@@ -175,7 +175,7 @@ class FinancialMetricCalculator:
             "effective_tax_rate": partial(self.get_financial_metric_direct_by_map, "effective_tax_rate"),
             "income_quality_ratio": partial(self.get_financial_metric_direct_by_map, "income_quality_ratio"),
             "operating_cycle":partial(self.get_financial_metric_direct_by_map, "operating_cycle"),
-            "cash_conversion_efficiency":self.get_cash_conversion_efficiency_last_four_years,
+            "cash_conversion_efficiency":partial(self.get_financial_metric_direct_by_map, "cash_conversion_efficiency"),
             "sga_to_revenue": self.get_sga_to_revenue_last_four_years,
             "operating_ratio":self.get_operating_ratio_last_four_years,
             "short_term_coverage_ratio":self.get_short_term_coverage_ratio_last_four_years,
@@ -316,11 +316,6 @@ class FinancialMetricCalculator:
         for revenue, employee_amount in zip(revenue_last_four_years, employee_amount_last_four_years):
             revenue_per_employee_last_four_years.append(round(float(revenue) / float(employee_amount), 2))
         return revenue_per_employee_last_four_years
-
-
-
-    def get_cash_conversion_efficiency_last_four_years(self):
-        return self.total_financial_metric_map.get("cash_conversion_efficiency", [])
 
     def get_sga_to_revenue_last_four_years(self):
         return self.total_financial_metric_map.get("sga_to_revenue", [])
