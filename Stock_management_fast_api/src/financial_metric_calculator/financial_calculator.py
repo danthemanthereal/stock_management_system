@@ -159,7 +159,7 @@ class FinancialMetricCalculator:
             "price_to_tangible_book": partial(self.get_financial_metric_direct_by_map, "price_to_tangible_book"),
             "ps_ratio": partial(self.get_financial_metric_direct_by_map, "ps_ratio"),
             "revenue_per_share": partial(self.get_financial_metric_direct_by_map, "revenue_per_share"),
-            "degree_of_financial_leverage": self.get_degree_of_financial_leverage_last_four_years,
+            "degree_of_financial_leverage": partial(self.get_financial_metric_direct_by_map, "degree_of_financial_leverage"),
             "degree_of_operating_leverage": self.get_degree_of_operating_leverage_last_four_years,
             "capex_to_depreciation": self.get_capex_to_depreciation_last_four_years,
             "intangibles_to_total_assets": self.get_intangiblesToTotalAssets_last_four_years,
@@ -310,10 +310,6 @@ class FinancialMetricCalculator:
         for revenue, employee_amount in zip(revenue_last_four_years, employee_amount_last_four_years):
             revenue_per_employee_last_four_years.append(round(float(revenue) / float(employee_amount), 2))
         return revenue_per_employee_last_four_years
-
-
-    def get_degree_of_financial_leverage_last_four_years(self):
-        return self.total_financial_metric_map.get("degree_of_financial_leverage", [])
 
     def get_degree_of_operating_leverage_last_four_years(self):
         return self.total_financial_metric_map.get("degree_of_operating_leverage", [])
