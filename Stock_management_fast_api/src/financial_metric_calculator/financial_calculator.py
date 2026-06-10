@@ -105,7 +105,9 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("EBITDA", []),
                                                                  self.total_financial_metric_map.get("Revenue", [])),
             "ebit_margin": partial(self.get_financial_metric_direct_by_map, "ebit_margin"),
-            "fcf_margin": self.get_fcf_margin_last_four_years,
+            "fcf_margin": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Free Cash Flow", []),
+                                                                 self.total_financial_metric_map.get("Revenue", [])),
             "fcf_yield": self.get_fcf_yield_last_four_years,
             "gross_margin": self.get_gross_margin_last_four_years,
             "gross_profit_to_asset": self.get_gross_profit_to_asset_last_four_years,
@@ -288,16 +290,6 @@ class FinancialMetricCalculator:
             cash_burn_rate_last_four_years.append(round(float(equity) / abs(float(net_income)), 2))
 
         return cash_burn_rate_last_four_years
-
-    def get_fcf_margin_last_four_years(self):
-        free_cash_flow_last_four_years = self.total_financial_metric_map.get("Free Cash Flow", [])
-        revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
-
-        free_cashflow_margin_last_four_years = []
-        for free_cash_flow, revenue in zip(free_cash_flow_last_four_years, revenue_last_four_years):
-            free_cashflow_margin_last_four_years.append(round(float(free_cash_flow)/float(revenue), 2))
-
-        return free_cashflow_margin_last_four_years
 
     def get_fcf_yield_last_four_years(self):
         return self.total_financial_metric_map.get("fcf_yield", [])
