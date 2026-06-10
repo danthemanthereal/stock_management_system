@@ -302,18 +302,7 @@ class FinancialMetricCalculator:
 
 
 
-    def get_ocf_margin_last_four_years(self):
-        #return self.total_financial_metric_map.get("ocf_margin", [])
-        operative_cash_flow_last_four_years = self.total_financial_metric_map.get("Operating Cash Flow", [])
-        revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
 
-        operating_cash_flow_margin_last_four_years = []
-
-        for operating_cash_flow, revenue in zip(operative_cash_flow_last_four_years, revenue_last_four_years):
-            operating_cash_flow_margin_last_four_years.append(round(float(operating_cash_flow)/float(revenue), 2))
-
-
-        return operating_cash_flow_margin_last_four_years
 
 
 
