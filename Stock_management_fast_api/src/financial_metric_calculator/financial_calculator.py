@@ -29,8 +29,10 @@ class FinancialMetricCalculator:
             "days_inventory": partial(self.get_financial_metric_direct_by_map, "days_inventory"),
             "days_payable": partial(self.get_financial_metric_direct_by_map, "days_payable"),
             "days_sales_outstanding": partial(self.get_financial_metric_direct_by_map, "days_sales_outstanding"),
-            "defensive_interval_ratio": self.get_defensive_interval_ratio_last_four_years,
-            "inventory_to_revenue": self.get_inventory_to_revenue_last_four_years,
+            "defensive_interval_ratio": partial(self.get_financial_metric_direct_by_map, "defensive_interval_ratio"),
+            "inventory_to_revenue": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Inventory", []),
+                                                                 self.total_financial_metric_map.get("Revenue", [])),
             "inventory_turnover": self.get_inventory_turnover_last_four_years,
             "quick_ratio": self.get_quick_ratio_last_four_years,
             "receivables_turnover": self.get_receivables_turnover_last_four_years,
@@ -189,23 +191,6 @@ class FinancialMetricCalculator:
 
     def get_financial_metric_direct_by_map(self, financial_metric_name: str):
         return self.total_financial_metric_map.get(financial_metric_name, [])
-
-
-
-
-    def get_defensive_interval_ratio_last_four_years(self):
-        return self.total_financial_metric_map.get("defensive_interval_ratio", [])
-
-    def get_inventory_to_revenue_last_four_years(self):
-        inventory_last_four_years = self.total_financial_metric_map.get("Inventory", [])
-        revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
-
-        inventory_to_revenue_last_four_years = []
-
-        for inventory,revenue in zip(inventory_last_four_years, revenue_last_four_years):
-            inventory_to_revenue_last_four_years.append(round(float(inventory)/ float(revenue),2))
-
-        return inventory_to_revenue_last_four_years
 
     def get_inventory_turnover_last_four_years(self):
         return self.total_financial_metric_map.get("inventory_turnover", [])
