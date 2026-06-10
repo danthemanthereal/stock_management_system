@@ -512,11 +512,6 @@ async def get_evaluation_of_financial_metrics_of_current_user_last_selected_temp
                 new_wiki_page=new_combined_wiki
             )
 
-
-
-
-
-
         return render_localized(
             request=request,
             template_name="analysis/show_financial_metrics.html",
