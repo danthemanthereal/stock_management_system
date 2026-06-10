@@ -92,7 +92,7 @@ class FinancialMetricCalculator:
             "gf_value": partial(self.get_financial_metric_direct_by_map, "gf_value"),
             "graham_number":  partial(self.get_financial_metric_direct_by_map, "graham_number"),
             "mscore": partial(self.get_financial_metric_direct_by_map, "mscore"),
-            "price_to_gf_value": self.get_price_to_gf_value_last_four_years,
+            "price_to_gf_value": partial(self.get_financial_metric_direct_by_map, "price_to_gf_value"),
             "rank_balancesheet": self.get_rank_balancesheet_last_four_years,
             "rank_gf_value": self.get_rank_gf_value_last_four_years,
             "rank_growth": self.get_rank_growth_last_four_years,
@@ -294,8 +294,7 @@ class FinancialMetricCalculator:
 
 
 
-    def get_price_to_gf_value_last_four_years(self):
-        return self.total_financial_metric_map.get("price_to_gf_value", [])
+    
 
     def get_rank_balancesheet_last_four_years(self):
         return self.total_financial_metric_map.get("rank_balancesheet", [])
