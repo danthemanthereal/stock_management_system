@@ -119,7 +119,7 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("Revenue", [])),
             "ocf_yield": partial(self.get_financial_metric_direct_by_map, "ocf_yield"),
             "operating_margin": partial(self.get_financial_metric_direct_by_map, "operating_margin"),
-            "return_on_tangible_asset": self.get_return_on_tangible_asset_last_four_years,
+            "return_on_tangible_asset": partial(self.get_financial_metric_direct_by_map, "return_on_tangible_asset"),
             "return_on_tangible_equity": self.get_return_on_tangible_equity_last_four_years,
             "roa": self.get_roa_last_four_years,
             "roce": self.get_roce_last_four_years,
@@ -306,8 +306,7 @@ class FinancialMetricCalculator:
 
 
 
-    def get_return_on_tangible_asset_last_four_years(self):
-        return self.total_financial_metric_map.get("return_on_tangible_asset", [])
+
 
     def get_return_on_tangible_equity_last_four_years(self):
         return self.total_financial_metric_map.get("return_on_tangible_equity", [])
