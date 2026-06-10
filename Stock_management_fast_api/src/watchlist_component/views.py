@@ -122,12 +122,10 @@ request: Request,
     try:
 
         watchlist_service = WatchlistStockService(db)
-        get_ticker_component = TickerStock()
 
-        selected_tickers = [get_ticker_component.get_ticker_of_a_stock(company_name) for company_name in selected_companies]
-        watchlist_service.delete_watchlist_stocks_of_current_user(current_user_id,selected_tickers)
-        watch_list_stocks = watchlist_service.get_watchlist_stocks_of_current_user(current_user_id)
-        watchlist_service = WatchlistStockService(db)
+        selected_tickers = [watchlist_service.get_ticker_of_a_company(company_name) for company_name in selected_companies]
+
+        await watchlist_service.delete_watchlist_stocks_of_current_user(current_user_id,selected_tickers)
 
         return await watchlist_service.get_watch_list_page(request, current_user_id)
     except Exception as e:
