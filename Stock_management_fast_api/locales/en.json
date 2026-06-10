@@ -332,6 +332,7 @@
   "yield": "Yield",
   "roi": "roi",
   "financial_leverage_ratio": "financial_leverage_ratio",
+  "income_quality_ratio": "income_quality_ratio",
   "intangibles_to_total_assets": "intangibles_to_total_assets",
   "long_term_debt_to_capital_ratio": "long_term_debt_to_capital_ratio",
   "debt_to_capital_ratio": "debt_to_capital_ratio",
