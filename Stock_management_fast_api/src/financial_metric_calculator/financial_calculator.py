@@ -23,7 +23,7 @@ class FinancialMetricCalculator:
             "research_and_developement_to_revenue": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Research and Development Expenses", []),
                                                                  self.total_financial_metric_map.get("Revenue", [])),
-            "cash_conversion_cycle": self.get_cash_conversion_cycle_last_four_years,
+            "cash_conversion_cycle": partial(self.get_financial_metric_direct_by_map, "cash_conversion_cycle"),
             "cash_ratio": self.get_cash_ratio_last_four_years,
             "current_ratio":self.get_current_ratio_last_four_years,
             "days_inventory": self.get_days_inventory_last_four_years,
@@ -187,8 +187,8 @@ class FinancialMetricCalculator:
     def get_financial_metric_by_calculate_to_raw_date(self, numerator: list, denominator: list ) ->list[float]:
         return [round(float(numer)/float(denom), 2) for numer, denom in zip(numerator, denominator) ]
 
-    def get_cash_conversion_cycle_last_four_years(self):
-        return self.total_financial_metric_map.get("cash_conversion_cycle", [])
+    def get_financial_metric_direct_by_map(self, financial_metric_name: str):
+        return self.total_financial_metric_map.get(financial_metric_name, [])
 
     def get_cash_ratio_last_four_years(self):
         return self.total_financial_metric_map.get("cash_ratio", [])
