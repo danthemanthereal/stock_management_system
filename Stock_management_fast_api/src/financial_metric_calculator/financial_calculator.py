@@ -57,7 +57,7 @@ class FinancialMetricCalculator:
             "liabilities_to_assets": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Total Liabilities", []),
                                                                  self.total_financial_metric_map.get("Total Assets", [])),
-            "sloan_ratio": self.get_sloan_ratio_last_four_years,
+            "sloan_ratio": partial(self.get_financial_metric_direct_by_map, "sloan_ratio"),
             "net_debt_to_ebitda": self.get_netDebtToEBITDA_last_four_years,
             "debt_to_capital_ratio": self.get_debt_to_capital_ratio_last_four_years,
             "long_term_debt_to_capital_ratio": self.get_long_term_debt_to_capital_ratio_last_four_years,
@@ -203,21 +203,8 @@ class FinancialMetricCalculator:
         return self.total_financial_metric_map.get(financial_metric_name, [])
 
 
-    def get_liabilities_to_asset_ratio_last_four_years(self):
-        liabilities_last_four_years = self.total_financial_metric_map.get("total_liabilities", [])
-        asset_last_four_years = self.total_financial_metric_map.get("total_assets", [])
-
-        liabilities_to_asset_ratio_last_four_years = []
-
-        for liability, asset in zip(liabilities_last_four_years, asset_last_four_years):
-            liabilities_to_asset_ratio_last_four_years.append(round(float(liability) / float(asset), 2))
-
-        return liabilities_to_asset_ratio_last_four_years
-        #return self.get_value_to_asset_ratio_last_four_years("totalLiabilities")
 
 
-    def get_sloan_ratio_last_four_years(self):
-        return self.total_financial_metric_map.get("sloan_ratio", [])
 
     def get_netDebtToEBITDA_last_four_years(self):
         return self.total_financial_metric_map.get("net_debt_to_ebitda", [])
