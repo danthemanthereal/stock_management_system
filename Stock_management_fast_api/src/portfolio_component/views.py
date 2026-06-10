@@ -9,6 +9,7 @@ from src.database.db import get_db
 from src.authenticator_component.authenticator import get_current_user_id
 from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.portfolio_component.schema import ChatRequest
+from src.portfolio_component.service import PortfolioService
 from src.utils.utils import render_localized
 from src.bought_stock_component.service import BoughtStockService
 
@@ -23,8 +24,10 @@ async def get_portfolio_page(request: Request,
                              db: AsyncSession = Depends(get_db),
                              current_user_id: UUID = Depends(get_current_user_id)):
     try:
-        bought_stock_service = BoughtStockService(db=db)
-        bought_stocks = await bought_stock_service.get_bought_stocks_of_current_user(current_user_id=str(current_user_id))
+        portfolio_service = PortfolioService(db)
+
+        bought_stocks = await portfolio_service.get_bought_stocks_of_current_user(str(current_user_id))
+
         return render_localized(
             template_name="portfolio/portfolio.html",
             request=request,
