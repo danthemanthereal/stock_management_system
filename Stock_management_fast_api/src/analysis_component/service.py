@@ -119,3 +119,8 @@ class AnalysisService:
                                                                current_user_id: UUID):
         template_service = TemplateService(self.db)
         await template_service.update_last_selected_template_id(template_id, current_user_id)
+
+    async def get_template_by_id(self,
+                                 template_id: int):
+        template_service = TemplateService(self.db)
+        return await template_service.get_template_by_id(template_id)

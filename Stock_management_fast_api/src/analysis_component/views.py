@@ -194,12 +194,17 @@ async def show_edit_financial_metric_of_current_template(
         db: AsyncSession = Depends(get_db),
         current_user_id: UUID = Depends(get_current_user_id)
 ):
-    template_service = TemplateService(db)
+
+    analysis_service = AnalysisService(db)
+
+    await analysis_service.get_template_by_id(template_id=last_selected_branch_profile_id)
+
+
+
     financial_metric_service = MetricsService(db)
     financial_metric_category_service = FinancialMetricCategoryService(db)
     financial_metric_template_service = TemplateMetricService(db)
 
-    template = await template_service.get_template_by_id(last_selected_branch_profile_id)
     metric = await financial_metric_service.get_financial_metric_by_id(metric_id)
     metric_categories = await financial_metric_category_service.get_all_metric_categories()
     config = await financial_metric_template_service.get_config_by_metric_and_template_id(metric_id,
