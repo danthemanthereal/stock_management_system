@@ -63,19 +63,11 @@ async def analyze_url(request: Request, url: str = Form(...)):
         )
 
 @analysis_router.post("/get-summary-by-yt-video", response_class=HTMLResponse)
-def get_yt_transcript(request: Request, url: str = Form(...)):
+async def get_yt_transcript(request: Request, url: str = Form(...)):
     try:
 
-        strength_weakness_company_component = StrengthWeaknessOfCompanyComponent(
-            groq_model_name=STRENGTH_WEAKNESS_MODEL
-        )
-        companies_array = strength_weakness_company_component.get_strength_weakness_of_youtube(url)
-
-        if isinstance(companies_array, str):
-            try:
-                companies_array = json.loads(companies_array)
-            except json.JSONDecodeError:
-                companies_array = []
+        analysis_service = AnalysisService()
+        companies_array = await analysis_service.analyse_yt_video(url)
 
         return templates.TemplateResponse(
             request=request,

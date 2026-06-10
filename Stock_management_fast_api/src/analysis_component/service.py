@@ -22,3 +22,16 @@ class AnalysisService:
                 return []
 
         return companies_array
+
+    async def analyse_yt_video(self, yt_url: str):
+        strength_weakness_company_component = StrengthWeaknessOfCompanyComponent(
+            groq_model_name=STRENGTH_WEAKNESS_MODEL
+        )
+        companies_array = strength_weakness_company_component.get_strength_weakness_of_youtube(yt_url)
+
+        if isinstance(companies_array, str):
+            try:
+                return json.loads(companies_array)
+            except json.JSONDecodeError:
+                return []
+        return companies_array
