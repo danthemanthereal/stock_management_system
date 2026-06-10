@@ -18,13 +18,11 @@ from src.template_component.service import TemplateService
 from src.financial_metric_category_component.service import FinancialMetricCategoryService
 from src.template_metric_component.service import TemplateMetricService
 from src.find_potential_stocks_component.find_potential_stocks import FindPotentialStocks
-from src.strength_weakness_company_component.strenth_weakness_comapany import \
-    StrengthWeaknessOfCompanyComponent
 from src.get_news_component.get_news import NewsFinderComponent
 import os
 from dotenv import load_dotenv
 from src.financial_metric_analysis_component.utils import merge_financial_summary_triples
-from src.configs.used_model import STRENGTH_WEAKNESS_MODEL, FINANCIAL_METRIC_EVALUATION_MODEL, LLM_WIKI_MODEL
+from src.configs.used_model import  FINANCIAL_METRIC_EVALUATION_MODEL, LLM_WIKI_MODEL
 from src.watchlist_component.service import WatchlistStockService
 
 load_dotenv()
