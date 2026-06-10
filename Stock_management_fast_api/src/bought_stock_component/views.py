@@ -27,14 +27,14 @@ async def add_stock_from_watchlist(
 ):
     try:
 
-        get_ticker_component = TickerStock()
-        ticker = get_ticker_component.get_ticker_of_a_stock(name)
-
         bought_stock_service = BoughtStockService(db=db)
 
-        watchlist_service = WatchlistStockService(db=db)
+        ticker = bought_stock_service.get_ticker_of_a_stock(name)
 
-        current_stock_on_watchlist = await watchlist_service.get_current_stock_of_user(current_user_id=current_user_id, ticker_of_stock=ticker)
+        current_stock_on_watchlist = await bought_stock_service.get_current_stock_on_watchlist_obj(
+            ticker=ticker,
+            current_user_id=current_user_id
+        )
 
         await bought_stock_service.add_stock_to_current_user(
             name=name,
