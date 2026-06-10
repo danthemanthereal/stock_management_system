@@ -134,3 +134,11 @@ class AnalysisService:
     async def get_all_metric_categories(self,):
         financial_metric_category_service = FinancialMetricCategoryService(self.db)
         return await financial_metric_category_service.get_all_metric_categories()
+
+    async def get_get_config_by_metric_and_template_id(self,
+        metric_id: int,
+        last_selected_branch_profile_id: int):
+        financial_metric_template_service = TemplateMetricService(self.db)
+
+        return await financial_metric_template_service.get_config_by_metric_and_template_id(metric_id,
+                                                                                              last_selected_branch_profile_id)

@@ -203,11 +203,9 @@ async def show_edit_financial_metric_of_current_template(
 
     metric_categories = analysis_service.get_all_metric_categories()
 
-
-    financial_metric_template_service = TemplateMetricService(db)
-
-    config = await financial_metric_template_service.get_config_by_metric_and_template_id(metric_id,
-                                                                                    last_selected_branch_profile_id)
+    config = analysis_service.get_get_config_by_metric_and_template_id(
+        metric_id=metric_id,
+        last_selected_branch_profile_id=last_selected_branch_profile_id, )
 
     return render_localized(
         template_name="analysis/edit_metric.html",
