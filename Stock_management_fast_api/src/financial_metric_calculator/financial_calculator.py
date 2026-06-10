@@ -66,7 +66,9 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("Long Term Debt and Capital Lease Obligation", []),
                                                                  self.total_financial_metric_map.get("Total Equity", [])),
             "debt_service_coverage_ratio": partial(self.get_financial_metric_direct_by_map, "debt_service_coverage_ratio"),
-            "short_term_operating_cashflow_coverage_ratio": self.get_shortTermOperatingCashFlowCoverageRatio_last_four_years,
+            "short_term_operating_cashflow_coverage_ratio": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Operating Cash Flow", []),
+                                                                 self.total_financial_metric_map.get("Total Current Liabilities", [])),
             "operating_cashflow_coverage_ratio": self.get_operating_cashflow_coverage_ratio_last_four_years,
             "cash_flow_coverage_ratio":self.get_cash_flow_coverage_ratio_last_four_years,
             "gearing":self.get_gearing_last_four_years,
@@ -222,20 +224,8 @@ class FinancialMetricCalculator:
 
         return long_debt_to_capital_ratio_last_four_years
 
-    def get_debt_service_coverage_ratio_last_four_years(self):
-        return self.total_financial_metric_map.get("debt_service_coverage_ratio", [])
 
 
-    def get_shortTermOperatingCashFlowCoverageRatio_last_four_years(self):
-        operating_cash_flow_last_four_years = self.total_financial_metric_map.get("operatingCashflow", [])
-        current_liabilities_last_four_years = self.total_financial_metric_map.get("totalCurrentLiabilities", [])
-
-        shortTermOperatingCashFlowCoverageRatio_last_four_years = []
-
-        for ope_cashflow, current_liability in zip(operating_cash_flow_last_four_years,current_liabilities_last_four_years):
-            shortTermOperatingCashFlowCoverageRatio_last_four_years.append(round(float(ope_cashflow) / float(current_liability), 2))
-
-        return shortTermOperatingCashFlowCoverageRatio_last_four_years
 
 
     def get_operating_cashflow_coverage_ratio_last_four_years(self):

@@ -123,6 +123,7 @@ def get_considered_raw_metrics() -> list[str]:
         "Total Liabilities",
         "Total Assets",
         "Total Non Current Liabilities",
+        "Total Current Liabilities",
         "Total Current Assets",
         "Gross Profit",
         "Inventory",
