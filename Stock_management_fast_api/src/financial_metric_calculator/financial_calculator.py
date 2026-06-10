@@ -177,7 +177,7 @@ class FinancialMetricCalculator:
             "operating_cycle":partial(self.get_financial_metric_direct_by_map, "operating_cycle"),
             "cash_conversion_efficiency":partial(self.get_financial_metric_direct_by_map, "cash_conversion_efficiency"),
             "sga_to_revenue": partial(self.get_financial_metric_direct_by_map, "sga_to_revenue"),
-            "operating_ratio":self.get_operating_ratio_last_four_years,
+            "operating_ratio":partial(self.get_financial_metric_direct_by_map, "operating_ratio"),
             "short_term_coverage_ratio":self.get_short_term_coverage_ratio_last_four_years,
             "earnings_per_share":self.get_earnings_per_share_last_four_years,
             "book_value_per_share":self.get_book_value_per_share_last_four_years,
@@ -317,8 +317,7 @@ class FinancialMetricCalculator:
             revenue_per_employee_last_four_years.append(round(float(revenue) / float(employee_amount), 2))
         return revenue_per_employee_last_four_years
 
-    def get_operating_ratio_last_four_years(self):
-        return self.total_financial_metric_map.get("operating_ratio", [])
+
 
     def get_short_term_coverage_ratio_last_four_years(self):
         return self.total_financial_metric_map.get("short_term_coverage_ratio", [])
