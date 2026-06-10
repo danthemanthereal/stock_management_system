@@ -69,7 +69,9 @@ class FinancialMetricCalculator:
             "short_term_operating_cashflow_coverage_ratio": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Operating Cash Flow", []),
                                                                  self.total_financial_metric_map.get("Total Current Liabilities", [])),
-            "operating_cashflow_coverage_ratio": self.get_operating_cashflow_coverage_ratio_last_four_years,
+            "operating_cashflow_coverage_ratio": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Operating Cash Flow", []),
+                                                                 self.total_financial_metric_map.get("Total Debt", [])),
             "cash_flow_coverage_ratio":self.get_cash_flow_coverage_ratio_last_four_years,
             "gearing":self.get_gearing_last_four_years,
             "dynamic_debt_degree":self.get_dynamic_debt_degree_last_four_years,
@@ -228,16 +230,7 @@ class FinancialMetricCalculator:
 
 
 
-    def get_operating_cashflow_coverage_ratio_last_four_years(self):
-        operative_cashflow_last_four_years = self.total_financial_metric_map.get("Operating Cash Flow", [])
-        debt_last_four_years = self.total_financial_metric_map.get("Total Debt", [])
 
-        operative_cashflow_coverage_ratio_last_four_years = []
-
-        for operative_cashflow, debt in zip(operative_cashflow_last_four_years, debt_last_four_years):
-            operative_cashflow_coverage_ratio_last_four_years.append(round(float(operative_cashflow) / float(debt), 2))
-
-        return operative_cashflow_coverage_ratio_last_four_years
 
     def get_cash_flow_coverage_ratio_last_four_years(self):
         return self.total_financial_metric_map.get("cash_flow_coverage_ratio", [])
