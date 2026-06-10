@@ -181,7 +181,7 @@ class FinancialMetricCalculator:
             "short_term_coverage_ratio":partial(self.get_financial_metric_direct_by_map, "short_term_coverage_ratio"),
             "earnings_per_share":partial(self.get_financial_metric_direct_by_map, "earnings_per_share"),
             "book_value_per_share":partial(self.get_financial_metric_direct_by_map, "book_value_per_share"),
-            "price_to_cashflow":self.get_price_to_cashflow_last_four_years,
+            "price_to_cashflow":partial(self.get_financial_metric_direct_by_map, "price_to_cashflow"),
             "piotroski": self.get_piotroski_last_four_years,
             "revenue_to_cost":self.get_revenue_to_cost_ratio_last_four_years,
             "gross_profit_to_cost":self.get_gross_profit_to_cost_last_four_years,
@@ -316,10 +316,6 @@ class FinancialMetricCalculator:
         for revenue, employee_amount in zip(revenue_last_four_years, employee_amount_last_four_years):
             revenue_per_employee_last_four_years.append(round(float(revenue) / float(employee_amount), 2))
         return revenue_per_employee_last_four_years
-
-    
-    def get_price_to_cashflow_last_four_years(self):
-        return self.total_financial_metric_map.get("price_to_cashflow", [])
 
     def get_piotroski_last_four_years(self):
         return self.total_financial_metric_map.get("piotroski", [])
