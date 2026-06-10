@@ -88,3 +88,18 @@ class AnalysisService:
         return await template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
 
+
+    async def add_metric_to_profile(self,
+                                    last_selected_branch_profile_id:int,
+                                    financial_metric_id: int,
+                                    reference_value: int,
+                                    should_rise:bool,
+                                    current_user_id: UUID):
+        template_financial_metric_service = TemplateMetricService(self.db)
+        await template_financial_metric_service.add_metric_to_profile(
+            profile_id=last_selected_branch_profile_id,
+            metric_id=financial_metric_id,
+            reference_value=reference_value,
+            should_rise=should_rise,
+            user_id=current_user_id
+        )

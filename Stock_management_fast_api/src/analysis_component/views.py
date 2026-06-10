@@ -117,16 +117,15 @@ async def add_to_current_selected_template_new_financial_metric(
         current_user_id: UUID = Depends(get_current_user_id)
 ):
     try:
-        template_financial_metric_service = TemplateMetricService(db)
-        await template_financial_metric_service.add_metric_to_profile(
-            profile_id=last_selected_branch_profile_id,
-            metric_id=financial_metric_id,
+        analysis_service = AnalysisService(db)
+
+        await analysis_service.add_metric_to_profile(
+            last_selected_branch_profile_id=last_selected_branch_profile_id,
+            financial_metric_id=financial_metric_id,
             reference_value=reference_value,
             should_rise=should_rise,
-            user_id=current_user_id
+            current_user_id=current_user_id
         )
-
-        analysis_service = AnalysisService(db)
 
         return analysis_service.get_current_start_page(
             request=request,
