@@ -38,7 +38,7 @@ class FinancialMetricCalculator:
             "receivables_turnover": partial(self.get_financial_metric_direct_by_map, "receivables_turnover"),
             "asset_turnover": partial(self.get_financial_metric_direct_by_map, "asset_turnover"),
             "payables_turnover": partial(self.get_financial_metric_direct_by_map, "payables_turnover"),
-            "fixed_asset_turnover": self.get_fixed_asset_turnover_last_four_years,
+            "fixed_asset_turnover": partial(self.get_financial_metric_direct_by_map, "fixed_asset_turnover"),
             "capex_to_operating_cash_flow": self.get_capex_to_operating_cash_flow_last_four_years,
             "capex_to_operating_income": self.get_capex_to_operating_income_last_four_years,
             "capex_to_revenue": self.get_capex_to_revenue_last_four_years,
@@ -197,8 +197,7 @@ class FinancialMetricCalculator:
 
 
 
-    def get_fixed_asset_turnover_last_four_years(self):
-        return self.total_financial_metric_map.get("fixed_asset_turnover", [])
+
 
     def get_capex_to_operating_cash_flow_last_four_years(self):
         capex_last_four_years = self.total_financial_metric_map.get("Capital Expenditure", [])
