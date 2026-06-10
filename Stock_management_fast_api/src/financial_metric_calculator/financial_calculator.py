@@ -156,7 +156,7 @@ class FinancialMetricCalculator:
             "price_to_free_cash_flow": partial(self.get_financial_metric_direct_by_map, "price_to_free_cash_flow"),
             "price_to_operating_cash_flow": partial(self.get_financial_metric_direct_by_map, "price_to_operating_cash_flow"),
             "price_to_owner_earnings": partial(self.get_financial_metric_direct_by_map, "price_to_owner_earnings"),
-            "price_to_tangible_book": self.get_price_to_tangible_book_last_four_years,
+            "price_to_tangible_book": partial(self.get_financial_metric_direct_by_map, "price_to_tangible_book"),
             "ps_ratio": self.get_ps_ratio_last_four_years,
             "revenue_per_share": self.get_revenue_per_share_last_four_years,
             "degree_of_financial_leverage": self.get_degree_of_financial_leverage_last_four_years,
@@ -311,8 +311,7 @@ class FinancialMetricCalculator:
             revenue_per_employee_last_four_years.append(round(float(revenue) / float(employee_amount), 2))
         return revenue_per_employee_last_four_years
 
-    def get_price_to_tangible_book_last_four_years(self):
-        return self.total_financial_metric_map.get("price_to_tangible_book", [])
+
 
     def get_ps_ratio_last_four_years(self):
         return self.total_financial_metric_map.get("ps_ratio", [])
