@@ -72,7 +72,7 @@ class FinancialMetricCalculator:
             "operating_cashflow_coverage_ratio": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Operating Cash Flow", []),
                                                                  self.total_financial_metric_map.get("Total Debt", [])),
-            "cash_flow_coverage_ratio":self.get_cash_flow_coverage_ratio_last_four_years,
+            "cash_flow_coverage_ratio":partial(self.get_financial_metric_direct_by_map, "cash_flow_coverage_ratio"),
             "gearing":self.get_gearing_last_four_years,
             "dynamic_debt_degree":self.get_dynamic_debt_degree_last_four_years,
             "current_asset_intensity": self.get_current_asset_intensity_last_four_years,
@@ -225,31 +225,6 @@ class FinancialMetricCalculator:
                 round(float(current_debt) / (float(equity) + float(current_debt)), 2))
 
         return long_debt_to_capital_ratio_last_four_years
-
-
-
-
-
-
-
-    def get_cash_flow_coverage_ratio_last_four_years(self):
-        return self.total_financial_metric_map.get("cash_flow_coverage_ratio", [])
-
-    def calculate_to_revenue_ratio_last_four_years(self, metric_key):
-
-        values = self.total_financial_metric_map.get(metric_key, [])
-        revenues = self.total_financial_metric_map.get("totalRevenue", [])
-
-        result = []
-        for val, rev in zip(values, revenues):
-            try:
-                rev_float = float(rev)
-                val_float = float(val)
-                ratio = round(val_float / rev_float * 100, 2) if rev_float != 0 else None
-            except (ValueError, TypeError):
-                ratio = None
-            result.append(ratio)
-        return result
 
 
     def get_debt_to_capital_last_four_years_last_four_years(self):
