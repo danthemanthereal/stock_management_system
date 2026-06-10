@@ -173,7 +173,7 @@ class FinancialMetricCalculator:
             "wacc": partial(self.get_financial_metric_direct_by_map, "wacc"),
             "income_before_tax_profit_margin": partial(self.get_financial_metric_direct_by_map, "income_before_tax_profit_margin"),
             "effective_tax_rate": partial(self.get_financial_metric_direct_by_map, "effective_tax_rate"),
-            "income_quality_ratio": self.get_income_quality_ratio_last_four_years,
+            "income_quality_ratio": partial(self.get_financial_metric_direct_by_map, "income_quality_ratio"),
             "operating_cycle":self.get_operating_cycle_last_four_years,
             "cash_conversion_efficiency":self.get_cash_conversion_efficiency_last_four_years,
             "sga_to_revenue": self.get_sga_to_revenue_last_four_years,
@@ -316,9 +316,6 @@ class FinancialMetricCalculator:
         for revenue, employee_amount in zip(revenue_last_four_years, employee_amount_last_four_years):
             revenue_per_employee_last_four_years.append(round(float(revenue) / float(employee_amount), 2))
         return revenue_per_employee_last_four_years
-
-    def get_income_quality_ratio_last_four_years(self):
-        return self.total_financial_metric_map.get("income_quality_ratio", [])
 
     def get_operating_cycle_last_four_years(self):
         return self.total_financial_metric_map.get("operating_cycle", [])
