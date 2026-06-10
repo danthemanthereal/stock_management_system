@@ -96,11 +96,13 @@ async def show_saved_financial_metrics_page(
         current_user_id: UUID = Depends(get_current_user_id),
 ):
     try:
-        financial_metric_service = MetricsService(db)
+
+        analysis_service = AnalysisService(db)
+
         template_service = TemplateService(db)
         template_metric_service = TemplateMetricService(db)
         last_selected_branch_profile_id = await template_service.get_last_selected_template_id_of_user(current_user_id)
-        available_metrics = await financial_metric_service.get_available_metrics()
+        available_metrics = await analysis_service.get_available_metrics()
         current_user_created_templates = await template_service.get_current_user_created_templates(current_user_id)
         financial_metrics_of_last_selected_template_per_category = await template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)

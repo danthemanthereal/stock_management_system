@@ -41,3 +41,5 @@ class AnalysisService:
 
     async def get_available_metrics(self,):
         financial_metric_service = MetricsService(self.db)
+
+        return await financial_metric_service.get_available_metrics()
