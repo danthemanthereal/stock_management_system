@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Request, Depends,Form, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.analysis_component.service import AnalysisService
 from src.bought_stock_component.service import BoughtStockService
 from fastapi.templating import Jinja2Templates
 from src.database.db import get_db
@@ -43,16 +44,8 @@ def analysis(request: Request):
 async def analyze_url(request: Request, url: str = Form(...)):
     try:
 
-        strength_weakness_company_component = StrengthWeaknessOfCompanyComponent(
-            groq_model_name=STRENGTH_WEAKNESS_MODEL
-        )
-        companies_array = await strength_weakness_company_component.get_strength_weakness_of_company(url)
-
-        if isinstance(companies_array, str):
-            try:
-                companies_array = json.loads(companies_array)
-            except json.JSONDecodeError:
-                companies_array = []
+        analysis_service = AnalysisService()
+        companies_array = await analysis_service.analyse_url(url)
 
         return templates.TemplateResponse(
             request=request,
