@@ -210,40 +210,6 @@ class FinancialMetricCalculator:
     def get_financial_metric_direct_by_map(self, financial_metric_name: str):
         return self.total_financial_metric_map.get(financial_metric_name, [])
 
-
-
-
-    def get_long_term_debt_to_capital_ratio_last_four_years(self):
-        long_term_debt_last_four_years = self.total_financial_metric_map.get("Long Term Debt and Capital Lease Obligation", [])
-        equity_last_four_years = self.total_financial_metric_map.get("Total Equity", [])
-
-        long_debt_to_capital_ratio_last_four_years = []
-
-        for idx, equity in enumerate(equity_last_four_years):
-            current_debt = long_term_debt_last_four_years[idx]
-            long_debt_to_capital_ratio_last_four_years.append(
-                round(float(current_debt) / (float(equity) + float(current_debt)), 2))
-
-        return long_debt_to_capital_ratio_last_four_years
-
-
-    def get_debt_to_capital_last_four_years_last_four_years(self):
-        debts = self.total_financial_metric_map.get("Total Debt", [])
-        values = self.total_financial_metric_map.get("Total Equity", [])
-
-        result = []
-        for debt, val in zip(values, debts):
-            try:
-                debt_float = float(debt)
-                val_float = float(val)
-                val_float  += debt_float
-                ratio = round(debt_float / val_float, 2) if val_float != 0 else None
-            except (ValueError, TypeError):
-                ratio = None
-            result.append(ratio)
-        return result
-
-
     def get_gearing_last_four_years(self):
         total_liabilities_last_four_years = self.total_financial_metric_map.get("Total Liabilities", [])
         cash_and_equivalents_last_four_years = self.total_financial_metric_map.get("Cash and Cash Equivalents", [])
