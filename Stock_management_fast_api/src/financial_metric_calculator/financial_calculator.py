@@ -124,7 +124,7 @@ class FinancialMetricCalculator:
             "roa": partial(self.get_financial_metric_direct_by_map, "roa"),
             "roce": partial(self.get_financial_metric_direct_by_map, "roce"),
             "roe": partial(self.get_financial_metric_direct_by_map, "roe"),
-            "roic": self.get_roic_last_four_years,
+            "roic": partial(self.get_financial_metric_direct_by_map, "roic"),
             "yield": self.get_yield_last_four_years,
             "freeCashFlowToEquity": self.get_freeCashFlowToEquity_last_four_years,
             "free_cashflow_operating_cashflow_ratio": self.get_free_cashflow_operating_cashflow_ratio_last_four_years,
@@ -296,22 +296,6 @@ class FinancialMetricCalculator:
         return cash_burn_rate_last_four_years
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def get_roic_last_four_years(self):
-        return self.total_financial_metric_map.get("roic", [])
 
     def get_yield_last_four_years(self):
         return self.total_financial_metric_map.get("yield", [])
