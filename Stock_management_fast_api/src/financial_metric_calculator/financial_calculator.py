@@ -99,7 +99,7 @@ class FinancialMetricCalculator:
             "rank_momentum": partial(self.get_financial_metric_direct_by_map, "rank_momentum"),
             "rank_predictability": partial(self.get_financial_metric_direct_by_map, "rank_predictability"),
             "rank_profitability": partial(self.get_financial_metric_direct_by_map, "rank_profitability"),
-            "zscore": self.get_zscore_last_four_years,
+            "zscore": partial(self.get_financial_metric_direct_by_map, "zscore"),
             "dividend_paid_and_capex_coverage_ratio": self.get_dividend_paid_and_capex_coverage_ratio_last_four_years,
             "ebitda_margin": self.get_ebitda_margin_last_four_years,
             "ebit_margin": self.get_ebit_margin_last_four_years,
@@ -287,9 +287,6 @@ class FinancialMetricCalculator:
 
         return cash_burn_rate_last_four_years
 
-
-    def get_zscore_last_four_years(self):
-        return self.total_financial_metric_map.get("zscore", [])
 
     def get_dividend_paid_and_capex_coverage_ratio_last_four_years(self):
         return self.total_financial_metric_map.get("dividend_paid_and_capex_coverage_ratio", [])
