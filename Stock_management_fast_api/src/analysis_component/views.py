@@ -413,12 +413,6 @@ def find_potential_stocks(filters: dict):
     find_potential_stocks_component = FindPotentialStocks()
     return find_potential_stocks_component.find_potential_stocks_for_current_user(filters)
 
-
-
-
-
-
-
 @analysis_router.get("/get-financial-metrics", response_class=HTMLResponse)
 async def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(request: Request,
                                                                                      company: str,
