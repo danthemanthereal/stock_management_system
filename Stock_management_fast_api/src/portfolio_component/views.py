@@ -56,15 +56,12 @@ async def create_bought_stock_of_current_user(
         current_user_id: UUID = Depends(get_current_user_id),
 ):
     try:
-        get_ticker_component = TickerStock()
-        ticker = get_ticker_component.get_ticker_of_a_stock(name)
 
-        bought_stock_service = BoughtStockService(db=db)
-        await bought_stock_service.add_stock_to_current_user(name=name, ticker=ticker,
-                                                              bought_price=bought_price,
-                                                              amount=amount,
-                                                       current_user_id=current_user_id,
-                                                       strengths="", weakness="", wiki_page="")
+        portfolio_service = PortfolioService(db)
+
+        ticker = portfolio_service.get_ticker_of_stock(name)
+
+        await
 
 
         bought_stocks = await bought_stock_service.get_bought_stocks_of_current_user(current_user_id=str(current_user_id))
