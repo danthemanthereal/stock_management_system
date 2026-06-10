@@ -35,7 +35,7 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("Revenue", [])),
             "inventory_turnover": partial(self.get_financial_metric_direct_by_map, "inventory_turnover"),
             "quick_ratio": partial(self.get_financial_metric_direct_by_map, "quick_ratio"),
-            "receivables_turnover": self.get_receivables_turnover_last_four_years,
+            "receivables_turnover": partial(self.get_financial_metric_direct_by_map, "receivables_turnover"),
             "asset_turnover": self.get_asset_turnover_last_four_years, # asset turnover
             "payables_turnover": self.get_accounts_payable_turnover_last_four_years,
             "fixed_asset_turnover": self.get_fixed_asset_turnover_last_four_years,
@@ -192,8 +192,7 @@ class FinancialMetricCalculator:
     def get_financial_metric_direct_by_map(self, financial_metric_name: str):
         return self.total_financial_metric_map.get(financial_metric_name, [])
 
-    def get_receivables_turnover_last_four_years(self):
-        return self.total_financial_metric_map.get("receivables_turnover", [])
+
 
     def get_asset_turnover_last_four_years(self):
         return self.total_financial_metric_map.get("asset_turnover", [])
