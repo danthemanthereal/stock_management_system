@@ -277,15 +277,7 @@ class FinancialMetricCalculator:
             asset_coverage_degree_two_last_four_years.append(ratio)
         return asset_coverage_degree_two_last_four_years
 
-    def get_good_will_ratio_last_four_years(self):
-        good_will_last_four_years = self.total_financial_metric_map.get("Goodwill", [])
-        equity_last_four_years = self.total_financial_metric_map.get("Total Equity", [])
-        good_will_ratio_last_four_years = []
 
-        for good_will, equity in zip(good_will_last_four_years, equity_last_four_years):
-            good_will_ratio_last_four_years.append(round(float(good_will) / float(equity), 2))
-
-        return good_will_ratio_last_four_years
 
     def get_cash_burn_rate_last_four_years(self):
         equity_last_four_years = self.total_financial_metric_map.get("Total Equity", [])
