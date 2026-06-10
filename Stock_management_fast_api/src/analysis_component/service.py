@@ -7,6 +7,7 @@ from src.configs.used_model import STRENGTH_WEAKNESS_MODEL
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.strength_weakness_company_component.strenth_weakness_comapany import StrengthWeaknessOfCompanyComponent
 from src.template_component.service import TemplateService
+from src.template_metric_component.service import TemplateMetricService
 
 
 class AnalysisService:
@@ -54,3 +55,10 @@ class AnalysisService:
     async def get_current_user_created_templates(self, current_user_id: UUID):
         template_service = TemplateService(self.db)
         return await template_service.get_current_user_created_templates(current_user_id)
+
+    async def get_all_financial_metrics_of_last_selected_template_per_category(self,
+                                                                         last_selected_branch_profile_id: int):
+        template_metric_service = TemplateMetricService(self.db)
+        return await template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
+            last_selected_branch_profile_id)
+
