@@ -121,7 +121,7 @@ class FinancialMetricCalculator:
             "operating_margin": partial(self.get_financial_metric_direct_by_map, "operating_margin"),
             "return_on_tangible_asset": partial(self.get_financial_metric_direct_by_map, "return_on_tangible_asset"),
             "return_on_tangible_equity": partial(self.get_financial_metric_direct_by_map, "return_on_tangible_equity"),
-            "roa": self.get_roa_last_four_years,
+            "roa": partial(self.get_financial_metric_direct_by_map, "roa"),
             "roce": self.get_roce_last_four_years,
             "roe": self.get_roe_last_four_years,
             "roic": self.get_roic_last_four_years,
@@ -309,9 +309,6 @@ class FinancialMetricCalculator:
 
 
 
-
-    def get_roa_last_four_years(self):
-        return self.total_financial_metric_map.get("roa", [])
 
     def get_roce_last_four_years(self):
         return self.total_financial_metric_map.get("roce", [])
