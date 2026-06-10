@@ -150,7 +150,7 @@ class FinancialMetricCalculator:
             "growth_revenue_per_share": partial(self.get_financial_metric_direct_by_map, "growth_revenue_per_share"),
             "net_cash_per_share": partial(self.get_financial_metric_direct_by_map, "net_cash_per_share"),
             "pb_ratio": partial(self.get_financial_metric_direct_by_map, "pb_ratio"),
-            "pe_ratio": self.get_pe_ratio_last_four_years,
+            "pe_ratio": partial(self.get_financial_metric_direct_by_map, "pe_ratio"),
             "peg_ratio": self.get_peg_ratio_last_four_years,
             "peter_lynch_fair_value": self.get_peter_lynch_fair_value_last_four_years,
             "price_to_free_cash_flow": self.get_price_to_free_cash_flow_last_four_years,
@@ -310,10 +310,6 @@ class FinancialMetricCalculator:
         for revenue, employee_amount in zip(revenue_last_four_years, employee_amount_last_four_years):
             revenue_per_employee_last_four_years.append(round(float(revenue) / float(employee_amount), 2))
         return revenue_per_employee_last_four_years
-
-
-    def get_pe_ratio_last_four_years(self):
-        return self.total_financial_metric_map.get("pe_ratio", [])
 
     def get_peg_ratio_last_four_years(self):
         return self.total_financial_metric_map.get("peg_ratio", [])
