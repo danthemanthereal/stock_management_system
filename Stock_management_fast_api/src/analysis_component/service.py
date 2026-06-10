@@ -124,3 +124,8 @@ class AnalysisService:
                                  template_id: int):
         template_service = TemplateService(self.db)
         return await template_service.get_template_by_id(template_id)
+
+    async def get_metric_by_id(self,
+                               metric_id: int):
+        financial_metric_service = MetricsService(self.db)
+        return await financial_metric_service.get_financial_metric_by_id(metric_id)
