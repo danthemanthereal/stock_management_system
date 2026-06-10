@@ -39,7 +39,7 @@ class TemplateService:
                 new_cfg = ProfileMetricConfiguration(
                     profile_id=new_template.id,
                     metric_id=metric_id,
-                    reference_value=reference_value,
+                    reference_value=int(reference_value),
                     should_rise=should_rise,
                     is_active=True
                 )

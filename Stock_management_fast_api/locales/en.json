@@ -331,6 +331,7 @@
   "cost_of_goods_and_service_sold_to_revenue": "cost_of_cost_sales_to_revenue",
   "yield": "Yield",
   "roi": "roi",
+  "financial_leverage_ratio": "financial_leverage_ratio",
   "debt_to_capital_ratio": "debt_to_capital_ratio",
   "cost_of_revenue_to_revenue": "cost_of_revenue_to_revenue",
   "capex_to_depreciation": "capex_to_depreciation",
