@@ -6,10 +6,15 @@ from src.configs.used_model import STRENGTH_WEAKNESS_MODEL
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.financial_metric_category_component.service import FinancialMetricCategoryService
 from src.find_potential_stocks_component.find_potential_stocks import FindPotentialStocks
+from src.get_news_component.get_news import NewsFinderComponent
 from src.strength_weakness_company_component.strenth_weakness_comapany import StrengthWeaknessOfCompanyComponent
 from src.template_component.service import TemplateService
 from src.template_metric_component.service import TemplateMetricService
 from src.utils.utils import render_localized
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
 class AnalysisService:
@@ -172,3 +177,10 @@ class AnalysisService:
     async def find_potential_stock_of_filter(self, filters: dict):
         find_potential_stocks_component = FindPotentialStocks()
         return find_potential_stocks_component.find_potential_stocks_for_current_user(filters)
+
+    async def get_headline_url_dict(self,
+                                    stock: str):
+        news_component = NewsFinderComponent(
+            finhub_api_key=os.getenv("FINNHUB_API_KEY")
+        )
+        return news_component.get_all_news_of_stock(stock)

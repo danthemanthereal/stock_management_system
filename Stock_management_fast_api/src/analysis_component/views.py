@@ -6,8 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.analysis_component.service import AnalysisService
 from src.bought_stock_component.service import BoughtStockService
 from fastapi.templating import Jinja2Templates
-
-from src.database import db
 from src.database.db import get_db
 from starlette.responses import HTMLResponse
 from src.financial_metric_analysis_component.evaluation_ai_financial_metrics import FinancialMetricAIEvaluator
@@ -15,12 +13,6 @@ from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.utils.utils import render_localized
 from src.authenticator_component.authenticator import get_current_user_id
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
-from src.template_component.service import TemplateService
-from src.financial_metric_category_component.service import FinancialMetricCategoryService
-from src.template_metric_component.service import TemplateMetricService
-from src.find_potential_stocks_component.find_potential_stocks import FindPotentialStocks
-from src.get_news_component.get_news import NewsFinderComponent
-import os
 from dotenv import load_dotenv
 from src.financial_metric_analysis_component.utils import merge_financial_summary_triples
 from src.configs.used_model import  FINANCIAL_METRIC_EVALUATION_MODEL, LLM_WIKI_MODEL
@@ -434,12 +426,12 @@ async def get_evaluation_of_financial_metrics_of_current_user_last_selected_temp
         )
 
 @analysis_router.get("/get-news")
-def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...)):
+def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...),
+                                   db: AsyncSession = Depends(get_db)):
 
-    news_component = NewsFinderComponent(
-        finhub_api_key=os.getenv("FINNHUB_API_KEY")
-    )
-    headline_url = news_component.get_all_news_of_stock(stock)
+    analysis_service = AnalysisService(db)
+
+    headline_url = analysis_service.get_headline_url_dict(stock)
 
     return templates.TemplateResponse(
         request=request,
