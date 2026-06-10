@@ -292,11 +292,16 @@
          style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-top: none; max-height: 300px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
 </div>
 
-<div class="search-bar">
-    <input type="text" id="categorySearchInput" placeholder="Kategorie eingeben...">
+<div class="search-bar" style="position: relative;">
+    <input type="text"
+           id="categorySearchInput"
+           placeholder="Kategorie eingeben..."
+           autocomplete="off">
     <button class="nav-btn" onclick="scrollToCategoryByName()">
         🔎 Zur Kategorie
     </button>
+    <div id="categorySuggestions"
+         style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-top: none; max-height: 300px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
 </div>
 
 <button class="nav-btn" onclick="scrollToContainer()">
@@ -765,25 +770,6 @@
         const target = document.getElementById("charts");
         if (target) target.scrollIntoView({behavior: "smooth"});
     }
-
-    // Kategoriensuche
-    function scrollToCategoryByName() {
-        const raw = document.getElementById("categorySearchInput").value;
-        const value = raw.trim().toLowerCase();
-        if (!value) {
-            alert("Bitte eine Kategorie eingeben.");
-            return;
-        }
-        const headings = document.querySelectorAll("#charts > h2.category-charts-heading");
-        for (let i = 0; i < headings.length; i++) {
-            const label = headings[i].textContent.trim().toLowerCase();
-            if (label === value) {
-                headings[i].scrollIntoView({behavior: "smooth"});
-                return;
-            }
-        }
-        alert("Kategorie nicht gefunden!");
-    }
 </script>
 <script>
     // Globale Variable für die aktuelle Auswahl bei Pfeiltasten
@@ -1016,6 +1002,270 @@
         document.addEventListener('DOMContentLoaded', initChartAutocomplete);
     } else {
         initChartAutocomplete();
+    }
+</script>
+<script>
+    // Globale Variable für die Kategorie-Suche
+    let currentCategorySuggestionIndex = -1;
+    let currentCategorySuggestions = [];
+
+    // Initialisiert die Autocomplete-Funktion für Kategorien
+    function initCategoryAutocomplete() {
+        const searchInput = document.getElementById('categorySearchInput');
+        const suggestionsDiv = document.getElementById('categorySuggestions');
+
+        if (!searchInput || !suggestionsDiv) return;
+
+        // Alle verfügbaren Kategorien sammeln
+        function getAllCategories() {
+            const categories = [];
+            const headings = document.querySelectorAll("#charts > h2.category-charts-heading");
+
+            headings.forEach((heading, index) => {
+                const categoryName = heading.textContent.trim();
+                categories.push({
+                    name: categoryName,
+                    nameLower: categoryName.toLowerCase(),
+                    element: heading,
+                    index: index
+                });
+            });
+
+            return categories;
+        }
+
+        // Kategorien durchsuchen
+        function searchCategories(searchTerm) {
+            if (!searchTerm || searchTerm.trim() === '') {
+                return [];
+            }
+
+            const termLower = searchTerm.toLowerCase().trim();
+            const allCategories = getAllCategories();
+
+            // Zuerst exakte Übereinstimmungen, dann Teilübereinstimmungen
+            const exactMatches = [];
+            const partialMatches = [];
+
+            allCategories.forEach(category => {
+                if (category.nameLower === termLower) {
+                    exactMatches.push(category);
+                } else if (category.nameLower.includes(termLower)) {
+                    partialMatches.push(category);
+                }
+            });
+
+            return [...exactMatches, ...partialMatches];
+        }
+
+        // Vorschläge anzeigen
+        function showSuggestions(suggestions) {
+            currentCategorySuggestions = suggestions;
+            currentCategorySuggestionIndex = -1;
+
+            if (suggestions.length === 0) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+
+            suggestionsDiv.innerHTML = '';
+            suggestions.forEach((suggestion, index) => {
+                const div = document.createElement('div');
+
+                // Kategorie-Icon und Name
+                div.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">📁</span>
+                    <span style="font-weight: 500;">${escapeHtml(suggestion.name)}</span>
+                </div>
+            `;
+
+                div.style.padding = '10px';
+                div.style.cursor = 'pointer';
+                div.style.borderBottom = '1px solid #eee';
+                div.style.fontSize = '14px';
+
+                // Hover-Effekt
+                div.onmouseenter = () => {
+                    div.style.backgroundColor = '#e8f5e9';
+                };
+                div.onmouseleave = () => {
+                    if (currentCategorySuggestionIndex !== index) {
+                        div.style.backgroundColor = 'white';
+                    }
+                };
+
+                // Klick auf Vorschlag
+                div.onclick = () => {
+                    searchInput.value = suggestion.name;
+                    suggestionsDiv.style.display = 'none';
+                    scrollToCategory(suggestion.element);
+                };
+
+                suggestionsDiv.appendChild(div);
+            });
+
+            suggestionsDiv.style.display = 'block';
+        }
+
+        // Hilfsfunktion zum Escapen von HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Zur Kategorie scrollen mit Hervorhebung
+        function scrollToCategory(categoryElement) {
+            if (!categoryElement) return;
+
+            categoryElement.scrollIntoView({behavior: "smooth", block: "start"});
+
+            // Hervorhebungseffekt
+            const originalTransition = categoryElement.style.transition;
+            const originalBg = categoryElement.style.backgroundColor;
+
+            categoryElement.style.transition = 'background-color 0.5s';
+            categoryElement.style.backgroundColor = '#fff3cd';
+
+            setTimeout(() => {
+                categoryElement.style.backgroundColor = originalBg;
+                setTimeout(() => {
+                    categoryElement.style.transition = originalTransition;
+                }, 500);
+            }, 2000);
+        }
+
+        // Live-Suche bei Eingabe
+        searchInput.addEventListener('input', function (e) {
+            const searchTerm = e.target.value;
+            const suggestions = searchCategories(searchTerm);
+            showSuggestions(suggestions);
+        });
+
+        // Tastaturnavigation
+        searchInput.addEventListener('keydown', function (e) {
+            const suggestionElements = suggestionsDiv.querySelectorAll('div');
+
+            if (suggestionElements.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentCategorySuggestionIndex = Math.min(currentCategorySuggestionIndex + 1, suggestionElements.length - 1);
+                updateSuggestionHighlight(suggestionElements);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentCategorySuggestionIndex = Math.max(currentCategorySuggestionIndex - 1, -1);
+                updateSuggestionHighlight(suggestionElements);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (currentCategorySuggestionIndex >= 0 && currentCategorySuggestions[currentCategorySuggestionIndex]) {
+                    const selected = currentCategorySuggestions[currentCategorySuggestionIndex];
+                    searchInput.value = selected.name;
+                    suggestionsDiv.style.display = 'none';
+                    scrollToCategory(selected.element);
+                } else if (currentCategorySuggestions.length > 0) {
+                    // Enter ohne Pfeilauswahl: ersten Vorschlag nehmen
+                    const firstSuggestion = currentCategorySuggestions[0];
+                    searchInput.value = firstSuggestion.name;
+                    suggestionsDiv.style.display = 'none';
+                    scrollToCategory(firstSuggestion.element);
+                }
+            } else if (e.key === 'Escape') {
+                suggestionsDiv.style.display = 'none';
+                currentCategorySuggestionIndex = -1;
+            }
+        });
+
+        function updateSuggestionHighlight(suggestionElements) {
+            suggestionElements.forEach((el, idx) => {
+                if (idx === currentCategorySuggestionIndex) {
+                    el.style.backgroundColor = '#e8f5e9';
+                    el.scrollIntoView({block: 'nearest'});
+                } else {
+                    el.style.backgroundColor = 'white';
+                }
+            });
+        }
+
+        // Schließen der Vorschläge bei Klick außerhalb
+        document.addEventListener('click', function (e) {
+            if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                suggestionsDiv.style.display = 'none';
+                currentCategorySuggestionIndex = -1;
+            }
+        });
+
+        // Verhindern, dass das Formular bei Enter abgeschickt wird
+        searchInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+    }
+
+    // Aktualisierte scrollToCategoryByName Funktion (behält Kompatibilität)
+    function scrollToCategoryByName() {
+        const raw = document.getElementById("categorySearchInput").value;
+        const value = raw.trim().toLowerCase();
+
+        if (!value) {
+            alert("Bitte eine Kategorie eingeben.");
+            return;
+        }
+
+        const headings = document.querySelectorAll("#charts > h2.category-charts-heading");
+        let exactMatch = null;
+        let partialMatch = null;
+
+        // Zuerst nach exakter Übereinstimmung suchen
+        for (let i = 0; i < headings.length; i++) {
+            const label = headings[i].textContent.trim().toLowerCase();
+            if (label === value) {
+                exactMatch = headings[i];
+                break;
+            }
+        }
+
+        // Dann nach Teilübereinstimmung
+        if (!exactMatch) {
+            for (let i = 0; i < headings.length; i++) {
+                const label = headings[i].textContent.trim().toLowerCase();
+                if (label.includes(value)) {
+                    partialMatch = headings[i];
+                    break;
+                }
+            }
+        }
+
+        const targetHeading = exactMatch || partialMatch;
+
+        if (targetHeading) {
+            targetHeading.scrollIntoView({behavior: "smooth", block: "start"});
+
+            // Hervorhebungseffekt
+            const originalTransition = targetHeading.style.transition;
+            const originalBg = targetHeading.style.backgroundColor;
+
+            targetHeading.style.transition = 'background-color 0.5s';
+            targetHeading.style.backgroundColor = '#fff3cd';
+
+            setTimeout(() => {
+                targetHeading.style.backgroundColor = originalBg;
+                setTimeout(() => {
+                    targetHeading.style.transition = originalTransition;
+                }, 500);
+            }, 2000);
+        } else {
+            alert("Kategorie nicht gefunden!");
+        }
+    }
+
+    // Autocomplete initialisieren wenn DOM geladen ist
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCategoryAutocomplete);
+    } else {
+        initCategoryAutocomplete();
     }
 </script>
 <div class="container">
