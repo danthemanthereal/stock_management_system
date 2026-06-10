@@ -138,7 +138,7 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("Revenue", []),
                                                                  self.total_financial_metric_map.get("Total Assets", [])),
             "cash_per_share": partial(self.get_financial_metric_direct_by_map, "cash_per_share"),
-            "ebitda_per_share": self.get_ebitda_per_share_last_four_years,
+            "ebitda_per_share": partial(self.get_financial_metric_direct_by_map, "ebitda_per_share"),
             "enterprise_value_to_ebit": self.get_enterprise_value_to_ebit_last_four_years,
             "enterprise_value_to_ebitda": self.get_enterprise_value_to_ebitda_last_four_years,
             "enterprise_value_to_fcf": self.get_enterprise_value_to_fcf_last_four_years,
@@ -310,15 +310,6 @@ class FinancialMetricCalculator:
         for revenue, employee_amount in zip(revenue_last_four_years, employee_amount_last_four_years):
             revenue_per_employee_last_four_years.append(round(float(revenue) / float(employee_amount), 2))
         return revenue_per_employee_last_four_years
-
-
-
-
-
-
-
-    def get_ebitda_per_share_last_four_years(self):
-        return self.total_financial_metric_map.get("ebitda_per_share", [])
 
     def get_enterprise_value_to_ebit_last_four_years(self):
         return self.total_financial_metric_map.get("enterprise_value_to_ebit", [])
