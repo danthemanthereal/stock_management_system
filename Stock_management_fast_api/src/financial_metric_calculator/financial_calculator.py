@@ -361,7 +361,8 @@ class FinancialMetricCalculator:
 
         for idx, equity in enumerate(equity_last_four_years):
             current_debt = debt_last_four_years[idx]
-            debt_to_capital_ratio_last_four_years.append(round(float(current_debt)/(float(equity)+ float(current_debt)), 2))
+            debt_to_capital_ratio_last_four_years.append(round(float(current_debt) / (
+                        float(equity) + float(current_debt)), 2))
 
         return debt_to_capital_ratio_last_four_years
 

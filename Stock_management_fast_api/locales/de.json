@@ -365,6 +365,7 @@
   "revenue_per_employee_cost": "Umsatz pro Personalkosten  pro Mitarbeiter",
   "roi": "Return on Investment",
   "payables_turnover": "Kreditorenumschlag",
+  "debt_to_capital_ratio": "Schulden zu Schulden und Eigenkapital",
   "link_edit": "Kennzahl bearbeiten",
   "btn_filter_all": "Alle Kennzahlen anzeigen",
   "should_rise": "Sollte Steigen"
