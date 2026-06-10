@@ -348,5 +348,6 @@
   "freeCashFlowToFirm": "Free Cash Flow to Firm (FCFF)",
   "link_edit": "",
   "btn_filter_all": "",
-  "should_rise": ""
+  "should_rise": "",
+  "search_metric_placeholder": "Search metric..."
 }

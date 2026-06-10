@@ -373,5 +373,6 @@
   "debt_to_capital_ratio": "Schulden zu Schulden und Eigenkapital",
   "link_edit": "Kennzahl bearbeiten",
   "btn_filter_all": "Alle Kennzahlen anzeigen",
-  "should_rise": "Sollte Steigen"
+  "should_rise": "Sollte Steigen",
+  "search_metric_placeholder": "Kennzahl suchen"
 }
