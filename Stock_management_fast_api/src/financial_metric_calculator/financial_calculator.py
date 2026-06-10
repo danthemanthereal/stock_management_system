@@ -1,6 +1,5 @@
-from fin_ratios import free_cash_flow, operating_cash_flow_ratio, capex_to_depreciation
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from functools import partial
 
 class FinancialMetricCalculator:
     def __init__(self, total_financial_metric_map, db: AsyncSession):
@@ -11,7 +10,10 @@ class FinancialMetricCalculator:
 
     def init_financial_metrics_handler(self):
         metric_handlers = {
-            "cost_of_goods_and_service_sold_to_revenue": self.get_cost_of_goods_and_service_sold_to_revenue_last_four_years,
+
+            "cost_of_goods_and_service_sold_to_revenue": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Cost of Goods Sold", []),
+                                                                 self.total_financial_metric_map.get("Revenue", [])),
             "sales_general_and_administrative_to_revenue": self.get_sales_and_administrative_to_revenue_last_four_years,
             "cost_of_revenue_to_revenue":self.get_cost_of_revenue_to_revenue_last_four_years,
             "research_and_developement_to_revenue": self.get_research_and_development_to_revenue_last_four_years,
@@ -175,6 +177,9 @@ class FinancialMetricCalculator:
             calculated_financial_metrics.extend(calculated_financial_metrics_current_category)
 
         return calculated_financial_metrics
+
+    def get_financial_metric_by_calculate_to_raw_date(self, numerator: list, denominator: list ) ->list[float]:
+        return [round(float(numer)/float(denom), 2) for numer, denom in zip(numerator, denominator) ]
 
     def get_cost_of_goods_and_service_sold_to_revenue_last_four_years(self):
         #return self.calculate_to_revenue_ratio("costofGoodsAndServicesSold")
