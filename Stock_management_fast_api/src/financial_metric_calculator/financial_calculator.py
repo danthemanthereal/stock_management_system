@@ -62,7 +62,9 @@ class FinancialMetricCalculator:
             "debt_to_capital_ratio": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Total Debt", []),
                                                                  self.total_financial_metric_map.get("Total Equity", [])),
-            "long_term_debt_to_capital_ratio": self.get_long_term_debt_to_capital_ratio_last_four_years,
+            "long_term_debt_to_capital_ratio": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Long Term Debt and Capital Lease Obligation", []),
+                                                                 self.total_financial_metric_map.get("Total Equity", [])),
             "debt_service_coverage_ratio": self.get_debt_service_coverage_ratio_last_four_years,
             "short_term_operating_cashflow_coverage_ratio": self.get_shortTermOperatingCashFlowCoverageRatio_last_four_years,
             "operating_cashflow_coverage_ratio": self.get_operating_cashflow_coverage_ratio_last_four_years,
@@ -206,21 +208,6 @@ class FinancialMetricCalculator:
 
 
 
-
-
-
-    def get_debt_to_capital_ratio_last_four_years(self):
-        debt_last_four_years = self.total_financial_metric_map.get("Total Debt", [])
-        equity_last_four_years = self.total_financial_metric_map.get("Total Equity", [])
-
-        debt_to_capital_ratio_last_four_years = []
-
-        for idx, equity in enumerate(equity_last_four_years):
-            current_debt = debt_last_four_years[idx]
-            debt_to_capital_ratio_last_four_years.append(round(float(current_debt) / (
-                        float(equity) + float(current_debt)), 2))
-
-        return debt_to_capital_ratio_last_four_years
 
     def get_long_term_debt_to_capital_ratio_last_four_years(self):
         long_term_debt_last_four_years = self.total_financial_metric_map.get("Long Term Debt and Capital Lease Obligation", [])
