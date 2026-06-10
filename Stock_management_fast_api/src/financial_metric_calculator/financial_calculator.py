@@ -110,7 +110,9 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("Revenue", [])),
             "fcf_yield": partial(self.get_financial_metric_direct_by_map, "fcf_yield"),
             "gross_margin": partial(self.get_financial_metric_direct_by_map, "gross_margin"),
-            "gross_profit_to_asset": self.get_gross_profit_to_asset_last_four_years,
+            "gross_profit_to_asset": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Gross Profit", []),
+                                                                 self.total_financial_metric_map.get("Total Assets", [])),
             "net_margin": self.get_net_margin_last_four_years,
             "ocf_margin": self.get_ocf_margin_last_four_years,
             "ocf_yield": self.get_ocf_yield_last_four_years,
@@ -295,17 +297,6 @@ class FinancialMetricCalculator:
 
 
 
-    def get_gross_profit_to_asset_last_four_years(self):
-        gross_profit_last_four_years = self.total_financial_metric_map.get("Gross Profit", [])
-        asset_last_four_years = self.total_financial_metric_map.get("Total Assets", [])
-
-        gross_profit_to_asset_last_four_years = []
-
-        for gross_profit, asset in zip(gross_profit_last_four_years, asset_last_four_years):
-            gross_profit_to_asset_last_four_years.append(round(float(gross_profit)/ float(asset), 2))
-
-
-        return gross_profit_to_asset_last_four_years
 
 
     def get_net_margin_last_four_years(self):
