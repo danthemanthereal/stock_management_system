@@ -89,7 +89,7 @@ class FinancialMetricCalculator:
             "cash_burn_rate": self.get_cash_burn_rate_last_four_years,
             "fscore": partial(self.get_financial_metric_direct_by_map, "fscore"),
             "gf_score": partial(self.get_financial_metric_direct_by_map, "gf_score"),
-            "gf_value": self.get_gf_value_last_four_years,
+            "gf_value": partial(self.get_financial_metric_direct_by_map, "gf_value"),
             "graham_number": self.get_graham_number_last_four_years,
             "mscore": self.get_mscore_last_four_years,
             "price_to_gf_value": self.get_price_to_gf_value_last_four_years,
@@ -290,8 +290,7 @@ class FinancialMetricCalculator:
 
 
 
-    def get_gf_value_last_four_years(self):
-        return self.total_financial_metric_map.get("gf_value", [])
+
 
     def get_graham_number_last_four_years(self):
         return self.total_financial_metric_map.get("graham_number", [])
