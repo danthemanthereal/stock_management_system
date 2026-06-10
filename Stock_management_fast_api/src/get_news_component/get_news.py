@@ -51,7 +51,7 @@ class NewsFinderComponent:
 
         return headline_url_news
 
-    def get_stock_market_news_with_G_news(self,):
+    async def get_stock_market_news_with_G_news(self,):
 
         headline_url_news = []
         google_news = GNews(language='de', country='DE', period='1d')
@@ -63,7 +63,7 @@ class NewsFinderComponent:
         )
 
         for artikel in stock_news:
-                summary = stock_market_analysis.get_stock_market_analysis_of_url(artikel['url'])
+                summary = await stock_market_analysis.get_stock_market_analysis_of_url(artikel['url'])
                 headline_url_news.append({
             "headline": artikel['title'],
             "ai_summary": summary,

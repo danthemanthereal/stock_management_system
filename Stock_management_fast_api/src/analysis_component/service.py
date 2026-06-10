@@ -292,4 +292,4 @@ class AnalysisService:
         news_component = NewsFinderComponent(
             finhub_api_key=os.getenv("FINNHUB_API_KEY")
         )
-        return news_component.get_stock_market_news_with_G_news()
+        return await news_component.get_stock_market_news_with_G_news()
