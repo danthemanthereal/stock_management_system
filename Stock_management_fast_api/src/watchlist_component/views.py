@@ -90,7 +90,7 @@ async def add_to_watchlist_and_evaluation(
                 new_wiki_page=new_combined_wiki_page
             )
 
-        else:
+        elif not await watchlist_service.check_if_user_has_stock_already_in_watchlist(current_user_id, ticker):
             await watchlist_service.add_to_current_user_to__watchlist(
             name=company.company_name,
             ticker=ticker,
