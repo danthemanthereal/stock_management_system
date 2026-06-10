@@ -123,7 +123,7 @@ class FinancialMetricCalculator:
             "return_on_tangible_equity": partial(self.get_financial_metric_direct_by_map, "return_on_tangible_equity"),
             "roa": partial(self.get_financial_metric_direct_by_map, "roa"),
             "roce": partial(self.get_financial_metric_direct_by_map, "roce"),
-            "roe": self.get_roe_last_four_years,
+            "roe": partial(self.get_financial_metric_direct_by_map, "roe"),
             "roic": self.get_roic_last_four_years,
             "yield": self.get_yield_last_four_years,
             "freeCashFlowToEquity": self.get_freeCashFlowToEquity_last_four_years,
@@ -309,9 +309,6 @@ class FinancialMetricCalculator:
 
 
 
-
-    def get_roe_last_four_years(self):
-        return self.total_financial_metric_map.get("roe", [])
 
     def get_roic_last_four_years(self):
         return self.total_financial_metric_map.get("roic", [])
