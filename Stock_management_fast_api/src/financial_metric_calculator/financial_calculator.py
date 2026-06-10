@@ -14,7 +14,9 @@ class FinancialMetricCalculator:
             "cost_of_goods_and_service_sold_to_revenue": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Cost of Goods Sold", []),
                                                                  self.total_financial_metric_map.get("Revenue", [])),
-            "sales_general_and_administrative_to_revenue": self.get_sales_and_administrative_to_revenue_last_four_years,
+            "sales_general_and_administrative_to_revenue": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Selling, General and Administrative Expenses", []),
+                                                                 self.total_financial_metric_map.get("Revenue", [])),
             "cost_of_revenue_to_revenue":self.get_cost_of_revenue_to_revenue_last_four_years,
             "research_and_developement_to_revenue": self.get_research_and_development_to_revenue_last_four_years,
             "cash_conversion_cycle": self.get_cash_conversion_cycle_last_four_years,
@@ -180,20 +182,6 @@ class FinancialMetricCalculator:
 
     def get_financial_metric_by_calculate_to_raw_date(self, numerator: list, denominator: list ) ->list[float]:
         return [round(float(numer)/float(denom), 2) for numer, denom in zip(numerator, denominator) ]
-
-    def get_cost_of_goods_and_service_sold_to_revenue_last_four_years(self):
-        #return self.calculate_to_revenue_ratio("costofGoodsAndServicesSold")
-        #return self.total_financial_metric_map.get("cost_of_goods_sold_to_revenue", [])
-        cost_of_goods_sold_last_four_years = self.total_financial_metric_map.get("Cost of Goods Sold", [])
-        revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
-
-        cost_of_goods_sold_last_to_revenue_last_four_years = []
-
-        for cost_of_goods_sold, revenue in zip(cost_of_goods_sold_last_four_years, revenue_last_four_years):
-            cost_of_goods_sold_last_to_revenue_last_four_years.append(round(float(cost_of_goods_sold)/ float(revenue), 2))
-
-        return cost_of_goods_sold_last_four_years
-
 
 
     def get_sales_and_administrative_to_revenue_last_four_years(self):
