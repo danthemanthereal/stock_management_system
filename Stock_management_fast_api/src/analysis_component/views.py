@@ -69,7 +69,6 @@ async def analyze_url(request: Request, url: str = Form(...)):
             context={"request": request},
         )
 
-
 @analysis_router.post("/get-summary-by-yt-video", response_class=HTMLResponse)
 def get_yt_transcript(request: Request, url: str = Form(...)):
     try:
@@ -102,11 +101,7 @@ def get_yt_transcript(request: Request, url: str = Form(...)):
             name="error.html",
             context={"request": request},
         )
-
-
-
-
-
+    
 @analysis_router.api_route("/show-saved-financial-metrics", methods=["GET", "POST"], response_class=HTMLResponse)
 async def show_saved_financial_metrics_page(
         request: Request,
