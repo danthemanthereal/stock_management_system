@@ -87,7 +87,7 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("Goodwill", []),
                                                                  self.total_financial_metric_map.get("Total Equity", [])) ,
             "cash_burn_rate": self.get_cash_burn_rate_last_four_years,
-            "fscore": self.get_fscore_last_four_years,
+            "fscore": partial(self.get_financial_metric_direct_by_map, "fscore"),
             "gf_score": self.get_gf_score_last_four_years,
             "gf_value": self.get_gf_value_last_four_years,
             "graham_number": self.get_graham_number_last_four_years,
@@ -277,8 +277,6 @@ class FinancialMetricCalculator:
             asset_coverage_degree_two_last_four_years.append(ratio)
         return asset_coverage_degree_two_last_four_years
 
-
-
     def get_cash_burn_rate_last_four_years(self):
         equity_last_four_years = self.total_financial_metric_map.get("Total Equity", [])
         net_income_last_four_years = self.total_financial_metric_map.get("Net Income", []) # net loss ?
@@ -289,8 +287,7 @@ class FinancialMetricCalculator:
 
         return cash_burn_rate_last_four_years
 
-    def get_fscore_last_four_years(self):
-        return self.total_financial_metric_map.get("fscore", [])
+
 
     def get_gf_score_last_four_years(self):
         return self.total_financial_metric_map.get("gf_score", [])
