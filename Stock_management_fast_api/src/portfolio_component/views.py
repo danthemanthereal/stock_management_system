@@ -61,7 +61,14 @@ async def create_bought_stock_of_current_user(
 
         ticker = portfolio_service.get_ticker_of_stock(name)
 
-        await
+        await portfolio_service.add_to_user_stock(
+            name=name,
+            ticker=ticker,
+            bought_price=bought_price,
+            amount=amount,
+            current_user_id=current_user_id,
+        )
+
 
 
         bought_stocks = await bought_stock_service.get_bought_stocks_of_current_user(current_user_id=str(current_user_id))
