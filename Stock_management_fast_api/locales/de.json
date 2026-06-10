@@ -157,6 +157,7 @@
   "capex_to_depreciation": "Wachstumsquote",
   "financial_leverage_ratio": "Verbindlichkeiten zu Eigenkapital",
   "long_term_debt_to_capital_ratio": "lang. Schulden zu lang Schulden und Eigenkapital",
+  "intangibles_to_total_assets": "Verhältnis von immateriellen Vermögenswerten zum Gesamtvermögen",
   "cash_ratio": "Liquiditätsgrad 1",
   "current_ratio": "Liquiditätsgrad 3",
   "days_inventory": "Lagerdauer (in Tagen)",
