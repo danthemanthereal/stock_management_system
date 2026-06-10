@@ -103,3 +103,13 @@ class AnalysisService:
             should_rise=should_rise,
             user_id=current_user_id
         )
+
+    async def create_template_from_active_metrics(self,
+                                                  current_user_id: UUID,
+                                                  branch_profile_name: str,
+                                                  metric_data_triplets: str):
+        template_service = TemplateService(self.db)
+        await template_service.create_template_from_active_metrics(
+            user_id=current_user_id,
+            new_profile_name=branch_profile_name,
+            triplets_str=metric_data_triplets)
