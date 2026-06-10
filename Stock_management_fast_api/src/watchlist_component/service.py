@@ -3,7 +3,6 @@ from fastapi import Request
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.models import StockSummary
-from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.configs.used_model import LLM_WIKI_MODEL
 from fastapi.templating import Jinja2Templates
 
@@ -83,6 +82,7 @@ class WatchlistStockService:
 
         if await self.check_if_user_has_stock_already_in_watchlist(user_id, ticker):
             current_stock = await self.get_current_stock_of_user(user_id, ticker)
+            from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
             llm_wiki = LLMWiki(self.db, LLM_WIKI_MODEL)
 
 
@@ -122,6 +122,7 @@ class WatchlistStockService:
         self.db.add(new_watchlist_stock)
         await self.db.commit()
         await self.db.refresh(new_watchlist_stock)
+        from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
         llm_wiki = LLMWiki(self.db, LLM_WIKI_MODEL)
         new_strengths, new_weakness, new_wiki_page =  await llm_wiki.ingest(
             watch_list_stock_id=new_watchlist_stock.id,
