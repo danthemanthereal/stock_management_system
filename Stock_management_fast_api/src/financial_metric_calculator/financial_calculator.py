@@ -20,7 +20,9 @@ class FinancialMetricCalculator:
             "cost_of_revenue_to_revenue":partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Reconciled Cost of Revenue", []),
                                                                  self.total_financial_metric_map.get("Revenue", [])),
-            "research_and_developement_to_revenue": self.get_research_and_development_to_revenue_last_four_years,
+            "research_and_developement_to_revenue": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Research and Development Expenses", []),
+                                                                 self.total_financial_metric_map.get("Revenue", [])),
             "cash_conversion_cycle": self.get_cash_conversion_cycle_last_four_years,
             "cash_ratio": self.get_cash_ratio_last_four_years,
             "current_ratio":self.get_current_ratio_last_four_years,
@@ -184,19 +186,6 @@ class FinancialMetricCalculator:
 
     def get_financial_metric_by_calculate_to_raw_date(self, numerator: list, denominator: list ) ->list[float]:
         return [round(float(numer)/float(denom), 2) for numer, denom in zip(numerator, denominator) ]
-
-
-    def get_research_and_development_to_revenue_last_four_years(self):
-        research_development_expense_last_four_years = self.total_financial_metric_map.get("Research and Development Expenses", [])
-        revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
-
-        r_and_d_to_revenue_last_four_years = []
-
-        for r_and_d, revenue in zip(research_development_expense_last_four_years, revenue_last_four_years):
-            r_and_d_to_revenue_last_four_years.append(round(float(r_and_d) / float(revenue), 2))
-
-        return r_and_d_to_revenue_last_four_years
-
 
     def get_cash_conversion_cycle_last_four_years(self):
         return self.total_financial_metric_map.get("cash_conversion_cycle", [])
