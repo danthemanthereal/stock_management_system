@@ -201,11 +201,11 @@ async def show_edit_financial_metric_of_current_template(
 
     metric = await analysis_service.get_metric_by_id(metric_id=metric_id)
 
+    metric_categories = analysis_service.get_all_metric_categories()
 
-    financial_metric_category_service = FinancialMetricCategoryService(db)
+
     financial_metric_template_service = TemplateMetricService(db)
 
-    metric_categories = await financial_metric_category_service.get_all_metric_categories()
     config = await financial_metric_template_service.get_config_by_metric_and_template_id(metric_id,
                                                                                     last_selected_branch_profile_id)
 

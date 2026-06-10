@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import  Request
 from src.configs.used_model import STRENGTH_WEAKNESS_MODEL
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
+from src.financial_metric_category_component.service import FinancialMetricCategoryService
 from src.strength_weakness_company_component.strenth_weakness_comapany import StrengthWeaknessOfCompanyComponent
 from src.template_component.service import TemplateService
 from src.template_metric_component.service import TemplateMetricService
@@ -129,3 +130,7 @@ class AnalysisService:
                                metric_id: int):
         financial_metric_service = MetricsService(self.db)
         return await financial_metric_service.get_financial_metric_by_id(metric_id)
+
+    async def get_all_metric_categories(self,):
+        financial_metric_category_service = FinancialMetricCategoryService(self.db)
+        return await financial_metric_category_service.get_all_metric_categories()
