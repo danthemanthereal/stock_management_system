@@ -383,14 +383,6 @@ def delete_selected_metrics_for_this_template(
         traceback.print_exc()
         return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
 
-
-
-
-
-
-
-
-
 @analysis_router.post("/find-potential-stocks", response_class=HTMLResponse)
 def find_potential_stocks_page(request: Request):
     try:
