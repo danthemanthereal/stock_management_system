@@ -75,7 +75,9 @@ class FinancialMetricCalculator:
             "cash_flow_coverage_ratio":partial(self.get_financial_metric_direct_by_map, "cash_flow_coverage_ratio"),
             "gearing":self.get_gearing_last_four_years,
             "dynamic_debt_degree":self.get_dynamic_debt_degree_last_four_years,
-            "current_asset_intensity": self.get_current_asset_intensity_last_four_years,
+            "current_asset_intensity": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Total Current Assets", []),
+                                                                 self.total_financial_metric_map.get("Total Assets", [])),
             "non_current_asset_intensity": self.get_non_current_asset_intensity_last_four_years,
             "asset_cover_ratio_one": self.get_asset_cover_ratio_one_last_four_years,
             "asset_cover_ratio_two": self.get_asset_cover_ratio_two_last_four_years,
@@ -241,19 +243,6 @@ class FinancialMetricCalculator:
             ratio = round(val_float / current_total_free_cash, 2) if current_total_free_cash != 0 else None
             dynamic_debt_degree_last_four_years.append(ratio)
         return dynamic_debt_degree_last_four_years
-
-
-    def get_current_asset_intensity_last_four_years(self):
-        total_assets_last_four_years = self.total_financial_metric_map.get("Total Assets", [])
-        total_current_asset_last_four_years = self.total_financial_metric_map.get("Total Current Assets", [])
-
-        current_asset_intensity_last_four_years = []
-
-        for current_asset, total_asset in zip(total_current_asset_last_four_years, total_assets_last_four_years):
-            current_asset_intensity_last_four_years.append(round(current_asset / total_asset, 2))
-
-        return current_asset_intensity_last_four_years
-
 
     def get_non_current_asset_intensity_last_four_years(self):
         total_assets_last_four_years = self.total_financial_metric_map.get("Total Assets", [])
