@@ -131,7 +131,9 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("Total Equity", [])),
             "free_cashflow_operating_cashflow_ratio": partial(self.get_financial_metric_direct_by_map, "free_cashflow_operating_cashflow_ratio"),
             "revenue_per_employee":self.get_revenue_per_employee_last_four_years,
-            "roi": self.get_roi_last_four_years,
+            "roi": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Operating Income", []),
+                                                                 self.total_financial_metric_map.get("Total Assets", [])),
             "capital_turnover": self.get_capital_turnover_last_four_years,
             "cash_per_share": self.get_cash_per_share_last_four_years,
             "ebitda_per_share": self.get_ebitda_per_share_last_four_years,
@@ -307,16 +309,7 @@ class FinancialMetricCalculator:
             revenue_per_employee_last_four_years.append(round(float(revenue) / float(employee_amount), 2))
         return revenue_per_employee_last_four_years
 
-    def get_roi_last_four_years(self):
-        operating_income_last_four_years = self.total_financial_metric_map.get("Operating Income", [])
-        total_assets_last_four_years = self.total_financial_metric_map.get("Total Assets", [])
 
-        roi_last_four_years = []
-
-        for operating_income, total_asset in zip(operating_income_last_four_years,total_assets_last_four_years):
-            roi_last_four_years.append(round(float(operating_income) / float(total_asset), 2))
-
-        return roi_last_four_years
 
     def get_capital_turnover_last_four_years(self):
         revenue_last_four_years = self.total_financial_metric_map.get("Revenue", [])
