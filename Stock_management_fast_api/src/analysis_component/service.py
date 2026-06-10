@@ -5,6 +5,7 @@ from fastapi import  Request
 from src.configs.used_model import STRENGTH_WEAKNESS_MODEL
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.financial_metric_category_component.service import FinancialMetricCategoryService
+from src.find_potential_stocks_component.find_potential_stocks import FindPotentialStocks
 from src.strength_weakness_company_component.strenth_weakness_comapany import StrengthWeaknessOfCompanyComponent
 from src.template_component.service import TemplateService
 from src.template_metric_component.service import TemplateMetricService
@@ -167,3 +168,7 @@ class AnalysisService:
         template_metric_service = TemplateMetricService(self.db)
 
         await template_metric_service.delete_metrics_of_current_template(selected_template_id, ids_to_delete)
+
+    async def find_potential_stock_of_filter(self, filters: dict):
+        find_potential_stocks_component = FindPotentialStocks()
+        return find_potential_stocks_component.find_potential_stocks_for_current_user(filters)

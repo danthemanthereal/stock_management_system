@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.analysis_component.service import AnalysisService
 from src.bought_stock_component.service import BoughtStockService
 from fastapi.templating import Jinja2Templates
+
+from src.database import db
 from src.database.db import get_db
 from starlette.responses import HTMLResponse
 from src.financial_metric_analysis_component.evaluation_ai_financial_metrics import FinancialMetricAIEvaluator
@@ -296,9 +298,11 @@ def find_potential_stocks_page(request: Request):
         )
 
 @analysis_router.post("/find-candidates")
-def find_potential_stocks(filters: dict):
-    find_potential_stocks_component = FindPotentialStocks()
-    return find_potential_stocks_component.find_potential_stocks_for_current_user(filters)
+def find_potential_stocks(filters: dict,
+                          db: AsyncSession = Depends(get_db),):
+    analysis_service = AnalysisService(db)
+
+    return analysis_service.find_potential_stock_of_filter(filters)
 
 @analysis_router.get("/get-financial-metrics", response_class=HTMLResponse)
 async def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(request: Request,
