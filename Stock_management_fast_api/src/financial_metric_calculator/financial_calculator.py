@@ -129,7 +129,7 @@ class FinancialMetricCalculator:
             "freeCashFlowToEquity": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Free Cash Flow", []),
                                                                  self.total_financial_metric_map.get("Total Equity", [])),
-            "free_cashflow_operating_cashflow_ratio": self.get_free_cashflow_operating_cashflow_ratio_last_four_years,
+            "free_cashflow_operating_cashflow_ratio": partial(self.get_financial_metric_direct_by_map, "free_cashflow_operating_cashflow_ratio"),
             "revenue_per_employee":self.get_revenue_per_employee_last_four_years,
             "roi": self.get_roi_last_four_years,
             "capital_turnover": self.get_capital_turnover_last_four_years,
@@ -296,12 +296,6 @@ class FinancialMetricCalculator:
             cash_burn_rate_last_four_years.append(round(float(equity) / abs(float(net_income)), 2))
 
         return cash_burn_rate_last_four_years
-
-
-
-
-    def get_free_cashflow_operating_cashflow_ratio_last_four_years(self):
-        return self.total_financial_metric_map.get("free_cashflow_operating_cashflow_ratio", [])
 
     def get_revenue_per_employee_last_four_years(self):
         revenue_last_four_years = self.total_financial_metric_map.get("revenue", [])
