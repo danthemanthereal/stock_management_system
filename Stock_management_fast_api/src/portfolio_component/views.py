@@ -58,8 +58,10 @@ async def create_bought_stock_of_current_user(
 
         portfolio_service = PortfolioService(db)
 
+        await portfolio_service.add_to_user_stock(name=name, bought_price=bought_price, amount=amount,current_user_id=current_user_id)
+
         return await portfolio_service.get_portfolio_main_page(
-            name, bought_price, amount, current_user_id, request
+             current_user_id, request
         )
 
     except Exception as e:
