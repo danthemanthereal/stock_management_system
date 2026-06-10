@@ -79,7 +79,9 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("Total Current Assets", []),
                                                                  self.total_financial_metric_map.get("Total Assets", [])),
             "non_current_asset_intensity": self.get_non_current_asset_intensity_last_four_years,
-            "asset_cover_ratio_one": self.get_asset_cover_ratio_one_last_four_years,
+            "asset_cover_ratio_one": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Total Equity", []),
+                                                                 self.total_financial_metric_map.get("Total Assets", [])),
             "asset_cover_ratio_two": self.get_asset_cover_ratio_two_last_four_years,
             "good_will_ratio": self.get_good_will_ratio_last_four_years ,
             "cash_burn_rate": self.get_cash_burn_rate_last_four_years,
@@ -256,17 +258,6 @@ class FinancialMetricCalculator:
             non_current_asset_intensity_last_four_years.append(round(float(non_current_asset) / float(total_asset), 2))
 
         return non_current_asset_intensity_last_four_years
-
-    def get_asset_cover_ratio_one_last_four_years(self):
-        equity_last_four_years = self.total_financial_metric_map.get("Total Equity", [])
-        asset_last_four_years = self.total_financial_metric_map.get("Total Assets", [])
-
-        asset_coverage_degree_last_four_years = []
-
-        for current_equity, total_asset in zip(equity_last_four_years, asset_last_four_years):
-            asset_coverage_degree_last_four_years.append(round(current_equity / total_asset, 2))
-
-        return asset_coverage_degree_last_four_years
 
     def get_asset_cover_ratio_two_last_four_years(self):
         equity_last_four_years = self.total_financial_metric_map.get("Total Equity", [])
