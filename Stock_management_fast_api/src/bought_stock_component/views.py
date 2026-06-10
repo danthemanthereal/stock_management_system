@@ -47,8 +47,8 @@ async def add_stock_from_watchlist(
             wiki_page=current_stock_on_watchlist.wiki_page
         )
 
-        await watchlist_service.deactivate_current_stock_on_watchlist(current_user_id, ticker)
-        watch_list_stocks = await watchlist_service.get_watchlist_stocks_of_current_user(current_user_id)
+        await bought_stock_service.deactivate_current_stock_on_watchlist(current_user_id, ticker)
+        watch_list_stocks = []
 
         return templates.TemplateResponse(
             request=request,
