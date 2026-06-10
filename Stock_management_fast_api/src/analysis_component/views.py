@@ -3,18 +3,12 @@ from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Request, Depends,Form, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
-
 from src.bought_stock_component.service import BoughtStockService
-from src.database import db
-from src.database.models import User
 from fastapi.templating import Jinja2Templates
 from src.database.db import get_db
 import json
 from starlette.responses import HTMLResponse
-
 from src.financial_metric_analysis_component.evaluation_ai_financial_metrics import FinancialMetricAIEvaluator
-from src.financial_metric_analysis_component.financial_metric_evaluator import FinancialMetricEvaluator
 from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.utils.utils import render_localized
 from src.authenticator_component.authenticator import get_current_user_id
