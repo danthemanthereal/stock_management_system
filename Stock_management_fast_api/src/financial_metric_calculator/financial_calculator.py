@@ -146,7 +146,7 @@ class FinancialMetricCalculator:
             "enterprise_value_to_revenue": partial(self.get_financial_metric_direct_by_map, "enterprise_value_to_revenue"),
             "free_cash_flow_per_share": partial(self.get_financial_metric_direct_by_map, "free_cash_flow_per_share"),
             "growth_per_share_ebitda": partial(self.get_financial_metric_direct_by_map, "growth_per_share_ebitda"),
-            "growth_per_share_eps": self.get_growth_per_share_eps_last_four_years,
+            "growth_per_share_eps": partial(self.get_financial_metric_direct_by_map, "growth_per_share_eps"),
             "growth_revenue_per_share": self.get_growth_revenue_per_share_last_four_years,
             "net_cash_per_share": self.get_net_cash_per_share_last_four_years,
             "pb_ratio": self.get_pb_ratio_last_four_years,
@@ -313,8 +313,7 @@ class FinancialMetricCalculator:
 
 
 
-    def get_growth_per_share_eps_last_four_years(self):
-        return self.total_financial_metric_map.get("growth_per_share_eps", [])
+
 
     def get_growth_revenue_per_share_last_four_years(self):
         return self.total_financial_metric_map.get("growth_revenue_per_share", [])
