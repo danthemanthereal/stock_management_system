@@ -4,6 +4,8 @@ from fastapi import APIRouter, Request, Depends, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
+
+from src.database import db
 from src.database.db import get_db
 from src.authenticator_component.authenticator import get_current_user_id
 from src.watchlist_component.schemas import WatchlistRequest
@@ -26,7 +28,7 @@ async def watch_list(request: Request, db: AsyncSession = Depends(get_db), curre
 
     watchlist_service = WatchlistStockService(db)
 
-    return await watchlist_service.get_watch_list_page()
+    return await watchlist_service.get_watch_list_page(request, current_user_id)
 
 @watchlist_router.post("/add-to-watchlist-from-url-analysis")
 async def add_to_watchlist_and_evaluation(
@@ -111,7 +113,7 @@ async def add_to_watchlist_and_evaluation(
 
 
 @watchlist_router.post("/delete-stock-from-watchlist", response_class=HTMLResponse)
-def delete_stock_from_watchlist(
+async def delete_stock_from_watchlist(
 request: Request,
     selected_companies: list[str] = Form(...),
     db: AsyncSession = Depends(get_db),
@@ -125,11 +127,9 @@ request: Request,
         selected_tickers = [get_ticker_component.get_ticker_of_a_stock(company_name) for company_name in selected_companies]
         watchlist_service.delete_watchlist_stocks_of_current_user(current_user_id,selected_tickers)
         watch_list_stocks = watchlist_service.get_watchlist_stocks_of_current_user(current_user_id)
-        return templates.TemplateResponse(request=request,
-                                          name="watchlist/watchlist.html",
-                                          context={"request": request,
-                                                   "watch_list_stocks": watch_list_stocks
-                                                   })
+        watchlist_service = WatchlistStockService(db)
+
+        return await watchlist_service.get_watch_list_page(request, current_user_id)
     except Exception as e:
         return templates.TemplateResponse(
             request=request,
@@ -138,10 +138,12 @@ request: Request,
         )
 
 @watchlist_router.post("/analyse-financial-metrics-watchlist-stock", response_class=HTMLResponse)
-async def analyse_finmetrics_stock_on_watchlist(name: str = Form(...)):
+async def analyse_finmetrics_stock_on_watchlist(name: str = Form(...),
+                                                db: AsyncSession = Depends(get_db),):
 
-    ticker_component = TickerStock()
-    ticker_of_stock = ticker_component.get_ticker_of_a_stock(name)
+    watchlist_service = WatchlistStockService(db)
+
+    ticker_of_stock = watchlist_service.get_ticker_of_a_company(name)
     return RedirectResponse(
         url=f"/analysis/get-financial-metrics?company={ticker_of_stock}",
         status_code=303

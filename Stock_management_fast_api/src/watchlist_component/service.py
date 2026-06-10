@@ -7,6 +7,8 @@ from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.configs.used_model import LLM_WIKI_MODEL
 from fastapi.templating import Jinja2Templates
 
+from src.ticker_stock_component.ticker_stock import TickerStock
+
 templates = Jinja2Templates(directory="templates")
 
 class WatchlistStockService:
@@ -172,3 +174,7 @@ class WatchlistStockService:
         watchlist_stock_obj.wiki_page = new_wiki_page
         await self.db.commit()
         await self.db.refresh(watchlist_stock_obj)
+
+    def get_ticker_of_a_company(self, company_name: str):
+        ticker_component = TickerStock()
+        return  ticker_component.get_ticker_of_a_stock(company_name)
