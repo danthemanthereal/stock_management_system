@@ -119,7 +119,7 @@ async def add_to_watchlist_and_evaluation(
 def delete_stock_from_watchlist(
 request: Request,
     selected_companies: list[str] = Form(...),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user_id: UUID = Depends(get_current_user_id)
 ):
     try:
