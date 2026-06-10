@@ -81,16 +81,15 @@ async def update_multiple_portfolio_entries(
         current_user_id: UUID = Depends(get_current_user_id),
 ):
     try:
-        bought_stock_service = BoughtStockService(db=db)
-        await bought_stock_service.update_bought_stocks_of_current_user(current_user_id,delete_ids, update_triplets)
-        bought_stocks = await bought_stock_service.get_bought_stocks_of_current_user(current_user_id=str(current_user_id))
-        return render_localized(
-            template_name="portfolio/portfolio.html",
-            request=request,
-            context={
-                "request": request,
-                "bought_stocks": bought_stocks,
-            }
+
+        portfolio_service = PortfolioService(db)
+
+        await portfolio_service.update_bought_stocks(
+            current_user_id, delete_ids, update_triplets
+        )
+
+        return await portfolio_service.get_portfolio_main_page(
+            current_user_id, request
         )
 
     except Exception as e:

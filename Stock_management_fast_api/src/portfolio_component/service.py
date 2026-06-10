@@ -72,5 +72,13 @@ class PortfolioService:
                                                              current_user_id=current_user_id,
                                                              strengths="", weakness="", wiki_page="")
 
+    async def update_bought_stocks(self,
+                                   current_user_id:UUID,
+                                   delete_ids: str,
+                                   update_triplets: str):
+        bought_stock_service = BoughtStockService(db=self.db)
+        await bought_stock_service.update_bought_stocks_of_current_user(current_user_id, delete_ids, update_triplets)
+
+
 
 
