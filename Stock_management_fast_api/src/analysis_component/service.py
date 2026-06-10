@@ -113,3 +113,9 @@ class AnalysisService:
             user_id=current_user_id,
             new_profile_name=branch_profile_name,
             triplets_str=metric_data_triplets)
+
+    async def update_last_selected_template_id_of_current_user(self,
+                                                               template_id:int,
+                                                               current_user_id: UUID):
+        template_service = TemplateService(self.db)
+        await template_service.update_last_selected_template_id(template_id, current_user_id)
