@@ -335,3 +335,26 @@ def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...),
             "news_articles": headline_url
         }
     )
+
+@analysis_router.get("/get-stock-market-news")
+def get_stock_market_news(request: Request,
+                          db: AsyncSession = Depends(get_db)):
+    try:
+        analysis_service = AnalysisService(db)
+
+        headline_analysis = analysis_service.get_stock_market_analysis()
+        return templates.TemplateResponse(
+            request=request,
+            name="analysis/show_news_stockmarket.html",
+            context={
+                "news_articles": headline_analysis
+            }
+        )
+
+    except Exception as e:
+        print(f"Error: {e}")
+        traceback.print_exc()
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+        )

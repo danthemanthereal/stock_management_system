@@ -287,3 +287,9 @@ class AnalysisService:
             new_weaknesses=new_weaknesses,
             new_content=new_content,
         )
+
+    async def get_stock_market_analysis(self):
+        news_component = NewsFinderComponent(
+            finhub_api_key=os.getenv("FINNHUB_API_KEY")
+        )
+        return news_component.get_stock_market_news_with_G_news()

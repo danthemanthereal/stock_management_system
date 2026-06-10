@@ -1,0 +1,15 @@
+{% extends "analysis/analysis_base.html" %}
+
+{% block analysis_content %}
+<h2>Aktienmarkt-Nachrichten – KI-Zusammenfassung</h2>
+
+{% for artikel in news_articles %}
+    <div style="border-bottom: 1px solid #ccc; margin-bottom: 20px; padding-bottom: 10px;">
+        <h3>{{ artikel.headline }}</h3>
+        <div>{{ artikel.ai_summary | safe }}</div>
+    </div>
+{% else %}
+    <p>Keine Nachrichten verfügbar.</p>
+{% endfor %}
+
+{% endblock %}

@@ -8,7 +8,6 @@ from src.youtube_transcript_component.yt_transcript_component import \
     YoutubeTranscriptComponent
 import os
 from dotenv import load_dotenv
-from src.html__text_parser_component.html_text_parser import TextExtractor
 from src.html__text_parser_component.bs4_text_parser import BS4TextParser
 
 load_dotenv()
