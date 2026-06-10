@@ -53,7 +53,7 @@ class FinancialMetricCalculator:
             "equity_to_asset": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Total Equity", []),
                                                                  self.total_financial_metric_map.get("Total Assets", [])),
-            "interest_coverage": self.get_interest_coverage_last_four_years,
+            "interest_coverage": partial(self.get_financial_metric_direct_by_map, "interest_coverage"),
             "liabilities_to_assets": self.get_liabilities_to_asset_ratio_last_four_years,
             "sloan_ratio": self.get_sloan_ratio_last_four_years,
             "net_debt_to_ebitda": self.get_netDebtToEBITDA_last_four_years,
@@ -200,32 +200,6 @@ class FinancialMetricCalculator:
     def get_financial_metric_direct_by_map(self, financial_metric_name: str):
         return self.total_financial_metric_map.get(financial_metric_name, [])
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def get_equity_to_asset_ratio_last_four_years(self):
-
-        equity_last_four_years = self.total_financial_metric_map.get("Total Equity", [])
-        asset_last_four_years = self.total_financial_metric_map.get("Total Assets", [])
-
-        equity_to_asset_last_four_years = []
-
-        for equity, assets in zip(equity_last_four_years, asset_last_four_years):
-                    equity_to_asset_last_four_years.append(round(float(equity)/float(assets), 4))
-        return equity_to_asset_last_four_years
-
-    def get_interest_coverage_last_four_years(self):
-        return self.total_financial_metric_map.get("interest_coverage", [])
 
     def get_liabilities_to_asset_ratio_last_four_years(self):
         liabilities_last_four_years = self.total_financial_metric_map.get("total_liabilities", [])
