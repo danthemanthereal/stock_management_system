@@ -50,3 +50,7 @@ class AnalysisService:
                                                             current_user_id: UUID):
         template_service = TemplateService(self.db)
         return await template_service.get_last_selected_template_id_of_user(current_user_id)
+
+    async def get_current_user_created_templates(self, current_user_id: UUID):
+        template_service = TemplateService(self.db)
+        return await template_service.get_current_user_created_templates(current_user_id)
