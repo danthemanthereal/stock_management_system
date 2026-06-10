@@ -143,7 +143,7 @@ class FinancialMetricCalculator:
             "enterprise_value_to_ebitda": partial(self.get_financial_metric_direct_by_map, "enterprise_value_to_ebitda"),
             "enterprise_value_to_fcf": partial(self.get_financial_metric_direct_by_map, "enterprise_value_to_fcf"),
             "enterprise_value_to_ocf": partial(self.get_financial_metric_direct_by_map, "enterprise_value_to_ocf"),
-            "enterprise_value_to_revenue": self.get_enterprise_value_to_revenue_last_four_years,
+            "enterprise_value_to_revenue": partial(self.get_financial_metric_direct_by_map, "enterprise_value_to_revenue"),
             "free_cash_flow_per_share": self.get_free_cash_flow_per_share_last_four_years,
             "growth_per_share_ebitda": self.get_growth_per_share_ebitda_last_four_years,
             "growth_per_share_eps": self.get_growth_per_share_eps_last_four_years,
@@ -311,8 +311,7 @@ class FinancialMetricCalculator:
             revenue_per_employee_last_four_years.append(round(float(revenue) / float(employee_amount), 2))
         return revenue_per_employee_last_four_years
 
-    def get_enterprise_value_to_revenue_last_four_years(self):
-        return self.total_financial_metric_map.get("enterprise_value_to_revenue", [])
+  
 
     def get_free_cash_flow_per_share_last_four_years(self):
         return self.total_financial_metric_map.get("free_cash_flow_per_share", [])
