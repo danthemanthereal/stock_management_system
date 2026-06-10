@@ -2,136 +2,136 @@
 
 {% block analysis_content %}
 
-<style>
+    <style>
 
-    .branch-profile-bar {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-        padding: 1rem;
-        background: #f8f9fa;
-        border-radius: 8px;
-        border: 1px solid #e0e0e0;
-    }
+        .branch-profile-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
 
-    .profile-btn {
-        padding: 8px 16px;
-        cursor: pointer;
-        border: 1px solid #ccc;
-        background: white;
-        border-radius: 4px;
-        transition: all 0.2s;
-    }
+        .profile-btn {
+            padding: 8px 16px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
 
-    .profile-btn:hover {
-        background: #eee;
-    }
+        .profile-btn:hover {
+            background: #eee;
+        }
 
-    .profile-active {
-        background-color: #007bff !important;
-        color: white !important;
-        border-color: #0056b3 !important;
-        font-weight: bold;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
+        .profile-active {
+            background-color: #007bff !important;
+            color: white !important;
+            border-color: #0056b3 !important;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-    .action-box {
-        background: #ffffff;
-        padding: 1.5rem;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        margin-bottom: 2rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+        .action-box {
+            background: #ffffff;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
 
-    h3 {
-        margin-top: 0;
-        color: #222;
-    }
+        h3 {
+            margin-top: 0;
+            color: #222;
+        }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
-        background: white;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+        }
 
-    th, td {
-        border: 1px solid #ddd;
-        padding: 12px;
-        text-align: left;
-    }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
 
-    thead th {
-        background: #f4f4f4;
-        position: sticky;
-        top: 0;
-    }
+        thead th {
+            background: #f4f4f4;
+            position: sticky;
+            top: 0;
+        }
 
-    .category-header {
-        background: #f0f0f0;
-        font-weight: bold;
-        font-size: 1.1em;
-    }
+        .category-header {
+            background: #f0f0f0;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
 
-    tr:hover {
-        background-color: #fafafa;
-    }
+        tr:hover {
+            background-color: #fafafa;
+        }
 
-    .btn-primary {
-        background: #28a745;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
+        .btn-primary {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-    .btn-danger {
-        background: #dc3545;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-    .btn-secondary {
-        background: #6c757d;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-    .btn-filter {
-        background: #17a2b8;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-bottom: 1rem;
-    }
+        .btn-filter {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
 
-    .btn-filter:hover {
-        background: #138496;
-    }
+        .btn-filter:hover {
+            background: #138496;
+        }
 
-    input[type="text"], input[type="number"], select {
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-</style>
+        input[type="text"], input[type="number"], select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
 
-<h1>{{ _('title') }}</h1>
+    <h1>{{ _('title') }}</h1>
 
-<!-- Branchen-Auswahl -->
-<div class="branch-profile-bar" role="toolbar">
+    <!-- Branchen-Auswahl -->
+    <div class="branch-profile-bar" role="toolbar">
     <span style="font-weight: bold; margin-right: 0.5rem;">
         {{ _('selected_branch') }}:
         <span style="color: #007bff;">
@@ -141,233 +141,389 @@
         </span>
     </span>
 
-    {% for p in branch_profiles %}
-    <form action="/analysis/change-selected-template" method="post" style="display:inline;">
-        <input type="hidden" name="branch_profile_id" value="{{ p.id }}">
-        <button type="submit"
-                class="profile-btn {% if p.id == last_selected_branch_profile_id %}profile-active{% endif %}">
-            {{ _(p.name) }}
-        </button>
-    </form>
-    {% endfor %}
-</div>
-
-<!-- Neue Kennzahl hinzufügen -->
-<div class="action-box">
-    <h3>{{ _('add_metric_title') }}</h3>
-    <form action="/analysis/add-metric-to-current-template" method="post"
-          style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-        <input type="hidden" name="last_selected_branch_profile_id"
-               value="{{ last_selected_branch_profile_id  }}">
-        <select name="financial_metric_id" required style="min-width: 250px;">
-            <option value="">— {{ _('select_metric') }} —</option>
-            {% for metric in available_metrics %}
-            <option value="{{ metric.id }}">
-                {{ _(metric.name) }} {% if metric.unit %}({{ metric.unit }}){% endif %}
-            </option>
-            {% endfor %}
-        </select>
-        <input type="number" name="reference_value" placeholder="{{ _('placeholder_value') }}" required
-               style="width: 100px;">
-        <label style="font-size: 0.9em;">
-            <input type="checkbox" name="should_rise"> {{ _('should_rise') }}
-        </label>
-        <button type="submit" class="btn-primary">{{ _('btn_add') }}</button>
-    </form>
-</div>
-
-<!-- Tabelle mit Aktionen -->
-<form action="/analysis/delete-selected-metrics-for-this-template" method="post" id="main-metrics-form">
-    <input type="hidden" name="selected_branch_id" value="{{ last_selected_branch_profile_id }}">
-
-    <div class="action-box" style="border-left: 5px solid #007bff;">
-        <h3 style="color: #007bff;">{{ _('actions_title') }}</h3>
-        <p style="font-size: 0.9em; color: #666;">
-            {{ _('actions_description') }}
-        </p>
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <input type="text" name="branch_profile_name" placeholder="{{ _('placeholder_new_profile') }}"
-                   style="flex-grow: 1;">
-            <button type="submit" formaction="/analysis/create-new-template-with-current-properties" class="btn-secondary">
-                {{ _('btn_save_profile') }}
-            </button>
-        </div>
+        {% for p in branch_profiles %}
+            <form action="/analysis/change-selected-template" method="post" style="display:inline;">
+                <input type="hidden" name="branch_profile_id" value="{{ p.id }}">
+                <button type="submit"
+                        class="profile-btn {% if p.id == last_selected_branch_profile_id %}profile-active{% endif %}">
+                    {{ _(p.name) }}
+                </button>
+            </form>
+        {% endfor %}
     </div>
 
-    <!-- Filter-Button -->
-    <button type="button" id="toggle-active-metrics" class="btn-filter" data-filtering="false">
-        {{ _('btn_filter_active') }}
-    </button>
+    <!-- Neue Kennzahl hinzufügen -->
+    <div class="action-box">
+        <h3>{{ _('add_metric_title') }}</h3>
+        <form action="/analysis/add-metric-to-current-template" method="post"
+              style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <input type="hidden" name="last_selected_branch_profile_id"
+                   value="{{ last_selected_branch_profile_id }}">
+            <select name="financial_metric_id" required style="min-width: 250px;">
+                <option value="">— {{ _('select_metric') }} —</option>
+                {% for metric in available_metrics %}
+                    <option value="{{ metric.id }}">
+                        {{ _(metric.name) }} {% if metric.unit %}({{ metric.unit }}){% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+            <input type="number" name="reference_value" placeholder="{{ _('placeholder_value') }}" required
+                   style="width: 100px;">
+            <label style="font-size: 0.9em;">
+                <input type="checkbox" name="should_rise"> {{ _('should_rise') }}
+            </label>
+            <button type="submit" class="btn-primary">{{ _('btn_add') }}</button>
+        </form>
+    </div>
 
-     <button type="submit" class="btn-danger" onclick="return confirm('{{ _('confirm_delete') }}')">
-                {{ _('btn_delete_marked') }}
-            </button>
+    <!-- Tabelle mit Aktionen -->
+    <form action="/analysis/delete-selected-metrics-for-this-template" method="post" id="main-metrics-form">
+        <input type="hidden" name="selected_branch_id" value="{{ last_selected_branch_profile_id }}">
 
-    <table>
-        <thead>
-        <tr>
-            <th style="width: 40px;">{{ _('table_header_delete') }}</th>
-            <th>{{ _('table_header_metric') }}</th>
-            <th>{{ _('table_header_value') }}</th>
-            <th>{{ _('table_header_unit') }}</th>
-            <th>{{ _('table_header_should_rise')}}</th>
-            <th>{{ _('table_header_category') }}</th>
-            <th style="text-align: center;">{{ _('table_header_active') }}</th>
-            <th>{{ _('table_header_action') }}</th>
-        </tr>
-        </thead>
-        {% for category_label, metrics_list in financial_metrics_of_last_selected_template_per_category.items() %}
-        <tbody class="metric-category-group">
-        <tr class="category-heading-row">
-            <td colspan="8" class="category-header">{{ _(category_label) }}</td>
-        </tr>
+        <div class="action-box" style="border-left: 5px solid #007bff;">
+            <h3 style="color: #007bff;">{{ _('actions_title') }}</h3>
+            <p style="font-size: 0.9em; color: #666;">
+                {{ _('actions_description') }}
+            </p>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <input type="text" name="branch_profile_name" placeholder="{{ _('placeholder_new_profile') }}"
+                       style="flex-grow: 1;">
+                <button type="submit" formaction="/analysis/create-new-template-with-current-properties"
+                        class="btn-secondary">
+                    {{ _('btn_save_profile') }}
+                </button>
+            </div>
+        </div>
 
-        {% for c in metrics_list %}
-        <tr class="saved-metric-row"
-            data-is-active="{{ 'true' if c.is_active else 'false' }}"
-            data-should-rise="{{ 'true' if c.should_rise else 'false' }}">
-            <td style="text-align: center;">
-                <input type="checkbox" name="delete_checkbox" value="{{ c.config_id }}">
-            </td>
-            <td><strong>{{ _(c.display_name) }}</strong></td>
-            <td>
-                <input type="number"
-                       class="inline-metric-value"
-                       data-metric-id="{{ c.metric_id }}"
-                       value="{{ c.reference_value | int }}"
-                       min="0" step="1"
-                       oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-                       style="width: 90px; padding: 4px; border: 1px dashed #ccc; border-radius: 4px; text-align: right;">
-            </td>
-            <td>{{ _(c.unit) }}</td>
-            <td style="text-align: center;">
-                <input type="checkbox" name="should_rise_checkbox" value="{{ c.metric_id }}"
-                       {% if c.should_rise %}checked{% endif %}>
-            </td>
-            <td>{{ _(c.category) }}</td>
-            <td style="text-align: center;">
-                <input type="checkbox" name="active_status_checkbox" value="{{ c.metric_id }}"
-                       {% if c.is_active %}checked{% endif %}>
-            </td>
-            <td>
-                <a href="/analysis/edit-metric-of-current-template/{{ last_selected_branch_profile_id }}/{{ c.metric_id }}">{{ _('link_edit') }}</a>
-            </td>
-        </tr>
-        {% endfor %}
-        </tbody>
-        {% endfor %}
-    </table>
-</form>
+        <!-- Filter-Button -->
+        <button type="button" id="toggle-active-metrics" class="btn-filter" data-filtering="false">
+            {{ _('btn_filter_active') }}
+        </button>
 
-<!-- JavaScript: Sammeln der aktiven Metriken für neues Template -->
-<script>
-    document.getElementById('main-metrics-form').addEventListener('submit', function (e) {
-    const submitter = e.submitter;
-    const action = submitter ? submitter.getAttribute('formaction') : null;
-    const isCreateProfile = action && action.includes('/create-new-template-with-current-properties');
+        <button type="submit" class="btn-danger" onclick="return confirm('{{ _('confirm_delete') }}')">
+            {{ _('btn_delete_marked') }}
+        </button>
+        <div style="margin-bottom: 15px; position: relative;">
+            <input type="text"
+                   id="metric_search_input"
+                   placeholder="{{ _('search_metric_placeholder') }}"
+                   style="width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <div id="search_suggestions"
+                 style="position: absolute; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; width: 300px; display: none; z-index: 1000;"></div>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th style="width: 40px;">{{ _('table_header_delete') }}</th>
+                <th>{{ _('table_header_metric') }}</th>
+                <th>{{ _('table_header_value') }}</th>
+                <th>{{ _('table_header_unit') }}</th>
+                <th>{{ _('table_header_should_rise') }}</th>
+                <th>{{ _('table_header_category') }}</th>
+                <th style="text-align: center;">{{ _('table_header_active') }}</th>
+                <th>{{ _('table_header_action') }}</th>
+            </tr>
+            </thead>
+            {% for category_label, metrics_list in financial_metrics_of_last_selected_template_per_category.items() %}
+                <tbody class="metric-category-group">
+                <tr class="category-heading-row">
+                    <td colspan="8" class="category-header">{{ _(category_label) }}</td>
+                </tr>
 
-    if (isCreateProfile) {
-        // ===== Neues Template erstellen (unverändert) =====
-        const activeCheckboxes = document.querySelectorAll('input[name="active_status_checkbox"]:checked');
-        const triplets = [];
+                {% for c in metrics_list %}
+                    <tr class="saved-metric-row"
+                        data-is-active="{{ 'true' if c.is_active else 'false' }}"
+                        data-should-rise="{{ 'true' if c.should_rise else 'false' }}">
+                        <td style="text-align: center;">
+                            <input type="checkbox" name="delete_checkbox" value="{{ c.config_id }}">
+                        </td>
+                        <td><strong>{{ _(c.display_name) }}</strong></td>
+                        <td>
+                            <input type="number"
+                                   class="inline-metric-value"
+                                   data-metric-id="{{ c.metric_id }}"
+                                   value="{{ c.reference_value | int }}"
+                                   min="0" step="1"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                   style="width: 90px; padding: 4px; border: 1px dashed #ccc; border-radius: 4px; text-align: right;">
+                        </td>
+                        <td>{{ _(c.unit) }}</td>
+                        <td style="text-align: center;">
+                            <input type="checkbox" name="should_rise_checkbox" value="{{ c.metric_id }}"
+                                   {% if c.should_rise %}checked{% endif %}>
+                        </td>
+                        <td>{{ _(c.category) }}</td>
+                        <td style="text-align: center;">
+                            <input type="checkbox" name="active_status_checkbox" value="{{ c.metric_id }}"
+                                   {% if c.is_active %}checked{% endif %}>
+                        </td>
+                        <td>
+                            <a href="/analysis/edit-metric-of-current-template/{{ last_selected_branch_profile_id }}/{{ c.metric_id }}">{{ _('link_edit') }}</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            {% endfor %}
+        </table>
+    </form>
 
-        activeCheckboxes.forEach(cb => {
-            const metricId = cb.value;
-            const row = cb.closest('tr');
-            const valueInput = row.querySelector(`.inline-metric-value[data-metric-id="${metricId}"]`);
-            const value = valueInput ? parseInt(valueInput.value, 10) || 0 : 0;
-            const shouldRise = row.getAttribute('data-should-rise') === 'true';
-            triplets.push(`${metricId}|${value}||${shouldRise}`);
+    <!-- JavaScript: Sammeln der aktiven Metriken für neues Template -->
+    <script>
+        document.getElementById('main-metrics-form').addEventListener('submit', function (e) {
+            const submitter = e.submitter;
+            const action = submitter ? submitter.getAttribute('formaction') : null;
+            const isCreateProfile = action && action.includes('/create-new-template-with-current-properties');
+
+            if (isCreateProfile) {
+                // ===== Neues Template erstellen (unverändert) =====
+                const activeCheckboxes = document.querySelectorAll('input[name="active_status_checkbox"]:checked');
+                const triplets = [];
+
+                activeCheckboxes.forEach(cb => {
+                    const metricId = cb.value;
+                    const row = cb.closest('tr');
+                    const valueInput = row.querySelector(`.inline-metric-value[data-metric-id="${metricId}"]`);
+                    const value = valueInput ? parseInt(valueInput.value, 10) || 0 : 0;
+                    const shouldRise = row.getAttribute('data-should-rise') === 'true';
+                    triplets.push(`${metricId}|${value}||${shouldRise}`);
+                });
+
+                if (triplets.length === 0) {
+                    alert("Bitte wähle mindestens eine Kennzahl als 'Aktiv' aus!");
+                    e.preventDefault();
+                    return;
+                }
+
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'metric_data_triplets';
+                hiddenInput.value = triplets.join(',');
+                this.appendChild(hiddenInput);
+            } else {
+                // ===== Löschen: alle delete_checkbox-Werte sammeln =====
+                const deleteCheckboxes = document.querySelectorAll('input[name="delete_checkbox"]:checked');
+                if (deleteCheckboxes.length === 0) {
+                    alert("Bitte markiere mindestens eine Kennzahl zum Löschen.");
+                    e.preventDefault();
+                    return;
+                }
+
+                const ids = [];
+                deleteCheckboxes.forEach(cb => ids.push(cb.value));
+
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'metric_ids';         // dieser Name wird im Backend erwartet
+                hiddenInput.value = ids.join(',');
+                this.appendChild(hiddenInput);
+            }
         });
 
-        if (triplets.length === 0) {
-            alert("Bitte wähle mindestens eine Kennzahl als 'Aktiv' aus!");
-            e.preventDefault();
-            return;
+        // Filter-Funktion für aktive/inaktive Zeilen (unverändert)
+        function applyFilters() {
+            const btn = document.getElementById('toggle-active-metrics');
+            const isFilteringActiveOnly = btn.getAttribute('data-filtering') === 'true';
+            const rows = document.querySelectorAll('.saved-metric-row');
+            const groups = document.querySelectorAll('.metric-category-group');
+
+            rows.forEach(row => {
+                const isActive = row.getAttribute('data-is-active') === 'true';
+                if (isFilteringActiveOnly && !isActive) {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = '';
+                }
+            });
+
+            groups.forEach(group => {
+                const headerRow = group.querySelector('.category-heading-row');
+                const visibleDataRows = group.querySelectorAll('.saved-metric-row:not([style*="display: none"])');
+                if (visibleDataRows.length === 0) {
+                    group.style.display = 'none';
+                } else {
+                    group.style.display = '';
+                    if (headerRow) headerRow.style.display = '';
+                }
+            });
         }
 
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = 'metric_data_triplets';
-        hiddenInput.value = triplets.join(',');
-        this.appendChild(hiddenInput);
-    } else {
-        // ===== Löschen: alle delete_checkbox-Werte sammeln =====
-        const deleteCheckboxes = document.querySelectorAll('input[name="delete_checkbox"]:checked');
-        if (deleteCheckboxes.length === 0) {
-            alert("Bitte markiere mindestens eine Kennzahl zum Löschen.");
-            e.preventDefault();
-            return;
-        }
+        document.getElementById('toggle-active-metrics').addEventListener('click', function () {
+            const isFiltering = this.getAttribute('data-filtering') === 'true';
+            const nextState = !isFiltering;
+            this.setAttribute('data-filtering', nextState);
 
-        const ids = [];
-        deleteCheckboxes.forEach(cb => ids.push(cb.value));
+            const textShowAll = "{{ _('btn_filter_all') }}";
+            const textShowActive = "{{ _('btn_filter_active') }}";
+            this.textContent = nextState ? textShowAll : textShowActive;
 
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = 'metric_ids';         // dieser Name wird im Backend erwartet
-        hiddenInput.value = ids.join(',');
-        this.appendChild(hiddenInput);
-    }
-});
+            applyFilters();
+        });
 
-    // Filter-Funktion für aktive/inaktive Zeilen (unverändert)
-    function applyFilters() {
-        const btn = document.getElementById('toggle-active-metrics');
-        const isFilteringActiveOnly = btn.getAttribute('data-filtering') === 'true';
-        const rows = document.querySelectorAll('.saved-metric-row');
-        const groups = document.querySelectorAll('.metric-category-group');
+        // Initialisierung beim Laden
+        document.addEventListener("DOMContentLoaded", function () {
+            applyFilters();
 
-        rows.forEach(row => {
-            const isActive = row.getAttribute('data-is-active') === 'true';
-            if (isFilteringActiveOnly && !isActive) {
-                row.style.display = 'none';
-            } else {
-                row.style.display = '';
+            // Formatierung für eventuelle number-cells (falls noch vorhanden)
+            const currentLocale = "{{ current_locale }}";
+            const numberFormatter = new Intl.NumberFormat(currentLocale === 'de' ? 'de-DE' : 'en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            document.querySelectorAll('.number-cell').forEach(td => {
+                const rawValue = parseFloat(td.getAttribute('data-value'));
+                if (!isNaN(rawValue)) {
+                    td.textContent = numberFormatter.format(rawValue);
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('metric_search_input');
+            const suggestionsDiv = document.getElementById('search_suggestions');
+
+            // Alle Metrik-Namen sammeln
+            const metrics = [];
+            document.querySelectorAll('.saved-metric-row').forEach(row => {
+                const nameElement = row.querySelector('td:nth-child(2) strong');
+                if (nameElement) {
+                    const metricName = nameElement.textContent.trim();
+                    const metricRow = row;
+                    metrics.push({
+                        name: metricName,
+                        row: metricRow,
+                        nameLower: metricName.toLowerCase()
+                    });
+                }
+            });
+
+            // Suchfunktion
+            function searchMetrics(searchTerm) {
+                if (!searchTerm || searchTerm.trim() === '') {
+                    suggestionsDiv.style.display = 'none';
+                    return [];
+                }
+
+                const termLower = searchTerm.toLowerCase().trim();
+                const matches = metrics.filter(metric =>
+                    metric.nameLower.includes(termLower)
+                );
+
+                return matches;
+            }
+
+            // Vorschläge anzeigen
+            function showSuggestions(suggestions) {
+                if (suggestions.length === 0) {
+                    suggestionsDiv.style.display = 'none';
+                    return;
+                }
+
+                suggestionsDiv.innerHTML = '';
+                suggestions.forEach(suggestion => {
+                    const div = document.createElement('div');
+                    div.textContent = suggestion.name;
+                    div.style.padding = '8px';
+                    div.style.cursor = 'pointer';
+                    div.style.borderBottom = '1px solid #eee';
+
+                    // Hover-Effekt
+                    div.onmouseover = () => {
+                        div.style.backgroundColor = '#f0f0f0';
+                    };
+                    div.onmouseout = () => {
+                        div.style.backgroundColor = 'white';
+                    };
+
+                    // Klick auf Vorschlag
+                    div.onclick = () => {
+                        scrollToMetric(suggestion.row);
+                        searchInput.value = suggestion.name;
+                        suggestionsDiv.style.display = 'none';
+                    };
+
+                    suggestionsDiv.appendChild(div);
+                });
+
+                suggestionsDiv.style.display = 'block';
+            }
+
+            // Zur Metrik scrollen
+            function scrollToMetric(metricRow) {
+                metricRow.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+
+                // Hervorhebungseffekt
+                metricRow.style.transition = 'background-color 0.5s';
+                metricRow.style.backgroundColor = '#fff3cd';
+
+                setTimeout(() => {
+                    metricRow.style.backgroundColor = '';
+                }, 2000);
+            }
+
+            // Input-Event für Live-Suche
+            searchInput.addEventListener('input', function (e) {
+                const searchTerm = e.target.value;
+                const matches = searchMetrics(searchTerm);
+                showSuggestions(matches);
+            });
+
+            // Enter-Taste
+            searchInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const searchTerm = e.target.value;
+                    const matches = searchMetrics(searchTerm);
+
+                    if (matches.length > 0) {
+                        // Zur ersten Übereinstimmung scrollen
+                        scrollToMetric(matches[0].row);
+                        searchInput.value = matches[0].name;
+                        suggestionsDiv.style.display = 'none';
+                    }
+                }
+            });
+
+            // Schließen der Vorschläge bei Klick außerhalb
+            document.addEventListener('click', function (e) {
+                if (e.target !== searchInput && !suggestionsDiv.contains(e.target)) {
+                    suggestionsDiv.style.display = 'none';
+                }
+            });
+
+            // Pfeiltasten-Navigation durch Vorschläge
+            let selectedIndex = -1;
+
+            searchInput.addEventListener('keydown', function (e) {
+                const suggestions = suggestionsDiv.querySelectorAll('div');
+
+                if (suggestions.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, suggestions.length - 1);
+                    updateSelectedSuggestion(suggestions);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    updateSelectedSuggestion(suggestions);
+                }
+            });
+
+            function updateSelectedSuggestion(suggestions) {
+                suggestions.forEach((suggestion, idx) => {
+                    if (idx === selectedIndex) {
+                        suggestion.style.backgroundColor = '#e0e0e0';
+                        suggestion.scrollIntoView({block: 'nearest'});
+                    } else {
+                        suggestion.style.backgroundColor = 'white';
+                    }
+                });
             }
         });
-
-        groups.forEach(group => {
-            const headerRow = group.querySelector('.category-heading-row');
-            const visibleDataRows = group.querySelectorAll('.saved-metric-row:not([style*="display: none"])');
-            if (visibleDataRows.length === 0) {
-                group.style.display = 'none';
-            } else {
-                group.style.display = '';
-                if (headerRow) headerRow.style.display = '';
-            }
-        });
-    }
-
-    document.getElementById('toggle-active-metrics').addEventListener('click', function () {
-        const isFiltering = this.getAttribute('data-filtering') === 'true';
-        const nextState = !isFiltering;
-        this.setAttribute('data-filtering', nextState);
-
-        const textShowAll = "{{ _('btn_filter_all') }}";
-        const textShowActive = "{{ _('btn_filter_active') }}";
-        this.textContent = nextState ? textShowAll : textShowActive;
-
-        applyFilters();
-    });
-
-    // Initialisierung beim Laden
-    document.addEventListener("DOMContentLoaded", function() {
-        applyFilters();
-
-        // Formatierung für eventuelle number-cells (falls noch vorhanden)
-        const currentLocale = "{{ current_locale }}";
-        const numberFormatter = new Intl.NumberFormat(currentLocale === 'de' ? 'de-DE' : 'en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-        document.querySelectorAll('.number-cell').forEach(td => {
-            const rawValue = parseFloat(td.getAttribute('data-value'));
-            if (!isNaN(rawValue)) {
-                td.textContent = numberFormatter.format(rawValue);
-            }
-        });
-    });
-</script>
+    </script>
 
 {% endblock %}

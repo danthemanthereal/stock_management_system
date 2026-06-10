@@ -212,7 +212,6 @@ class FinancialMetricCalculator:
 
         return calculated_financial_metric_map
 
-
     async def get_calculated_financial_metrics(self) -> list[str]:
 
         FINANCIAL_METRIC_CATEGORIES = [
