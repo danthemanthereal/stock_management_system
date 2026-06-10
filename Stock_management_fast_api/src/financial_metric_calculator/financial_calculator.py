@@ -96,7 +96,7 @@ class FinancialMetricCalculator:
             "rank_balancesheet": partial(self.get_financial_metric_direct_by_map, "rank_balancesheet"),
             "rank_gf_value": partial(self.get_financial_metric_direct_by_map, "rank_gf_value"),
             "rank_growth": partial(self.get_financial_metric_direct_by_map, "rank_growth"),
-            "rank_momentum": self.get_rank_momentum_last_four_years,
+            "rank_momentum": partial(self.get_financial_metric_direct_by_map, "rank_momentum"),
             "rank_predictability": self.get_rank_predictability_last_four_years,
             "rank_profitability": self.get_rank_profitability_last_four_years,
             "zscore": self.get_zscore_last_four_years,
@@ -288,8 +288,7 @@ class FinancialMetricCalculator:
         return cash_burn_rate_last_four_years
 
 
-    def get_rank_momentum_last_four_years(self):
-        return self.total_financial_metric_map.get("rank_momentum", [])
+
 
     def get_rank_predictability_last_four_years(self):
         return self.total_financial_metric_map.get("rank_predictability", [])
