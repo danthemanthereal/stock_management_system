@@ -90,7 +90,7 @@ class FinancialMetricCalculator:
             "fscore": partial(self.get_financial_metric_direct_by_map, "fscore"),
             "gf_score": partial(self.get_financial_metric_direct_by_map, "gf_score"),
             "gf_value": partial(self.get_financial_metric_direct_by_map, "gf_value"),
-            "graham_number": self.get_graham_number_last_four_years,
+            "graham_number":  partial(self.get_financial_metric_direct_by_map, "graham_number"),
             "mscore": self.get_mscore_last_four_years,
             "price_to_gf_value": self.get_price_to_gf_value_last_four_years,
             "rank_balancesheet": self.get_rank_balancesheet_last_four_years,
