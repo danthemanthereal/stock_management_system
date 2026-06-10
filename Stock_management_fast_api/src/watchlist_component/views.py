@@ -1,6 +1,6 @@
 import traceback
 from uuid import UUID
-from fastapi import APIRouter, Request, Depends, HTTPException, status, Form
+from fastapi import APIRouter, Request, Depends, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.templating import Jinja2Templates

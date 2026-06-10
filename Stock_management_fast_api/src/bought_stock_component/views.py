@@ -7,9 +7,7 @@ from starlette.templating import Jinja2Templates
 from src.database.db import get_db
 from src.authenticator_component.authenticator import get_current_user_id
 from src.bought_stock_component.service import BoughtStockService
-from src.watchlist_component.service import WatchlistStockService
 
-from src.ticker_stock_component.ticker_stock import TickerStock
 
 templates = Jinja2Templates(directory="templates")
 
