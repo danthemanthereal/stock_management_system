@@ -156,6 +156,7 @@
   "good_will_ratio": "Goodwill-Quote",
   "capex_to_depreciation": "Wachstumsquote",
   "financial_leverage_ratio": "Verbindlichkeiten zu Eigenkapital",
+  "long_term_debt_to_capital_ratio": "lang. Schulden zu lang Schulden und Eigenkapital",
   "cash_ratio": "Liquiditätsgrad 1",
   "current_ratio": "Liquiditätsgrad 3",
   "days_inventory": "Lagerdauer (in Tagen)",
