@@ -126,7 +126,9 @@ class FinancialMetricCalculator:
             "roe": partial(self.get_financial_metric_direct_by_map, "roe"),
             "roic": partial(self.get_financial_metric_direct_by_map, "roic"),
             "yield": partial(self.get_financial_metric_direct_by_map, "yield"),
-            "freeCashFlowToEquity": self.get_freeCashFlowToEquity_last_four_years,
+            "freeCashFlowToEquity": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Free Cash Flow", []),
+                                                                 self.total_financial_metric_map.get("Total Equity", [])),
             "free_cashflow_operating_cashflow_ratio": self.get_free_cashflow_operating_cashflow_ratio_last_four_years,
             "revenue_per_employee":self.get_revenue_per_employee_last_four_years,
             "roi": self.get_roi_last_four_years,
@@ -296,16 +298,7 @@ class FinancialMetricCalculator:
         return cash_burn_rate_last_four_years
 
 
-    def get_freeCashFlowToEquity_last_four_years(self):
-        free_cash_flow_last_four_years = self.total_financial_metric_map.get("Free Cash Flow", [])
-        equity_last_four_years = self.total_financial_metric_map.get("Total Equity", [])
 
-        free_cash_flow_to_equity_last_four_years = []
-
-        for free_cash_flow, equity in zip(free_cash_flow_last_four_years, equity_last_four_years):
-            free_cash_flow_to_equity_last_four_years.append(round(float(free_cash_flow) / float(equity), 2))
-
-        return free_cash_flow_last_four_years
 
     def get_free_cashflow_operating_cashflow_ratio_last_four_years(self):
         return self.total_financial_metric_map.get("free_cashflow_operating_cashflow_ratio", [])
