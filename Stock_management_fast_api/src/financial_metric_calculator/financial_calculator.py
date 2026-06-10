@@ -141,7 +141,7 @@ class FinancialMetricCalculator:
             "ebitda_per_share": partial(self.get_financial_metric_direct_by_map, "ebitda_per_share"),
             "enterprise_value_to_ebit": partial(self.get_financial_metric_direct_by_map, "enterprise_value_to_ebit"),
             "enterprise_value_to_ebitda": partial(self.get_financial_metric_direct_by_map, "enterprise_value_to_ebitda"),
-            "enterprise_value_to_fcf": self.get_enterprise_value_to_fcf_last_four_years,
+            "enterprise_value_to_fcf": partial(self.get_financial_metric_direct_by_map, "enterprise_value_to_fcf"),
             "enterprise_value_to_ocf": self.get_enterprise_value_to_ocf_last_four_years,
             "enterprise_value_to_revenue": self.get_enterprise_value_to_revenue_last_four_years,
             "free_cash_flow_per_share": self.get_free_cash_flow_per_share_last_four_years,
