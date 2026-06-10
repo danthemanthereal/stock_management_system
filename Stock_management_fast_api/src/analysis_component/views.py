@@ -299,7 +299,6 @@ async def show_edit_financial_metric_of_current_template(
             "selected_branch_profile_id": last_selected_branch_profile_id,
         })
 
-
 @analysis_router.post("/update-metric-of-current-template-config/{config_id}")
 def update_metric_of_current_template(
         request: Request,
