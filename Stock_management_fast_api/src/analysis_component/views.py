@@ -233,32 +233,21 @@ async def update_metric_of_current_template(
         current_user_id: UUID = Depends(get_current_user_id)
 ):
     try:
-        financial_metric_template_service = TemplateMetricService(db)
-        await financial_metric_template_service.update_template_metric_configuration(
+
+
+        analysis_service = AnalysisService(db)
+
+        await analysis_service.get_update_template_metric_configuration(
             config_id=config_id,
             new_reference_value=int(reference_value),
             should_rise=should_rise,
             is_active=is_active,
         )
 
-        financial_metric_service = MetricsService(db)
-        template_service = TemplateService(db)
-        template_metric_service = TemplateMetricService(db)
-        last_selected_branch_profile_id = await template_service.get_last_selected_template_id_of_user(current_user_id)
-        available_metrics = await financial_metric_service.get_available_metrics()
-        current_user_created_templates = await template_service.get_current_user_created_templates(current_user_id)
-        financial_metrics_of_last_selected_template_per_category = await template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
-            last_selected_branch_profile_id)
-
-        return render_localized(
-            template_name="analysis/show_saved_financial_metrics.html",
+        return analysis_service.get_current_start_page(
             request=request,
-            context={
-                "available_metrics": available_metrics,
-                "last_selected_branch_profile_id": last_selected_branch_profile_id,
-                "branch_profiles": current_user_created_templates,
-                "financial_metrics_of_last_selected_template_per_category": financial_metrics_of_last_selected_template_per_category,
-            })
+            current_user_id=current_user_id
+        )
     except Exception as e:
         print(f"Error: {e}")
         traceback.print_exc()
