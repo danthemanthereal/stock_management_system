@@ -49,7 +49,7 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("Capital Expenditure", []),
                                                                  self.total_financial_metric_map.get("Revenue", [])),
             "debt_to_asset":partial(self.get_financial_metric_direct_by_map, "debt_to_asset"),
-            "debt_to_equity":self.get_debt_to_equity_last_four_years_last_four_years,
+            "debt_to_equity":partial(self.get_financial_metric_direct_by_map, "debt_to_equity"),
             "equity_to_asset": self.get_equity_to_asset_ratio_last_four_years,
             "interest_coverage": self.get_interest_coverage_last_four_years,
             "liabilities_to_assets": self.get_liabilities_to_asset_ratio_last_four_years,
@@ -210,9 +210,6 @@ class FinancialMetricCalculator:
 
 
 
-    def get_debt_to_equity_last_four_years_last_four_years(self):
-        #return self.debt_to_metric_ratio_last_four_years("totalShareholderEquity")
-        return self.total_financial_metric_map.get("debt_to_equity", [])
 
     def get_equity_to_asset_ratio_last_four_years(self):
 
