@@ -286,9 +286,10 @@ async def show_edit_financial_metric_of_current_template(
     config = await financial_metric_template_service.get_config_by_metric_and_template_id(metric_id,
                                                                                     last_selected_branch_profile_id)
 
-    return templates.TemplateResponse(
+
+    return render_localized(
+        template_name="analysis/edit_metric.html",
         request=request,
-        name="analysis/edit_metric.html",
         context={
             "request": request,
             "active_page": "Kennzahl bearbeiten",
