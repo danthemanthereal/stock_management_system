@@ -108,7 +108,7 @@ class FinancialMetricCalculator:
             "fcf_margin": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Free Cash Flow", []),
                                                                  self.total_financial_metric_map.get("Revenue", [])),
-            "fcf_yield": self.get_fcf_yield_last_four_years,
+            "fcf_yield": partial(self.get_financial_metric_direct_by_map, "fcf_yield"),
             "gross_margin": self.get_gross_margin_last_four_years,
             "gross_profit_to_asset": self.get_gross_profit_to_asset_last_four_years,
             "net_margin": self.get_net_margin_last_four_years,
@@ -291,8 +291,7 @@ class FinancialMetricCalculator:
 
         return cash_burn_rate_last_four_years
 
-    def get_fcf_yield_last_four_years(self):
-        return self.total_financial_metric_map.get("fcf_yield", [])
+
 
     def get_gross_margin_last_four_years(self):
         return self.total_financial_metric_map.get("gross_margin", [])
