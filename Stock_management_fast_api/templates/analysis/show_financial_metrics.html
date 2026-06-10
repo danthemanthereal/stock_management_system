@@ -212,7 +212,6 @@
         }
 
 
-
     </style>
 </head>
 <body>
@@ -281,11 +280,16 @@
     <span class="breadcrumb-current">{{ active_page }}</span>
 </nav>
 <h1>Financial Metrics</h1>
-<div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Chart Name eingeben...">
+<div class="search-bar" style="position: relative;">
+    <input type="text"
+           id="searchInput"
+           placeholder="Chart Name eingeben..."
+           autocomplete="off">
     <button class="nav-btn" onclick="scrollToChartByName()">
         🔎 Zum Chart
     </button>
+    <div id="chartSuggestions"
+         style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-top: none; max-height: 300px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
 </div>
 
 <div class="search-bar">
@@ -317,11 +321,11 @@
         "price_to_cashflow": "Kurs zu Cashflow Verhältnis",
         "dividend_paid_and_capex_coverage_ratio": "Dividenden und Investitions Deckung",
         "cash_flow_coverage_ratio": "Operativer Cashflow zu Schulden",
-        "debt_service_coverage_ratio":"Schuldendienstdeckungsgrad",
+        "debt_service_coverage_ratio": "Schuldendienstdeckungsgrad",
         "net_debt_to_ebitda": "Netto Schulden/ Ebitda",
         "effective_tax_rate": "effektive Steuerrate",
         "short_term_coverage_ratio": "Umlaufvermögen / kurzfristige schulden",
-       "ebit_margin": "EBIT margin",
+        "ebit_margin": "EBIT margin",
         "free_cashflow_operating_cashflow_ratio": "Free cashflow zu operativen cashflow",
         "income_before_tax_profit_margin": "Umsatzrendite vor Steuern",
         "operating_cashflow_ratio": "Operativer cashflow zu kurzfristige Schulden",
@@ -639,9 +643,9 @@
         "revenue_to_cost": "Umsatz zu Kosten",
         "short_term_operating_cashflow_coverage_ratio": "Operativer cashflow zu kurzfristigen Verbindlichkeiten",
         "capital_turnover": "Kapitalumschlag",
-        "revenue_per_employee_cost":"Umsatz pro Personalkosten  pro Mitarbeiter",
+        "revenue_per_employee_cost": "Umsatz pro Personalkosten  pro Mitarbeiter",
         "roi": "Return on Investment",
-        "payables_turnover":"Kreditorenumschlag"
+        "payables_turnover": "Kreditorenumschlag"
     };
     // 2. Globaler Scope für die exklusive Namenssuche
     let translationMap = {};
@@ -762,36 +766,6 @@
         if (target) target.scrollIntoView({behavior: "smooth"});
     }
 
-    // EXKLUSIVE SUCHE: Filtert und scrollt NUR anhand des übersetzten Anzeigenamens
-    function scrollToChartByName() {
-        console.log("map ")
-        console.log(translationMap)
-        const query = document.getElementById("searchInput").value.trim().toLowerCase();
-        if (!query) {
-            alert("Bitte einen Suchbegriff eingeben.");
-            return;
-        }
-
-        let foundKey = null;
-
-        // Wir durchsuchen die global verfügbare translationMap nach dem Anzeigenamen
-        for (const [key, displayName] of Object.entries(translationMap)) {
-            if (displayName.includes(query)) {
-                foundKey = key;
-                break; // Ersten Treffer nutzen
-            }
-        }
-
-        if (foundKey) {
-            const target = document.getElementById("chart-" + foundKey);
-            if (target) {
-                target.scrollIntoView({behavior: "smooth"});
-            }
-        } else {
-            alert("Keine Kennzahl mit diesem Anzeigenamen gefunden!");
-        }
-    }
-
     // Kategoriensuche
     function scrollToCategoryByName() {
         const raw = document.getElementById("categorySearchInput").value;
@@ -809,6 +783,239 @@
             }
         }
         alert("Kategorie nicht gefunden!");
+    }
+</script>
+<script>
+    // Globale Variable für die aktuelle Auswahl bei Pfeiltasten
+    let currentSuggestionIndex = -1;
+    let currentSuggestions = [];
+
+    // Initialisiert die Autocomplete-Funktion
+    function initChartAutocomplete() {
+        const searchInput = document.getElementById('searchInput');
+        const suggestionsDiv = document.getElementById('chartSuggestions');
+
+        if (!searchInput || !suggestionsDiv) return;
+
+        // Alle verfügbaren Chart-Namen aus der translationMap sammeln
+        function getAllChartNames() {
+            const charts = [];
+            for (const [key, displayName] of Object.entries(translationMap)) {
+                charts.push({
+                    key: key,
+                    displayName: displayName,
+                    searchText: displayName.toLowerCase()
+                });
+            }
+            return charts;
+        }
+
+        // Charts durchsuchen
+        function searchCharts(searchTerm) {
+            if (!searchTerm || searchTerm.trim() === '') {
+                return [];
+            }
+
+            const termLower = searchTerm.toLowerCase().trim();
+            const allCharts = getAllChartNames();
+
+            // Zuerst exakte Übereinstimmungen, dann Teilübereinstimmungen
+            const exactMatches = [];
+            const partialMatches = [];
+
+            allCharts.forEach(chart => {
+                if (chart.searchText === termLower) {
+                    exactMatches.push(chart);
+                } else if (chart.searchText.includes(termLower)) {
+                    partialMatches.push(chart);
+                }
+            });
+
+            return [...exactMatches, ...partialMatches];
+        }
+
+        // Vorschläge anzeigen
+        function showSuggestions(suggestions) {
+            currentSuggestions = suggestions;
+            currentSuggestionIndex = -1;
+
+            if (suggestions.length === 0) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+
+            suggestionsDiv.innerHTML = '';
+            suggestions.forEach((suggestion, index) => {
+                const div = document.createElement('div');
+                div.textContent = suggestion.displayName;
+                div.style.padding = '10px';
+                div.style.cursor = 'pointer';
+                div.style.borderBottom = '1px solid #eee';
+                div.style.fontSize = '14px';
+
+                // Hover-Effekt
+                div.onmouseenter = () => {
+                    div.style.backgroundColor = '#e3f2fd';
+                };
+                div.onmouseleave = () => {
+                    if (currentSuggestionIndex !== index) {
+                        div.style.backgroundColor = 'white';
+                    }
+                };
+
+                // Klick auf Vorschlag
+                div.onclick = () => {
+                    searchInput.value = suggestion.displayName;
+                    suggestionsDiv.style.display = 'none';
+                    scrollToChartByKey(suggestion.key);
+                };
+
+                suggestionsDiv.appendChild(div);
+            });
+
+            suggestionsDiv.style.display = 'block';
+        }
+
+        // Zur Chart scrollen (nach Key)
+        function scrollToChartByKey(key) {
+            const target = document.getElementById("chart-" + key);
+            if (target) {
+                target.scrollIntoView({behavior: "smooth", block: "start"});
+
+                // Hervorhebungseffekt
+                target.style.transition = 'background-color 0.5s';
+                const originalBg = target.style.backgroundColor;
+                target.style.backgroundColor = '#fff3cd';
+
+                setTimeout(() => {
+                    target.style.backgroundColor = originalBg;
+                }, 2000);
+            } else {
+                console.warn('Chart nicht gefunden:', key);
+            }
+        }
+
+        // Live-Suche bei Eingabe
+        searchInput.addEventListener('input', function (e) {
+            const searchTerm = e.target.value;
+            const suggestions = searchCharts(searchTerm);
+            showSuggestions(suggestions);
+        });
+
+        // Tastaturnavigation
+        searchInput.addEventListener('keydown', function (e) {
+            const suggestionElements = suggestionsDiv.querySelectorAll('div');
+
+            if (suggestionElements.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentSuggestionIndex = Math.min(currentSuggestionIndex + 1, suggestionElements.length - 1);
+                updateSuggestionHighlight(suggestionElements);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentSuggestionIndex = Math.max(currentSuggestionIndex - 1, -1);
+                updateSuggestionHighlight(suggestionElements);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (currentSuggestionIndex >= 0 && currentSuggestions[currentSuggestionIndex]) {
+                    const selected = currentSuggestions[currentSuggestionIndex];
+                    searchInput.value = selected.displayName;
+                    suggestionsDiv.style.display = 'none';
+                    scrollToChartByKey(selected.key);
+                } else if (currentSuggestions.length > 0) {
+                    // Enter ohne Pfeilauswahl: ersten Vorschlag nehmen
+                    const firstSuggestion = currentSuggestions[0];
+                    searchInput.value = firstSuggestion.displayName;
+                    suggestionsDiv.style.display = 'none';
+                    scrollToChartByKey(firstSuggestion.key);
+                }
+            } else if (e.key === 'Escape') {
+                suggestionsDiv.style.display = 'none';
+                currentSuggestionIndex = -1;
+            }
+        });
+
+        function updateSuggestionHighlight(suggestionElements) {
+            suggestionElements.forEach((el, idx) => {
+                if (idx === currentSuggestionIndex) {
+                    el.style.backgroundColor = '#e3f2fd';
+                    el.scrollIntoView({block: 'nearest'});
+                } else {
+                    el.style.backgroundColor = 'white';
+                }
+            });
+        }
+
+        // Schließen der Vorschläge bei Klick außerhalb
+        document.addEventListener('click', function (e) {
+            if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                suggestionsDiv.style.display = 'none';
+                currentSuggestionIndex = -1;
+            }
+        });
+
+        // Verhindern, dass das Formular bei Enter abgeschickt wird
+        searchInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+    }
+
+    // Bestehende scrollToChartByName Funktion aktualisieren
+    function scrollToChartByName() {
+        const query = document.getElementById("searchInput").value.trim();
+        if (!query) {
+            alert("Bitte einen Suchbegriff eingeben.");
+            return;
+        }
+
+        let foundKey = null;
+        let exactMatch = null;
+
+        // Zuerst nach exakter Übereinstimmung suchen
+        for (const [key, displayName] of Object.entries(translationMap)) {
+            if (displayName.toLowerCase() === query.toLowerCase()) {
+                exactMatch = key;
+                break;
+            }
+        }
+
+        // Dann nach Teilübereinstimmung
+        if (!exactMatch) {
+            for (const [key, displayName] of Object.entries(translationMap)) {
+                if (displayName.toLowerCase().includes(query.toLowerCase())) {
+                    foundKey = key;
+                    break;
+                }
+            }
+        } else {
+            foundKey = exactMatch;
+        }
+
+        if (foundKey) {
+            const target = document.getElementById("chart-" + foundKey);
+            if (target) {
+                target.scrollIntoView({behavior: "smooth", block: "start"});
+
+                // Hervorhebung
+                target.style.transition = 'background-color 0.5s';
+                target.style.backgroundColor = '#fff3cd';
+                setTimeout(() => {
+                    target.style.backgroundColor = '';
+                }, 2000);
+            }
+        } else {
+            alert("Keine Kennzahl mit diesem Anzeigenamen gefunden!");
+        }
+    }
+
+    // Autocomplete initialisieren wenn DOM geladen ist
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initChartAutocomplete);
+    } else {
+        initChartAutocomplete();
     }
 </script>
 <div class="container">
@@ -955,9 +1162,9 @@
                 </div>
             {% endfor %}
         </div>
-     <div class="ai-summary">
-        {{ evaluation }}
-    </div>
+        <div class="ai-summary">
+            {{ evaluation }}
+        </div>
     </div>
 </div>
 </body>
