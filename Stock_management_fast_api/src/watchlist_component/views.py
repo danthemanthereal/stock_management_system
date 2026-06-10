@@ -4,7 +4,6 @@ from fastapi import APIRouter, Request, Depends, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
-from sqlalchemy.orm import Session
 from src.database.db import get_db
 from src.authenticator_component.authenticator import get_current_user_id
 from src.watchlist_component.schemas import WatchlistRequest
@@ -26,12 +25,8 @@ watchlist_router = APIRouter(prefix="/watchlist", tags=["watchlist"])
 async def watch_list(request: Request, db: AsyncSession = Depends(get_db), current_user_id: UUID = Depends(get_current_user_id)):
 
     watchlist_service = WatchlistStockService(db)
-    watch_list_stocks = await watchlist_service.get_watchlist_stocks_of_current_user(current_user_id)
-    return templates.TemplateResponse(request=request,
-                                      name="watchlist/watchlist.html",
-                                      context={"request": request,
-                                               "watch_list_stocks": watch_list_stocks
-                                               })
+
+    return await watchlist_service.get_watch_list_page()
 
 @watchlist_router.post("/add-to-watchlist-from-url-analysis")
 async def add_to_watchlist_and_evaluation(

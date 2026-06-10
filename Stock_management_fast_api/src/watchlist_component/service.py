@@ -1,15 +1,28 @@
 from uuid import UUID
-
+from fastapi import Request
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.models import StockSummary
 from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.configs.used_model import LLM_WIKI_MODEL
+from fastapi.templating import Jinja2Templates
 
+templates = Jinja2Templates(directory="templates")
 
 class WatchlistStockService:
     def __init__(self, db: AsyncSession):
         self.db = db
+
+    async def get_watch_list_page(self,
+                                  request: Request,
+                                  current_user_id: UUID,):
+        watch_list_stocks = await self.get_watchlist_stocks_of_current_user(current_user_id)
+        return templates.TemplateResponse(request=request,
+                                          name="watchlist/watchlist.html",
+                                          context={"request": request,
+                                                   "watch_list_stocks": watch_list_stocks
+                                                   })
+
 
     async def get_watchlist_stocks_of_current_user(self, current_user_id: UUID):
         stmt = select(StockSummary).where(
