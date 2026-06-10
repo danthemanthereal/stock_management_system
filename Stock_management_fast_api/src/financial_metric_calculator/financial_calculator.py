@@ -137,7 +137,7 @@ class FinancialMetricCalculator:
             "capital_turnover": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Revenue", []),
                                                                  self.total_financial_metric_map.get("Total Assets", [])),
-            "cash_per_share": self.get_cash_per_share_last_four_years,
+            "cash_per_share": partial(self.get_financial_metric_direct_by_map, "cash_per_share"),
             "ebitda_per_share": self.get_ebitda_per_share_last_four_years,
             "enterprise_value_to_ebit": self.get_enterprise_value_to_ebit_last_four_years,
             "enterprise_value_to_ebitda": self.get_enterprise_value_to_ebitda_last_four_years,
@@ -315,8 +315,7 @@ class FinancialMetricCalculator:
 
 
 
-    def get_cash_per_share_last_four_years(self):
-        return self.total_financial_metric_map.get("cash_per_share", [])
+
 
     def get_ebitda_per_share_last_four_years(self):
         return self.total_financial_metric_map.get("ebitda_per_share", [])
