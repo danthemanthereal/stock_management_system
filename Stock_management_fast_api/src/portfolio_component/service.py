@@ -1,6 +1,9 @@
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.bought_stock_component.service import BoughtStockService
+from src.configs.used_model import LLM_WIKI_MODEL
+from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
+from src.portfolio_component.schema import ChatRequest
 from src.ticker_stock_component.ticker_stock import TickerStock
 from src.utils.utils import render_localized
 from fastapi import Request
@@ -78,6 +81,20 @@ class PortfolioService:
                                    update_triplets: str):
         bought_stock_service = BoughtStockService(db=self.db)
         await bought_stock_service.update_bought_stocks_of_current_user(current_user_id, delete_ids, update_triplets)
+
+    async def get_chat_answer(self,
+                              request: ChatRequest):
+        bought_stock_service = BoughtStockService(db=self.db)
+
+        llm_wiki = LLMWiki(db=self.db,
+                           groq_model_name=LLM_WIKI_MODEL)
+
+        current_stock_wiki_page = await bought_stock_service.get_current_wiki_page_by_id(int(request.stock_id))
+
+        return llm_wiki.query_on_wiki_page(
+            question=request.message,
+            current_wiki_page=current_stock_wiki_page
+        )
 
 
 

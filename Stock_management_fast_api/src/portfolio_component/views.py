@@ -103,16 +103,9 @@ async def update_multiple_portfolio_entries(
 async def chat_endpoint(request: ChatRequest,
                         db: AsyncSession = Depends(get_db),):
 
-    bought_stock_service = BoughtStockService(db=db)
 
-    llm_wiki = LLMWiki(db=db,
-                       groq_model_name=LLM_WIKI_MODEL)
+    portfolio_service = PortfolioService(db)
 
-    current_stock_wiki_page = await bought_stock_service.get_current_wiki_page_by_id(int(request.stock_id))
-
-    answer = llm_wiki.query_on_wiki_page(
-        question=request.message,
-        current_wiki_page=current_stock_wiki_page
-    )
+    answer = await portfolio_service.get_chat_answer(request)
 
     return {"response": answer}
