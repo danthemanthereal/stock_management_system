@@ -13,7 +13,6 @@ from src.portfolio_component.service import PortfolioService
 from src.utils.utils import render_localized
 from src.bought_stock_component.service import BoughtStockService
 
-from src.ticker_stock_component.ticker_stock import TickerStock
 
 templates = Jinja2Templates(directory="templates")
 
@@ -59,26 +58,8 @@ async def create_bought_stock_of_current_user(
 
         portfolio_service = PortfolioService(db)
 
-        ticker = portfolio_service.get_ticker_of_stock(name)
-
-        await portfolio_service.add_to_user_stock(
-            name=name,
-            ticker=ticker,
-            bought_price=bought_price,
-            amount=amount,
-            current_user_id=current_user_id,
-        )
-
-
-
-        bought_stocks = await bought_stock_service.get_bought_stocks_of_current_user(current_user_id=str(current_user_id))
-        return render_localized(
-            template_name="portfolio/portfolio.html",
-            request=request,
-            context={
-                "request": request,
-                "bought_stocks": bought_stocks,
-            }
+        return await portfolio_service.get_portfolio_main_page(
+            name, bought_price, amount, current_user_id, request
         )
 
     except Exception as e:
