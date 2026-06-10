@@ -158,3 +158,12 @@ class AnalysisService:
             should_rise=should_rise,
             is_active=is_active,
         )
+
+    async def delete_metrics_of_current_template(self,
+                                                 selected_template_id: int,
+                                                 metric_ids: str):
+        ids_to_delete = [int(id_str.strip()) for id_str in metric_ids.split(",") if id_str.strip()]
+
+        template_metric_service = TemplateMetricService(self.db)
+
+        await template_metric_service.delete_metrics_of_current_template(selected_template_id, ids_to_delete)

@@ -234,7 +234,6 @@ async def update_metric_of_current_template(
 ):
     try:
 
-
         analysis_service = AnalysisService(db)
 
         await analysis_service.get_update_template_metric_configuration(
@@ -262,27 +261,18 @@ async def delete_selected_metrics_for_this_template(
         current_user_id: UUID = Depends(get_current_user_id)
 ):
     try:
-        ids_to_delete = [int(id_str.strip()) for id_str in metric_ids.split(",") if id_str.strip()]
-        template_metric_service = TemplateMetricService(db)
-        await template_metric_service.delete_metrics_of_current_template(selected_branch_id, ids_to_delete)
-        financial_metric_service = MetricsService(db)
-        template_service = TemplateService(db)
-        last_selected_branch_profile_id = await template_service.get_last_selected_template_id_of_user(current_user_id)
-        available_metrics = financial_metric_service.get_available_metrics()
-        current_user_created_templates = template_service.get_current_user_created_templates(current_user_id)
-        financial_metrics_of_last_selected_template_per_category = template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
-            last_selected_branch_profile_id)
 
-        return render_localized(
-            template_name="analysis/show_saved_financial_metrics.html",
+        analysis_service = AnalysisService(db)
+
+        await analysis_service.delete_metrics_of_current_template(
+            selected_template_id=selected_branch_id,
+            metric_ids=metric_ids,
+        )
+
+        return analysis_service.get_current_start_page(
             request=request,
-            context={
-                "available_metrics": available_metrics,
-                "last_selected_branch_profile_id": last_selected_branch_profile_id,
-                "branch_profiles": current_user_created_templates,
-                "financial_metrics_of_last_selected_template_per_category": financial_metrics_of_last_selected_template_per_category,
-
-            })
+            current_user_id=current_user_id
+        )
 
     except Exception as e:
         print(f"Error: {e}")
