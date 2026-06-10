@@ -48,7 +48,7 @@ async def add_stock_from_watchlist(
         )
 
         await bought_stock_service.deactivate_current_stock_on_watchlist(current_user_id, ticker)
-        watch_list_stocks = []
+        watch_list_stocks = await bought_stock_service.get_watchlist_stocks(current_user_id)
 
         return templates.TemplateResponse(
             request=request,
