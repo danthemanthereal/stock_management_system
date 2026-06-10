@@ -33,8 +33,8 @@ class FinancialMetricCalculator:
             "inventory_to_revenue": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Inventory", []),
                                                                  self.total_financial_metric_map.get("Revenue", [])),
-            "inventory_turnover": self.get_inventory_turnover_last_four_years,
-            "quick_ratio": self.get_quick_ratio_last_four_years,
+            "inventory_turnover": partial(self.get_financial_metric_direct_by_map, "inventory_turnover"),
+            "quick_ratio": partial(self.get_financial_metric_direct_by_map, "quick_ratio"),
             "receivables_turnover": self.get_receivables_turnover_last_four_years,
             "asset_turnover": self.get_asset_turnover_last_four_years, # asset turnover
             "payables_turnover": self.get_accounts_payable_turnover_last_four_years,
@@ -191,12 +191,6 @@ class FinancialMetricCalculator:
 
     def get_financial_metric_direct_by_map(self, financial_metric_name: str):
         return self.total_financial_metric_map.get(financial_metric_name, [])
-
-    def get_inventory_turnover_last_four_years(self):
-        return self.total_financial_metric_map.get("inventory_turnover", [])
-
-    def get_quick_ratio_last_four_years(self):
-        return self.total_financial_metric_map.get("quick_ratio", [])
 
     def get_receivables_turnover_last_four_years(self):
         return self.total_financial_metric_map.get("receivables_turnover", [])
