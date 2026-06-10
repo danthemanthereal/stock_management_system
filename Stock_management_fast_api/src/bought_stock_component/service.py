@@ -201,3 +201,7 @@ class BoughtStockService:
         if await self.get_bought_stock_by_id(bought_stock_id) is not None:
             return await self.get_bought_stock_by_id(bought_stock_id).wiki_page
         return ""
+
+    def get_ticker_of_a_stock(self, stock_name: str):
+        ticker_component = TickerStock()
+        return ticker_component.get_ticker_of_a_stock(stock_name)

@@ -62,10 +62,12 @@ async def add_stock_from_watchlist(
 
 
 @bought_stock_router.post("/analyse-financial-metrics-watchlist-stock", response_class=HTMLResponse)
-async def analyse_finmetrics_stock_on_watchlist(name: str = Form(...)):
+async def analyse_finmetrics_stock_on_watchlist(name: str = Form(...),
+                                                db: AsyncSession = Depends(get_db),):
 
-    ticker_component = TickerStock()
-    ticker_of_stock = ticker_component.get_ticker_of_a_stock(name)
+    bought_stock_service = BoughtStockService(db=db)
+
+    ticker_of_stock = bought_stock_service.get_ticker_of_a_stock(name)
     return RedirectResponse(
         url=f"/analysis/get-financial-metrics?company={ticker_of_stock}",
         status_code=303
