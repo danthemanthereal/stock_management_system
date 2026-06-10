@@ -302,120 +302,15 @@ async def get_evaluation_of_financial_metrics_of_current_user_last_selected_temp
                                                   db: AsyncSession = Depends(get_db),
                                                   current_user_id: UUID = Depends(get_current_user_id)):
     try:
-        financial_metric_service = MetricsService(db)
-        (data_by_category,
-         satisfied_metrics_by_category,
-         unsatisfied_metrics_by_category,
-         satisfied_benchmarks_by_category,
-         unsatisfied_benchmarks_by_category,
-         satisfied_development_by_category,
-         unsatisfied_development_by_category,
-         summary_combined,
-         summary_benchmark,
-         summary_development) = await financial_metric_service.get_evaluation_of_over_all_reference_value_development(
-            company_name=company, current_user_id=current_user_id
-        )
-        years = ["2022", "2023", "2024", "2025"]
 
-        ai_financial_metric_evaluator = FinancialMetricAIEvaluator(
-            model_name=FINANCIAL_METRIC_EVALUATION_MODEL
-        )
-        ai_evaluation = ""
-        """ai_evaluation = ai_financial_metric_evaluator.evaluate_financial_metrics(
-            satisfied_by_category= satisfied_metrics_by_category,
-        unsatisfied_by_category = unsatisfied_metrics_by_category,
-        satisfied_only_reference_value = satisfied_benchmarks_by_category,
-        unsatisfied_only_reference_value= unsatisfied_benchmarks_by_category,
-        satisfied_only_development= satisfied_development_by_category,
-        unsatisfied_only_development= unsatisfied_development_by_category,
-        )"""
+        analysis_service = AnalysisService(db)
 
-        llm_wiki = LLMWiki(
-            db=db,
-            groq_model_name=LLM_WIKI_MODEL
-        )
-
-        watchlist_stock_service = WatchlistStockService(db)
-
-        bought_stock_service = BoughtStockService(db)
-
-        if await bought_stock_service.user_already_bought_stock(current_user_id=current_user_id,
-                                                                ticker=company):
-            current_bought_stock = await  bought_stock_service.get_of_current_user_stock_by_name(
-                current_user_id=current_user_id,
-                ticker=company
-            )
-            bought_stock_id = current_bought_stock.id
-            (
-                new_combined_strengths,
-                new_combined_weakness,
-                new_combined_wiki
-            ) = await llm_wiki.ingest(
-                watch_list_stock_id=None,
-                bought_stock_id=bought_stock_id,
-                company_name="",
-                ticker=company,
-                new_strengths="",
-                new_weaknesses="",
-                new_content=ai_evaluation
-            )
-            await bought_stock_service.update_strength_weakness_wiki_page_of_stock(
-                bought_stock_obj=current_bought_stock,
-                new_strength=new_combined_strengths,
-                new_weakness=new_combined_weakness,
-                new_wiki_page=new_combined_wiki
-            )
-        elif await watchlist_stock_service.check_if_user_has_stock_already_in_watchlist(current_user_id=current_user_id,
-                                                                                        ticker=company):
-            current_watch_list_stock = await watchlist_stock_service.get_current_stock_of_user(
-                current_user_id=current_user_id,
-                ticker_of_stock=company,
-            )
-
-            current_watch_list_stock_id = current_watch_list_stock.id
-
-            (
-                new_combined_strengths,
-                new_combined_weakness,
-                new_combined_wiki
-            ) = await llm_wiki.ingest(
-                watch_list_stock_id=current_watch_list_stock_id,
-                bought_stock_id=None,
-                company_name="",
-                ticker=company,
-                new_strengths="",
-                new_weaknesses="",
-                new_content=ai_evaluation
-            )
-
-            await watchlist_stock_service.update_strength_weakness_wiki_page_of_watchlist_stock(
-                watchlist_stock_obj=current_watch_list_stock,
-                new_strength=new_combined_strengths,
-                new_weakness=new_combined_weakness,
-                new_wiki_page=new_combined_wiki
-            )
-
-        return render_localized(
+        return analysis_service.get_eval_metric_page(
+            company=company,
+            current_user_id=current_user_id,
             request=request,
-            template_name="analysis/show_financial_metrics.html",
-            context=
-            {
-                "request": request,
-                "data_by_category": data_by_category,
-                "years": years,
-                "satisfied_metrics_by_category": satisfied_metrics_by_category,
-                "unsatisfied_metrics_by_category": unsatisfied_metrics_by_category,
-                "satisfied_benchmarks_by_category": satisfied_benchmarks_by_category,
-                "unsatisfied_benchmarks_by_category": unsatisfied_benchmarks_by_category,
-                "satisfied_development_by_category": satisfied_development_by_category,
-                "unsatisfied_development_by_category": unsatisfied_development_by_category,
-                "summary_wide_by_category": merge_financial_summary_triples(
-                    summary_combined,
-                    summary_benchmark,
-                    summary_development,
-                ),
-                "evaluation": ai_evaluation,
-            })
+        )
+
     except Exception as e:
         print(e)
         traceback.print_exc()
