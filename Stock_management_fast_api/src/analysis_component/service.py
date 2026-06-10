@@ -1,10 +1,12 @@
 import json
+from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.configs.used_model import STRENGTH_WEAKNESS_MODEL
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.strength_weakness_company_component.strenth_weakness_comapany import StrengthWeaknessOfCompanyComponent
+from src.template_component.service import TemplateService
 
 
 class AnalysisService:
@@ -43,3 +45,8 @@ class AnalysisService:
         financial_metric_service = MetricsService(self.db)
 
         return await financial_metric_service.get_available_metrics()
+
+    async def get_last_selected_template_id_of_current_user(self,
+                                                            current_user_id: UUID):
+        template_service = TemplateService(self.db)
+        return await template_service.get_last_selected_template_id_of_user(current_user_id)

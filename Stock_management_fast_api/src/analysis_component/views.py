@@ -101,7 +101,7 @@ async def show_saved_financial_metrics_page(
 
         template_service = TemplateService(db)
         template_metric_service = TemplateMetricService(db)
-        last_selected_branch_profile_id = await template_service.get_last_selected_template_id_of_user(current_user_id)
+        last_selected_branch_profile_id = await analysis_service.get_last_selected_template_id_of_current_user(current_user_id)
         available_metrics = await analysis_service.get_available_metrics()
         current_user_created_templates = await template_service.get_current_user_created_templates(current_user_id)
         financial_metrics_of_last_selected_template_per_category = await template_metric_service.get_all_financial_metrics_of_last_selected_template_per_category(
