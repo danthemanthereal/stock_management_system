@@ -1,13 +1,16 @@
 import json
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.configs.used_model import STRENGTH_WEAKNESS_MODEL
+from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.strength_weakness_company_component.strenth_weakness_comapany import StrengthWeaknessOfCompanyComponent
 
 
 class AnalysisService:
 
-    def __init__(self,):
-        pass
+    def __init__(self, db:AsyncSession):
+        self.db = db
 
     async def analyse_url(self, url: str):
         strength_weakness_company_component = StrengthWeaknessOfCompanyComponent(
@@ -35,3 +38,6 @@ class AnalysisService:
             except json.JSONDecodeError:
                 return []
         return companies_array
+
+    async def get_available_metrics(self,):
+        financial_metric_service = MetricsService(self.db)

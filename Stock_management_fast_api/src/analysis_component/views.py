@@ -39,10 +39,12 @@ def analysis(request: Request):
         context={"request": request})
 
 @analysis_router.post("/get-summary-url", response_class=HTMLResponse)
-async def analyze_url(request: Request, url: str = Form(...)):
+async def analyze_url(request: Request,
+                      url: str = Form(...),
+                      db: AsyncSession = Depends(get_db)):
     try:
 
-        analysis_service = AnalysisService()
+        analysis_service = AnalysisService(db)
         companies_array = await analysis_service.analyse_url(url)
 
         return templates.TemplateResponse(
@@ -61,10 +63,12 @@ async def analyze_url(request: Request, url: str = Form(...)):
         )
 
 @analysis_router.post("/get-summary-by-yt-video", response_class=HTMLResponse)
-async def get_yt_transcript(request: Request, url: str = Form(...)):
+async def get_yt_transcript(request: Request,
+                            url: str = Form(...),
+                            db: AsyncSession = Depends(get_db)):
     try:
 
-        analysis_service = AnalysisService()
+        analysis_service = AnalysisService(db)
         companies_array = await analysis_service.analyse_yt_video(url)
 
         return templates.TemplateResponse(
