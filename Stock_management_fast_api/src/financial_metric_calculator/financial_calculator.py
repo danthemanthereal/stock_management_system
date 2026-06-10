@@ -100,8 +100,10 @@ class FinancialMetricCalculator:
             "rank_predictability": partial(self.get_financial_metric_direct_by_map, "rank_predictability"),
             "rank_profitability": partial(self.get_financial_metric_direct_by_map, "rank_profitability"),
             "zscore": partial(self.get_financial_metric_direct_by_map, "zscore"),
-            "dividend_paid_and_capex_coverage_ratio": self.get_dividend_paid_and_capex_coverage_ratio_last_four_years,
-            "ebitda_margin": self.get_ebitda_margin_last_four_years,
+            "dividend_paid_and_capex_coverage_ratio": partial(self.get_financial_metric_direct_by_map, "dividend_paid_and_capex_coverage_ratio"),
+            "ebitda_margin": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("EBITDA", []),
+                                                                 self.total_financial_metric_map.get("Revenue", [])),
             "ebit_margin": self.get_ebit_margin_last_four_years,
             "fcf_margin": self.get_fcf_margin_last_four_years,
             "fcf_yield": self.get_fcf_yield_last_four_years,
@@ -287,9 +289,6 @@ class FinancialMetricCalculator:
 
         return cash_burn_rate_last_four_years
 
-
-    def get_dividend_paid_and_capex_coverage_ratio_last_four_years(self):
-        return self.total_financial_metric_map.get("dividend_paid_and_capex_coverage_ratio", [])
 
     def get_ebitda_margin_last_four_years(self):
         ebitda_last_four_years = self.total_financial_metric_map.get("EBITDA", [])
