@@ -25,7 +25,7 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("Revenue", [])),
             "cash_conversion_cycle": partial(self.get_financial_metric_direct_by_map, "cash_conversion_cycle"),
             "cash_ratio": partial(self.get_financial_metric_direct_by_map, "cash_ratio"),
-            "current_ratio":self.get_current_ratio_last_four_years,
+            "current_ratio":partial(self.get_financial_metric_direct_by_map, "current_ratio"),
             "days_inventory": self.get_days_inventory_last_four_years,
             "days_payable": self.get_days_payable_last_four_years,
             "days_sales_outstanding": self.get_days_sales_outstanding_last_four_years,
@@ -190,8 +190,7 @@ class FinancialMetricCalculator:
     def get_financial_metric_direct_by_map(self, financial_metric_name: str):
         return self.total_financial_metric_map.get(financial_metric_name, [])
 
-    def get_current_ratio_last_four_years(self):
-        return self.total_financial_metric_map.get("current_ratio", [])
+
 
     def get_days_inventory_last_four_years(self):
         return self.total_financial_metric_map.get("days_inventory", [])
