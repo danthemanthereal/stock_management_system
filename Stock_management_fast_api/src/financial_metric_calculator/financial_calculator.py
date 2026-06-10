@@ -170,7 +170,7 @@ class FinancialMetricCalculator:
             "financial_leverage_ratio": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Total Liabilities", []),
                                                                  self.total_financial_metric_map.get("Total Equity", [])),
-            "wacc": self.get_wacc_last_four_years,
+            "wacc": partial(self.get_financial_metric_direct_by_map, "wacc"),
             "income_before_tax_profit_margin": self.get_income_before_tax_profit_margin_last_four_years,
             "effective_tax_rate": self.get_effective_tax_rate_last_four_years,
             "income_quality_ratio": self.get_income_quality_ratio_last_four_years,
@@ -317,8 +317,7 @@ class FinancialMetricCalculator:
             revenue_per_employee_last_four_years.append(round(float(revenue) / float(employee_amount), 2))
         return revenue_per_employee_last_four_years
 
-    def get_wacc_last_four_years(self):
-        return self.total_financial_metric_map.get("wacc", [])
+    
 
     def get_income_before_tax_profit_margin_last_four_years(self):
         return self.total_financial_metric_map.get("income_before_tax_profit_margin", [])
