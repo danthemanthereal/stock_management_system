@@ -547,11 +547,6 @@ async def get_evaluation_of_financial_metrics_of_current_user_last_selected_temp
             context={"request": request}
         )
 
-
-
-
-
-
 @analysis_router.get("/get-news")
 def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...)):
 
