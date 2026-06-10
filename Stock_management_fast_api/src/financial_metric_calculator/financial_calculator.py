@@ -42,7 +42,9 @@ class FinancialMetricCalculator:
             "capex_to_operating_cash_flow": partial(self.get_financial_metric_by_calculate_to_raw_date,
                                                                  self.total_financial_metric_map.get("Capital Expenditure", []),
                                                                  self.total_financial_metric_map.get("Operating Cash Flow", [])),
-            "capex_to_operating_income": self.get_capex_to_operating_income_last_four_years,
+            "capex_to_operating_income": partial(self.get_financial_metric_by_calculate_to_raw_date,
+                                                                 self.total_financial_metric_map.get("Capital Expenditure", []),
+                                                                 self.total_financial_metric_map.get("Operating Income", [])),
             "capex_to_revenue": self.get_capex_to_revenue_last_four_years,
             "debt_to_asset":self.get_debt_to_asset_last_four_years_last_four_years,
             "debt_to_equity":self.get_debt_to_equity_last_four_years_last_four_years,
@@ -202,17 +204,7 @@ class FinancialMetricCalculator:
 
 
 
-    def get_capex_to_operating_income_last_four_years(self):
 
-        capex_last_four_years = self.total_financial_metric_map.get("Capital Expenditure", [])
-        operating_income_last_four_years = self.total_financial_metric_map.get("Operating Income", [])
-
-        capex_to_operating_income_last_four_years = []
-
-        for capex, revenue in zip(capex_last_four_years, operating_income_last_four_years):
-            capex_to_operating_income_last_four_years.append(round(float(capex) / float(revenue), 2))
-
-        return capex_to_operating_income_last_four_years
 
     def get_capex_to_revenue_last_four_years(self):
         capex_last_four_years = self.total_financial_metric_map.get("Capital Expenditure", [])
