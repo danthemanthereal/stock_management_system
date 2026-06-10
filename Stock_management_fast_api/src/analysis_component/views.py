@@ -101,7 +101,7 @@ def get_yt_transcript(request: Request, url: str = Form(...)):
             name="error.html",
             context={"request": request},
         )
-    
+
 @analysis_router.api_route("/show-saved-financial-metrics", methods=["GET", "POST"], response_class=HTMLResponse)
 async def show_saved_financial_metrics_page(
         request: Request,
@@ -132,7 +132,6 @@ async def show_saved_financial_metrics_page(
         print(f"Error: {e}")
         traceback.print_exc()
         return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
-
 
 @analysis_router.post("/add-metric-to-current-template", response_class=HTMLResponse)
 async def add_to_current_selected_template_new_financial_metric(
@@ -177,7 +176,6 @@ async def add_to_current_selected_template_new_financial_metric(
         traceback.print_exc()
         return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
 
-
 @analysis_router.post("/create-new-template-with-current-properties", response_class=HTMLResponse)
 async def create_new_template_of_current_financial_metrics_properties(
         request: Request,
@@ -216,7 +214,6 @@ async def create_new_template_of_current_financial_metrics_properties(
         traceback.print_exc()
         return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
 
-
 @analysis_router.post("/change-selected-template")
 async def change_selected_template(
         request: Request,
@@ -250,7 +247,6 @@ async def change_selected_template(
         print(f"Error: {e}")
         traceback.print_exc()
         return templates.TemplateResponse(request=request, name="error.html", context={"request": request})
-
 
 @analysis_router.get("/edit-metric-of-current-template/{last_selected_branch_profile_id}/{metric_id}")
 async def show_edit_financial_metric_of_current_template(
