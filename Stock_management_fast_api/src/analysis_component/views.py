@@ -267,7 +267,6 @@ async def show_edit_financial_metric_of_current_template(
     config = await financial_metric_template_service.get_config_by_metric_and_template_id(metric_id,
                                                                                     last_selected_branch_profile_id)
 
-
     return render_localized(
         template_name="analysis/edit_metric.html",
         request=request,
@@ -376,7 +375,6 @@ def find_potential_stocks_page(request: Request):
             name="error.html",
             context={"request": request}
         )
-
 
 @analysis_router.post("/find-candidates")
 def find_potential_stocks(filters: dict):
