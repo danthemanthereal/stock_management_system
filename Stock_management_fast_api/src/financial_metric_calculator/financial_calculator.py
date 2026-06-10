@@ -58,7 +58,7 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("Total Liabilities", []),
                                                                  self.total_financial_metric_map.get("Total Assets", [])),
             "sloan_ratio": partial(self.get_financial_metric_direct_by_map, "sloan_ratio"),
-            "net_debt_to_ebitda": self.get_netDebtToEBITDA_last_four_years,
+            "net_debt_to_ebitda": partial(self.get_financial_metric_direct_by_map, "net_debt_to_ebitda"),
             "debt_to_capital_ratio": self.get_debt_to_capital_ratio_last_four_years,
             "long_term_debt_to_capital_ratio": self.get_long_term_debt_to_capital_ratio_last_four_years,
             "debt_service_coverage_ratio": self.get_debt_service_coverage_ratio_last_four_years,
@@ -206,8 +206,6 @@ class FinancialMetricCalculator:
 
 
 
-    def get_netDebtToEBITDA_last_four_years(self):
-        return self.total_financial_metric_map.get("net_debt_to_ebitda", [])
 
     def get_debt_to_capital_ratio_last_four_years(self):
         debt_last_four_years = self.total_financial_metric_map.get("Total Debt", [])
