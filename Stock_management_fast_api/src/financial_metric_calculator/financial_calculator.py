@@ -171,7 +171,7 @@ class FinancialMetricCalculator:
                                                                  self.total_financial_metric_map.get("Total Liabilities", []),
                                                                  self.total_financial_metric_map.get("Total Equity", [])),
             "wacc": partial(self.get_financial_metric_direct_by_map, "wacc"),
-            "income_before_tax_profit_margin": self.get_income_before_tax_profit_margin_last_four_years,
+            "income_before_tax_profit_margin": partial(self.get_financial_metric_direct_by_map, "income_before_tax_profit_margin"),
             "effective_tax_rate": self.get_effective_tax_rate_last_four_years,
             "income_quality_ratio": self.get_income_quality_ratio_last_four_years,
             "operating_cycle":self.get_operating_cycle_last_four_years,
@@ -316,11 +316,6 @@ class FinancialMetricCalculator:
         for revenue, employee_amount in zip(revenue_last_four_years, employee_amount_last_four_years):
             revenue_per_employee_last_four_years.append(round(float(revenue) / float(employee_amount), 2))
         return revenue_per_employee_last_four_years
-
-    
-
-    def get_income_before_tax_profit_margin_last_four_years(self):
-        return self.total_financial_metric_map.get("income_before_tax_profit_margin", [])
 
     def get_effective_tax_rate_last_four_years(self):
         return self.total_financial_metric_map.get("effective_tax_rate", [])
