@@ -1,10 +1,13 @@
+from uuid import UUID
 from groq import Groq
 from sqlalchemy.ext.asyncio import AsyncSession
 import os
 from dotenv import load_dotenv
+from src.bought_stock_component.service import BoughtStockService
 from src.kaparthies_llm_wiki_component.prompt import user_prompt_for_ingest, \
     user_prompt_focus_only_strengths, system_prompts_for_focus_only_strengths, system_prompt_for_focus_only_weaknesses, \
     user_prompt_focus_only_weaknesses, get_system_prompt_for_ingest
+from src.watchlist_component.service import WatchlistStockService
 
 load_dotenv()
 
@@ -176,3 +179,70 @@ class LLMWiki:
         {context}
 
         Answer the question based on the wiki content above."""
+
+    async def update_page_strength_weakness_if_company_on_watchlist_or_in_bought(self,
+                                                                           company_ticker: str,
+                                                                           current_user_id: UUID,
+                                                                           new_strengths: str,
+                                                                           new_weaknesses: str,
+                                                                           new_content: str      ):
+
+        watchlist_stock_service = WatchlistStockService(self.db)
+
+        bought_stock_service = BoughtStockService(self.db)
+
+        if await bought_stock_service.user_already_bought_stock(current_user_id=current_user_id,
+                                                                ticker=company_ticker):
+            current_bought_stock = await  bought_stock_service.get_of_current_user_stock_by_name(
+                current_user_id=current_user_id,
+                ticker=company_ticker
+            )
+            bought_stock_id = current_bought_stock.id
+            (
+                new_combined_strengths,
+                new_combined_weakness,
+                new_combined_wiki
+            ) = await self.ingest(
+                watch_list_stock_id=None,
+                bought_stock_id=bought_stock_id,
+                company_name="",
+                ticker=company_ticker,
+                new_strengths=new_strengths,
+                new_weaknesses=new_weaknesses,
+                new_content=new_content
+            )
+            await bought_stock_service.update_strength_weakness_wiki_page_of_stock(
+                bought_stock_obj=current_bought_stock,
+                new_strength=new_combined_strengths,
+                new_weakness=new_combined_weakness,
+                new_wiki_page=new_combined_wiki
+            )
+        elif await watchlist_stock_service.check_if_user_has_stock_already_in_watchlist(current_user_id=current_user_id,
+                                                                                        ticker=company_ticker):
+            current_watch_list_stock = await watchlist_stock_service.get_current_stock_of_user(
+                current_user_id=current_user_id,
+                ticker_of_stock=company_ticker,
+            )
+
+            current_watch_list_stock_id = current_watch_list_stock.id
+
+            (
+                new_combined_strengths,
+                new_combined_weakness,
+                new_combined_wiki
+            ) = await self.ingest(
+                watch_list_stock_id=current_watch_list_stock_id,
+                bought_stock_id=None,
+                company_name="",
+                ticker=company_ticker,
+                new_strengths=new_strengths,
+                new_weaknesses=new_weaknesses,
+                new_content=new_content
+            )
+
+            await watchlist_stock_service.update_strength_weakness_wiki_page_of_watchlist_stock(
+                watchlist_stock_obj=current_watch_list_stock,
+                new_strength=new_combined_strengths,
+                new_weakness=new_combined_weakness,
+                new_wiki_page=new_combined_wiki
+            )

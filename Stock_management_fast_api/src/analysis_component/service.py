@@ -2,13 +2,14 @@ import json
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import  Request
-from src.configs.used_model import STRENGTH_WEAKNESS_MODEL, FINANCIAL_METRIC_EVALUATION_MODEL
+from src.configs.used_model import STRENGTH_WEAKNESS_MODEL, FINANCIAL_METRIC_EVALUATION_MODEL, LLM_WIKI_MODEL
 from src.financial_metric_analysis_component.evaluation_ai_financial_metrics import FinancialMetricAIEvaluator
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.financial_metric_analysis_component.utils import merge_financial_summary_triples
 from src.financial_metric_category_component.service import FinancialMetricCategoryService
 from src.find_potential_stocks_component.find_potential_stocks import FindPotentialStocks
 from src.get_news_component.get_news import NewsFinderComponent
+from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.strength_weakness_company_component.strenth_weakness_comapany import StrengthWeaknessOfCompanyComponent
 from src.template_component.service import TemplateService
 from src.template_metric_component.service import TemplateMetricService
@@ -217,70 +218,13 @@ class AnalysisService:
             unsatisfied_development_by_category=unsatisfied_development_by_category,
         )
 
-        llm_wiki = LLMWiki(
-            db=db,
-            groq_model_name=LLM_WIKI_MODEL
+        await self.update_wiki_page_with_ai_evaluation(
+            company_ticker=company,
+            current_user_id=current_user_id,
+            new_strengths="",
+            new_weaknesses="",
+            new_content=ai_evaluation,
         )
-
-        watchlist_stock_service = WatchlistStockService(db)
-
-        bought_stock_service = BoughtStockService(db)
-
-        if await bought_stock_service.user_already_bought_stock(current_user_id=current_user_id,
-                                                                ticker=company):
-            current_bought_stock = await  bought_stock_service.get_of_current_user_stock_by_name(
-                current_user_id=current_user_id,
-                ticker=company
-            )
-            bought_stock_id = current_bought_stock.id
-            (
-                new_combined_strengths,
-                new_combined_weakness,
-                new_combined_wiki
-            ) = await llm_wiki.ingest(
-                watch_list_stock_id=None,
-                bought_stock_id=bought_stock_id,
-                company_name="",
-                ticker=company,
-                new_strengths="",
-                new_weaknesses="",
-                new_content=ai_evaluation
-            )
-            await bought_stock_service.update_strength_weakness_wiki_page_of_stock(
-                bought_stock_obj=current_bought_stock,
-                new_strength=new_combined_strengths,
-                new_weakness=new_combined_weakness,
-                new_wiki_page=new_combined_wiki
-            )
-        elif await watchlist_stock_service.check_if_user_has_stock_already_in_watchlist(current_user_id=current_user_id,
-                                                                                        ticker=company):
-            current_watch_list_stock = await watchlist_stock_service.get_current_stock_of_user(
-                current_user_id=current_user_id,
-                ticker_of_stock=company,
-            )
-
-            current_watch_list_stock_id = current_watch_list_stock.id
-
-            (
-                new_combined_strengths,
-                new_combined_weakness,
-                new_combined_wiki
-            ) = await llm_wiki.ingest(
-                watch_list_stock_id=current_watch_list_stock_id,
-                bought_stock_id=None,
-                company_name="",
-                ticker=company,
-                new_strengths="",
-                new_weaknesses="",
-                new_content=ai_evaluation
-            )
-
-            await watchlist_stock_service.update_strength_weakness_wiki_page_of_watchlist_stock(
-                watchlist_stock_obj=current_watch_list_stock,
-                new_strength=new_combined_strengths,
-                new_weakness=new_combined_weakness,
-                new_wiki_page=new_combined_wiki
-            )
 
         return render_localized(
             request=request,
@@ -323,4 +267,23 @@ class AnalysisService:
             unsatisfied_only_reference_value=unsatisfied_benchmarks_by_category,
             satisfied_only_development=satisfied_development_by_category,
             unsatisfied_only_development=unsatisfied_development_by_category,
+        )
+
+    async def update_wiki_page_with_ai_evaluation(self,
+                                                  company_ticker:str,
+                                                  current_user_id:UUID,
+                                                  new_strengths: str,
+                                                  new_weaknesses: str,
+                                                  new_content:str
+                                                  ):
+
+        llm_wiki = LLMWiki(self.db,
+                           groq_model_name=LLM_WIKI_MODEL)
+
+        await llm_wiki.update_page_strength_weakness_if_company_on_watchlist_or_in_bought(
+            company_ticker=company_ticker,
+            current_user_id=current_user_id,
+            new_strengths=new_strengths,
+            new_weaknesses=new_weaknesses,
+            new_content=new_content,
         )
