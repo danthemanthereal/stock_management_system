@@ -154,6 +154,7 @@
   "asset_cover_ratio_one": "Anlagendeckungsgrad I",
   "asset_cover_ratio_two": "Anlagendeckungsgrad II",
   "good_will_ratio": "Goodwill-Quote",
+  "capex_to_depreciation": "Wachstumsquote",
   "cash_ratio": "Liquiditätsgrad 1",
   "current_ratio": "Liquiditätsgrad 3",
   "days_inventory": "Lagerdauer (in Tagen)",
