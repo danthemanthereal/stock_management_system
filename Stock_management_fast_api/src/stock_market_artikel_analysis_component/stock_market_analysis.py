@@ -61,7 +61,7 @@ Follow these steps:
 3. Finally, assess the **sentiment of the text** – not your own opinion, but the implicit or explicit tendency of the author.
    - Possible ratings: "positive", "negative", or "neutral".
    - Justify the rating with specific words or phrases from the text.
-4. Answer only in german.   
+4. Answer only in german.    
 
 Important: Do not use any external knowledge or current data outside the text. Only what is stated in the text counts.
         """
@@ -79,6 +79,8 @@ Important: Do not use any external knowledge or current data outside the text. O
     {{"answer": "[Your answer of the analysis]"  }}
     
     Also in your analysis answer, make no extra comments or reasoning steps, do direct your analysis. 
+    Also the answer of the analysis should contain only a written text. If necessary, do paragraphs with headlines
+    but not in a json style. 
     """
 
     import json
