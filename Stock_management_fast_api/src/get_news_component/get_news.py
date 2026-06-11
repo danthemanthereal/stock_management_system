@@ -62,7 +62,7 @@ class NewsFinderComponent:
             model_name=STOCK_MARKET_ANALYSIS_MODEL,
         )
 
-        for artikel in stock_news[:10]:
+        for artikel in stock_news[:5]:
                 summary = await stock_market_analysis.get_stock_market_analysis_of_url(artikel['url'])
                 headline_url_news.append({
             "headline": artikel['title'],
