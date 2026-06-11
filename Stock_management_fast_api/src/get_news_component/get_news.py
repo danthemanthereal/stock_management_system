@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from gnews import GNews
 import requests
-
+import asyncio
 from src.configs.used_model import STOCK_MARKET_ANALYSIS_MODEL
 from src.stock_market_artikel_analysis_component.stock_market_analysis import StockMarketAnalysis
 
@@ -51,22 +51,28 @@ class NewsFinderComponent:
 
         return headline_url_news
 
-    async def get_stock_market_news_with_G_news(self,):
-
-        headline_url_news = []
+    async def get_stock_market_news_with_G_news(self):
         google_news = GNews(language='de', country='DE', period='1d')
-
-        stock_news = google_news.get_news(f'Aktienmarkt news')
+        stock_news = google_news.get_news('Aktienmarkt news')
 
         stock_market_analysis = StockMarketAnalysis(
             model_name=STOCK_MARKET_ANALYSIS_MODEL,
         )
 
-        for artikel in stock_news[:5]:
-                summary = await stock_market_analysis.get_stock_market_analysis_of_url(artikel['url'])
-                headline_url_news.append({
-            "headline": artikel['title'],
-            "ai_summary": summary,
-        })
+        articles = stock_news[:10]
+
+        tasks = [
+            stock_market_analysis.get_stock_market_analysis_of_url(artikel['url'])
+            for artikel in articles
+        ]
+
+        summaries = await asyncio.gather(*tasks)
+
+        headline_url_news = []
+        for artikel, summary in zip(articles, summaries):
+            headline_url_news.append({
+                "headline": artikel['title'],
+                "ai_summary": summary,
+            })
 
         return headline_url_news
