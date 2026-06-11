@@ -62,7 +62,7 @@ class AnalysisService:
 
         available_metrics = await self.get_available_metrics()
 
-        current_user_created_templates = self.get_current_user_created_templates(current_user_id)
+        current_user_created_templates = await self.get_current_user_created_templates(current_user_id)
 
         financial_metrics_of_last_selected_template_per_category = await self.get_all_financial_metrics_of_last_selected_template_per_category(
             last_selected_branch_profile_id)
