@@ -147,7 +147,7 @@ async def create_new_template_of_current_financial_metrics_properties(
             metric_data_triplets=metric_data_triplets
         )
 
-        return analysis_service.get_current_start_page(
+        return await analysis_service.get_current_start_page(
             request=request,
             current_user_id=current_user_id)
     except Exception as e:
