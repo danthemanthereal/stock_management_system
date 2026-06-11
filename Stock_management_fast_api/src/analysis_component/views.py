@@ -305,7 +305,7 @@ async def get_evaluation_of_financial_metrics_of_current_user_last_selected_temp
 
         analysis_service = AnalysisService(db)
 
-        return analysis_service.get_eval_metric_page(
+        return await analysis_service.get_eval_metric_page(
             company=company,
             current_user_id=current_user_id,
             request=request,
