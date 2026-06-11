@@ -263,7 +263,7 @@ async def delete_selected_metrics_for_this_template(
             metric_ids=metric_ids,
         )
 
-        return analysis_service.get_current_start_page(
+        return await analysis_service.get_current_start_page(
             request=request,
             current_user_id=current_user_id
         )
