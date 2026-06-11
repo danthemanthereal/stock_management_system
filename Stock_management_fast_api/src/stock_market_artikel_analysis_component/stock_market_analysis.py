@@ -77,6 +77,8 @@ Important: Do not use any external knowledge or current data outside the text. O
     Output only a valid json object in this format: 
     
     {{"answer": "[Your answer of the analysis]"  }}
+    
+    Also in your analysis answer, make no extra comments or reasoning steps, do direct your analysis. 
     """
 
     import json
