@@ -53,11 +53,12 @@ class StockMarketAnalysis:
         You are a financial text analyst. Your task is to analyze a given text about the stock market situation.
 
 Follow these steps:
-1. Summarize the text briefly and objectively (max. 3–4 sentences).
+1. Summarize the text briefly and objectively (max. 5–10 sentences).
 2. Explain the key events or relationships mentioned (e.g., interest rate decisions, corporate earnings, geopolitical risks).
 3. Finally, assess the **sentiment of the text** – not your own opinion, but the implicit or explicit tendency of the author.
    - Possible ratings: "positive", "negative", or "neutral".
    - Justify the rating with specific words or phrases from the text.
+4. Answer only in german.   
 
 Important: Do not use any external knowledge or current data outside the text. Only what is stated in the text counts.
         """
@@ -66,7 +67,11 @@ Important: Do not use any external knowledge or current data outside the text. O
         return f"""
     The following text describes the current situation in the stock markets:
 
-    {{text}}
+    {text}
     
     Please perform the analysis – summary, explanation of key points, and sentiment assessment (positive / negative / neutral) based solely on the text above.
+    
+    Output only a valid json object in this format: 
+    
+    {{"answer": "[Your answer of the analysis]"  }}
     """
