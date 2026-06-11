@@ -255,10 +255,7 @@ async def delete_selected_metrics_for_this_template(
         current_user_id: UUID = Depends(get_current_user_id)
 ):
     try:
-
-        print("del ids ", metric_ids)
-        print("selected_branch_id ", selected_branch_id)
-
+        
         analysis_service = AnalysisService(db)
 
         await analysis_service.delete_metrics_of_current_template(
