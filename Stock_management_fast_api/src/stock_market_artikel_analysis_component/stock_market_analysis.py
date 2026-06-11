@@ -1,3 +1,6 @@
+import json
+import re
+
 from dotenv import load_dotenv
 import os
 
@@ -40,7 +43,7 @@ class StockMarketAnalysis:
                 ])
 
 
-            return response.choices[0].message.content
+            return self.safe_parse_llm_json(response.choices[0].message.content).get('answer', "")
         except Exception as e:
             print(e)
             return ""
@@ -75,3 +78,55 @@ Important: Do not use any external knowledge or current data outside the text. O
     
     {{"answer": "[Your answer of the analysis]"  }}
     """
+
+    import json
+    import re
+    from typing import Dict, Any
+
+    def safe_parse_llm_json(self, content: str) -> Dict[str, Any]:
+
+        if not content:
+            return {"answer": ""}
+
+        cleaned = content.strip()
+
+
+        code_block_pattern = r"```(?:json)?\s*\n?(.*?)\n?```"
+        match = re.search(code_block_pattern, cleaned, re.DOTALL)
+        if match:
+            cleaned = match.group(1).strip()
+
+        first_brace = cleaned.find('{')
+        if first_brace != -1:
+            cleaned = cleaned[first_brace:]
+            last_brace = cleaned.rfind('}')
+            if last_brace != -1:
+                cleaned = cleaned[:last_brace + 1]
+
+        try:
+            parsed = json.loads(cleaned)
+            if isinstance(parsed, dict) and "answer" in parsed:
+                return parsed
+            elif isinstance(parsed, dict):
+
+                return {"answer": json.dumps(parsed)}
+            elif isinstance(parsed, str):
+                return {"answer": parsed}
+            else:
+                return {"answer": str(parsed)}
+        except json.JSONDecodeError:
+            pass
+
+
+        fallback_match = re.search(r'\{.*\}', cleaned, re.DOTALL)
+        if fallback_match:
+            try:
+                parsed = json.loads(fallback_match.group())
+                if isinstance(parsed, dict):
+                    return parsed
+                else:
+                    return {"answer": str(parsed)}
+            except json.JSONDecodeError:
+                pass
+
+        return {"answer": content if content else ""}
