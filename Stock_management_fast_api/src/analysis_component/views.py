@@ -195,7 +195,7 @@ async def show_edit_financial_metric_of_current_template(
 
     metric = await analysis_service.get_metric_by_id(metric_id=metric_id)
 
-    metric_categories = analysis_service.get_all_metric_categories()
+    metric_categories = await analysis_service.get_all_metric_categories()
 
     config = analysis_service.get_get_config_by_metric_and_template_id(
         metric_id=metric_id,
