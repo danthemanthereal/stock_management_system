@@ -237,7 +237,7 @@ async def update_metric_of_current_template(
             is_active=is_active,
         )
 
-        return analysis_service.get_current_start_page(
+        return await analysis_service.get_current_start_page(
             request=request,
             current_user_id=current_user_id
         )
