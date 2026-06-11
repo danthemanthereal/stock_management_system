@@ -290,11 +290,11 @@ def find_potential_stocks_page(request: Request):
         )
 
 @analysis_router.post("/find-candidates")
-def find_potential_stocks(filters: dict,
+async def find_potential_stocks(filters: dict,
                           db: AsyncSession = Depends(get_db),):
     analysis_service = AnalysisService(db)
 
-    return analysis_service.find_potential_stock_of_filter(filters)
+    return await analysis_service.find_potential_stock_of_filter(filters)
 
 @analysis_router.get("/get-financial-metrics", response_class=HTMLResponse)
 async def get_evaluation_of_financial_metrics_of_current_user_last_selected_template(request: Request,
