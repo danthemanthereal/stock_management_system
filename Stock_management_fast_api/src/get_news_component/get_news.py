@@ -4,7 +4,7 @@ import requests
 import asyncio
 from src.configs.used_model import STOCK_MARKET_ANALYSIS_MODEL
 from src.stock_market_artikel_analysis_component.stock_market_analysis import StockMarketAnalysis
-
+FIRST_NEWS = 5
 
 class NewsFinderComponent:
 
@@ -59,7 +59,7 @@ class NewsFinderComponent:
             model_name=STOCK_MARKET_ANALYSIS_MODEL,
         )
 
-        articles = stock_news[:10]
+        articles = stock_news[:FIRST_NEWS]
 
         tasks = [
             stock_market_analysis.get_stock_market_analysis_of_url(artikel['url'])
