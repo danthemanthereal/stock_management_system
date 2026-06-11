@@ -121,7 +121,7 @@ async def add_to_current_selected_template_new_financial_metric(
             current_user_id=current_user_id
         )
 
-        return analysis_service.get_current_start_page(
+        return await analysis_service.get_current_start_page(
             request=request,
             current_user_id=current_user_id)
     except Exception as e:
