@@ -92,7 +92,7 @@ async def show_saved_financial_metrics_page(
 
         analysis_service = AnalysisService(db)
 
-        return analysis_service.get_current_start_page(
+        return await analysis_service.get_current_start_page(
             request=request,
         current_user_id=current_user_id)
     except Exception as e:
