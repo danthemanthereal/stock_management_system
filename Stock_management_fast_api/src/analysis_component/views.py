@@ -171,7 +171,7 @@ async def change_selected_template(
             current_user_id=current_user_id
         )
 
-        return analysis_service.get_current_start_page(
+        return await analysis_service.get_current_start_page(
             request=request,
             current_user_id=current_user_id)
 
