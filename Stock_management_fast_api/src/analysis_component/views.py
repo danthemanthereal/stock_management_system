@@ -255,7 +255,7 @@ async def delete_selected_metrics_for_this_template(
         current_user_id: UUID = Depends(get_current_user_id)
 ):
     try:
-        
+
         analysis_service = AnalysisService(db)
 
         await analysis_service.delete_metrics_of_current_template(
@@ -321,12 +321,12 @@ async def get_evaluation_of_financial_metrics_of_current_user_last_selected_temp
         )
 
 @analysis_router.get("/get-news")
-def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...),
+async def get_news_of_stock_with_finnhub(request: Request, stock: str = Query(...),
                                    db: AsyncSession = Depends(get_db)):
 
     analysis_service = AnalysisService(db)
 
-    headline_url = analysis_service.get_headline_url_dict(stock)
+    headline_url = await analysis_service.get_headline_url_dict(stock)
 
     return templates.TemplateResponse(
         request=request,
