@@ -171,7 +171,7 @@
   "daysOfInventoryOutstanding": "Lagerdauer (DIO)",
   "payablesTurnover": "Kreditorenumschlagshäufigkeit",
   "fixedAssetTurnover": "Anlagenumschlagshäufigkeit",
-  "capex_to_operating_cash_flow": "Capex zu operativem Cashflow",
+  "capex_to_operating_cash_flow": "Sachinvestitionsquote",
   "capex_to_operating_income": "Capex zum Betriebsergebnis",
   "capex_to_revenue": "Investitionsquote (Capex zu Umsatz)",
   "rd2rev": "F&E-Quote (Forschungs- und Entwicklungskosten zu Umsatz)",
