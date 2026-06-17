@@ -109,6 +109,8 @@ class TemplateMetricService:
 
         financial_metrics_overviews_per_category = defaultdict(list)
         for cfg in configs:
+            print("cfg")
+            print(cfg.metric)
             metric = cfg.metric
             overview = FinancialMetricOverview(
                 config_id=cfg.id,
