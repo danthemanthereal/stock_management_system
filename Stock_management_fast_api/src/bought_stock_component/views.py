@@ -65,10 +65,7 @@ def analyse_finmetrics_stock_on_bought_stock(
 
 ):
 
-    print("name ", name)
-    ticker_of_stock = ""
     return JSONResponse({
         "name": name,
-        "ticker": ticker_of_stock,
-        "redirect_url": f"/analysis/get-financial-metrics?company={ticker_of_stock}"
+        "redirect_url": f"/analysis/get-financial-metrics?company={name}"
     })
