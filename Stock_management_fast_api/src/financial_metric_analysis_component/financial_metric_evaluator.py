@@ -115,36 +115,54 @@ class FinancialMetricEvaluator:
     def check_satisfiability(self, financial_metric_obj: FinancialMetric,
                              profile_metric_config_object: ProfileMetricConfiguration,
                              values: list[int]) -> bool:
-        last_value = values[-1]
-        if financial_metric_obj.unit == "%":
-            last_value = int(last_value * 100)
+        try:
+            last_value = values[-1]
+            if financial_metric_obj.unit == "%":
+                last_value = int(last_value * 100)
 
-        if profile_metric_config_object.should_rise:
-            asc_sorting = sorted(values)
+            if profile_metric_config_object.should_rise:
+                asc_sorting = sorted(values)
 
-            return asc_sorting == values and profile_metric_config_object.reference_value > last_value
-        else:
-            desc_sorting = sorted(values, reverse=True)
-            return desc_sorting == values and last_value < profile_metric_config_object.reference_value
+                return asc_sorting == values and profile_metric_config_object.reference_value > last_value
+            else:
+                desc_sorting = sorted(values, reverse=True)
+                return desc_sorting == values and last_value < profile_metric_config_object.reference_value
+        except Exception as e:
+            print(e)
+            print(f"value ", values)
+            print(f"fin metic obj {profile_metric_config_object}")
+            return False
 
     def check_satisfiability_development(self, financial_metric_config_obj: ProfileMetricConfiguration,
                                          values: list[int]) -> bool:
-        if financial_metric_config_obj.should_rise:
-            asc_sorting = sorted(values)
+        try:
+            if financial_metric_config_obj.should_rise:
+                asc_sorting = sorted(values)
 
-            return asc_sorting == values
-        else:
-            desc_sorting = sorted(values, reverse=True)
-            return desc_sorting == values
+                return asc_sorting == values
+            else:
+                desc_sorting = sorted(values, reverse=True)
+                return desc_sorting == values
+        except Exception as e:
+            print(e)
+            print(f"value ", values)
+            print(f"fin metic obj {financial_metric_config_obj}")
+            return False
 
     def check_satisfiability_benchmark_value(self, financial_metric_obj: FinancialMetric, profile_metric_config_object,
                                              values: list[int]) -> bool:
-        last_value = values[-1]
-        if financial_metric_obj.unit == "%":
-            last_value = int(last_value * 100)
+        try:
+            last_value = values[-1]
+            if financial_metric_obj.unit == "%":
+                last_value = int(last_value * 100)
 
-        if profile_metric_config_object.should_rise:
+            if profile_metric_config_object.should_rise:
 
-            return profile_metric_config_object.reference_value > last_value
-        else:
-            return profile_metric_config_object.reference_value < last_value
+                return profile_metric_config_object.reference_value > last_value
+            else:
+                return profile_metric_config_object.reference_value < last_value
+        except Exception as e:
+            print(e)
+            print(f"value ", values)
+            print(f"fin metic obj {profile_metric_config_object}")
+            return False
