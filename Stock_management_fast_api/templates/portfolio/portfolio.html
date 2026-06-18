@@ -305,12 +305,10 @@
                                     <button onclick="toggleDetails({{ stock.id }})" type="button">
                                         Details
                                     </button>
-                                    <form action="/bought-stock/analyse-financial-metrics-watchlist-stock" method="post">
-                                        <input type="hidden" name="name" value="{{ stock.name }}">
-                                        <button type="submit" class="btn">
-                                             Kennzahlen Analyse von Aktie von den gekauften starten
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                            onclick="analyseStock('{{ stock.name }}')">
+                                        Kennzahlen Analyse starten
+                                    </button>
                                 </td>
                             </tr>
 
@@ -581,6 +579,21 @@
                 sendMessage(stockId);
             }
         });
+    </script>
+    <script>
+        function analyseStock(name) {
+            fetch("/bought-stock/analyse-financial-metrics-watchlist-stock", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: new URLSearchParams({name})
+            })
+                .then(res => res.json())
+                .then(data => {
+                    window.location.href = data.redirect_url;
+                });
+        }
     </script>
 
 {% endblock %}
