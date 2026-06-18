@@ -92,18 +92,27 @@ class FinancialMetricEvaluator:
                     financial_metric_name, current_used_template_id
                 )
 
-                if self.check_satisfiability(financial_metric_object, profile_metric_config_object, values):
+                possible_result_satisfiability = self.check_satisfiability(financial_metric_object, profile_metric_config_object, values)
+                possible_result_development_only = self.check_satisfiability_development(profile_metric_config_object,
+                                                                                         values)
+                possible_result_benchmark_only = self.check_satisfiability_benchmark_value(financial_metric_object,
+                                                                                           profile_metric_config_object,
+                                                                                           values)
+
+                if not possible_result_satisfiability or not possible_result_development_only or not possible_result_benchmark_only:
+                    continue
+
+                if possible_result_satisfiability:
                     satisfied_financial_metrics.append(financial_metric_name)
                 else:
                     unsatisfied_financial_metrics.append(financial_metric_name)
 
-                if self.check_satisfiability_development(profile_metric_config_object, values):
+                if possible_result_development_only:
                     satisfied_development_metric.append(financial_metric_name)
                 else:
                     unsatisfied_development_metric.append(financial_metric_name)
 
-                if self.check_satisfiability_benchmark_value(financial_metric_object, profile_metric_config_object,
-                                                             values):
+                if possible_result_benchmark_only:
                     satisfied_benchmark_value.append(financial_metric_name)
                 else:
                     unsatisfied_benchmark_value.append(financial_metric_name)
@@ -114,7 +123,7 @@ class FinancialMetricEvaluator:
 
     def check_satisfiability(self, financial_metric_obj: FinancialMetric,
                              profile_metric_config_object: ProfileMetricConfiguration,
-                             values: list[int]) -> bool:
+                             values: list[int]) -> bool | None:
         try:
             last_value = values[-1]
             if financial_metric_obj.unit == "%":
@@ -131,10 +140,10 @@ class FinancialMetricEvaluator:
             print(e)
             print(f"error in value ", values)
             print(f"fin metic obj {profile_metric_config_object}")
-            return False
+            return None
 
     def check_satisfiability_development(self, financial_metric_config_obj: ProfileMetricConfiguration,
-                                         values: list[int]) -> bool:
+                                         values: list[int]) -> bool | None:
         try:
             if financial_metric_config_obj.should_rise:
                 asc_sorting = sorted(values)
@@ -147,10 +156,10 @@ class FinancialMetricEvaluator:
             print(e)
             print(f"error in value ", values)
             print(f"fin metic obj {financial_metric_config_obj}")
-            return False
+            return None
 
     def check_satisfiability_benchmark_value(self, financial_metric_obj: FinancialMetric, profile_metric_config_object,
-                                             values: list[int]) -> bool:
+                                             values: list[int]) -> bool | None:
         try:
             last_value = values[-1]
             if financial_metric_obj.unit == "%":
@@ -165,4 +174,4 @@ class FinancialMetricEvaluator:
             print(e)
             print(f"error in value ", values)
             print(f"fin metic obj {profile_metric_config_object}")
-            return False
+            return None
