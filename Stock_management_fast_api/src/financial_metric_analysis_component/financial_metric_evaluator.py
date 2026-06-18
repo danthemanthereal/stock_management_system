@@ -129,7 +129,7 @@ class FinancialMetricEvaluator:
                 return desc_sorting == values and last_value < profile_metric_config_object.reference_value
         except Exception as e:
             print(e)
-            print(f"value ", values)
+            print(f"error in value ", values)
             print(f"fin metic obj {profile_metric_config_object}")
             return False
 
@@ -145,7 +145,7 @@ class FinancialMetricEvaluator:
                 return desc_sorting == values
         except Exception as e:
             print(e)
-            print(f"value ", values)
+            print(f"error in value ", values)
             print(f"fin metic obj {financial_metric_config_obj}")
             return False
 
@@ -163,6 +163,6 @@ class FinancialMetricEvaluator:
                 return profile_metric_config_object.reference_value < last_value
         except Exception as e:
             print(e)
-            print(f"value ", values)
+            print(f"error in value ", values)
             print(f"fin metic obj {profile_metric_config_object}")
             return False
