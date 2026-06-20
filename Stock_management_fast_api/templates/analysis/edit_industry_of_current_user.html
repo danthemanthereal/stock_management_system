@@ -1,0 +1,18 @@
+{% extends "analysis/analysis_base.html" %}
+
+{% block analysis_content %}
+
+    <form method="post" action="/analysis/add-to-current-user-new-industry">
+    <input
+        type="text"
+        name="user_input"
+        placeholder="Neue Branche eingeben"
+        required
+    />
+
+    <button type="submit">
+        Neue Industrie hinzufügen
+    </button>
+</form>
+
+{% endblock %}

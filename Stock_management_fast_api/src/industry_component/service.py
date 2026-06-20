@@ -22,3 +22,18 @@ class IndustryService:
 
         rows = result.scalars().all()
         return list(rows)
+
+    async def add_to_current_user_new_industry(self, industry_name: str,
+                                               current_user_id: UUID):
+        try:
+            new_industry = Industry(
+                industry_name=industry_name,
+                user_id=current_user_id
+            )
+
+            self.db.add(new_industry)
+            await self.db.commit()
+            await self.db.refresh(new_industry)
+        except Exception as e:
+            print(e)
+

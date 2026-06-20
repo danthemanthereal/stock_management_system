@@ -428,3 +428,65 @@ async def get_industry_wiki_page(request: Request,
             request=request,
             name="error.html",
         )
+
+@analysis_router.get("/industry-edit-wiki-page")
+async def get_industry_edit_wiki_page(request: Request,
+                                      db: AsyncSession = Depends(get_db),
+                                      current_user_id: UUID = Depends(get_current_user_id)
+                                      ):
+    try:
+        analysis_service = AnalysisService(db)
+
+        wiki_pages = await analysis_service.get_industry_wiki_pages_of_current_user(current_user_id)
+
+        return templates.TemplateResponse(
+            request=request,
+
+            name="analysis/edit_industry_of_current_user.html",
+            context=
+            {
+                "request": request,
+                "wiki_pages": wiki_pages
+            }
+        )
+
+    except Exception as e:
+        print(f"Error: {e}")
+        traceback.print_exc()
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+        )
+
+
+@analysis_router.post("/add-to-current-user-new-industry")
+async def add_to_current_user_new_industry(request: Request,
+                                            user_input: str = Form(...),
+                                           db: AsyncSession = Depends(get_db),
+                                           current_user_id: UUID = Depends(get_current_user_id)
+                                      ):
+    try:
+        analysis_service = AnalysisService(db)
+        await analysis_service.add_to_current_user_new_industry(user_input, current_user_id)
+
+        wiki_pages = await analysis_service.get_industry_wiki_pages_of_current_user(current_user_id)
+
+        return templates.TemplateResponse(
+            request=request,
+
+            name="analysis/edit_industry_of_current_user.html",
+            context=
+            {
+                "request": request,
+                "wiki_pages": wiki_pages
+
+            }
+        )
+
+    except Exception as e:
+        print(f"Error: {e}")
+        traceback.print_exc()
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+        )
