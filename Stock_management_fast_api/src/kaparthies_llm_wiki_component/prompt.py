@@ -412,6 +412,7 @@ ABSOLUTE RULES:
 - NEVER hallucinate events
 - NEVER output anything except Markdown
 - NEVER include JSON, explanations, or code blocks
+- ALWAYS answer in german.
 
 ---
 
@@ -475,6 +476,7 @@ Output exactly ONE:
 - Unchanged
 
 Then provide a 5–10 sentence explanation focusing on macro impact.
+Answer only in german.
 
 ---
 
