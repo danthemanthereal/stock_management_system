@@ -400,3 +400,7 @@ async def update_stock_wiki(
             "stock_market_wiki_page": stock_market_wiki_page
         }
     )
+
+@analysis_router.post("/industry-wiki-page", response_class=HTMLResponse)
+def get_industry_wiki_page(request: Request,
+                           db: AsyncSession = Depends(get_db)):
