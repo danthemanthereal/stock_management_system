@@ -1,4 +1,4 @@
-from ai_metric_analysis_component.ai_metric_analysis import AIMetricAnalysisComponent
+from src.ai_metric_analysis_component.ai_metric_analysis import AIMetricAnalysisComponent
 
 
 class DividendAnalysis(AIMetricAnalysisComponent):

@@ -1,10 +1,21 @@
 import json
 import re
-from groq import Groq
 from dotenv import load_dotenv
 import os
 
-from ai_metric_analysis_component.utils import get_all_considered_category_of_current_request
+from src.ai_metric_analysis_component.capital_cost_analysis_component.capital_cost_analysis import CapitalCostAnalysis
+from src.ai_metric_analysis_component.dividend_analysis_component.dividend_analysis import DividendAnalysis
+from src.ai_metric_analysis_component.expense_ratio_analysis_component.expense_ratio_analysis import \
+    ExpenseRatioAnalysisComponent
+from src.ai_metric_analysis_component.financial_stability_analysis_component.financial_stability_analysis import \
+    FinancialStabilityAnalysisComponent
+from src.ai_metric_analysis_component.profibility_analysis_component.profitability_analysis import ProfitabilityAnalysis
+from src.ai_metric_analysis_component.score_analysis_component.score_analysis import ScoreAnalysis
+from src.ai_metric_analysis_component.structure_analysis_component.structure_analysis import StructureAnalysis
+from src.ai_metric_analysis_component.valuation_multiples_analysis_component.valuation_multiples_analysis import \
+    EvaluationMultiplesAnalysis
+from src.ai_metric_analysis_component.working_capital_analysis_component.working_capital_analysis import \
+    WorkingCapitalAnalysis
 
 load_dotenv()
 
@@ -21,24 +32,54 @@ class FinancialMetricAIEvaluator:
                 user_prompt_path="prompts/capital_cost_user.txt",
                 system_prmpt_path="prompts/capital_cost_system.txt"
             ),
-            "Profitability": ProfitabilityAnalysis(
+            "Working Capital Management": WorkingCapitalAnalysis(
                 model_name="mixtral-8x7b-32768",
                 api_key=os.getenv("GROQ_API_KEY"),
                 user_prompt_path="prompts/profitability_user.txt",
                 system_prmpt_path="prompts/profitability_system.txt"
             ),
-            "Valuation": ValuationAnalysis(
+            "Finanzielle Stabilität": FinancialStabilityAnalysisComponent(
                 model_name="mixtral-8x7b-32768",
                 api_key=os.getenv("GROQ_API_KEY"),
                 user_prompt_path="prompts/valuation_user.txt",
                 system_prmpt_path="prompts/valuation_system.txt"
             ),
-            "Expense": ExpenseAnalysis(
+            "Score": ScoreAnalysis(
                 model_name="mixtral-8x7b-32768",
                 api_key=os.getenv("GROQ_API_KEY"),
                 user_prompt_path="prompts/expense_user.txt",
                 system_prmpt_path="prompts/expense_system.txt"
-            )
+            ),
+            "Dividende": DividendAnalysis(
+                model_name="mixtral-8x7b-32768",
+                api_key=os.getenv("GROQ_API_KEY"),
+                user_prompt_path="prompts/expense_user.txt",
+                system_prmpt_path="prompts/expense_system.txt"
+            ),
+            "Rentabilität": ProfitabilityAnalysis(
+                model_name="mixtral-8x7b-32768",
+                api_key=os.getenv("GROQ_API_KEY"),
+                user_prompt_path="prompts/expense_user.txt",
+                system_prmpt_path="prompts/expense_system.txt"
+            ),
+            "Bewertungskennzahl": EvaluationMultiplesAnalysis(
+                model_name="mixtral-8x7b-32768",
+                api_key=os.getenv("GROQ_API_KEY"),
+                user_prompt_path="prompts/expense_user.txt",
+                system_prmpt_path="prompts/expense_system.txt"
+            ),
+            "(Kapital)Struktur": StructureAnalysis(
+                model_name="mixtral-8x7b-32768",
+                api_key=os.getenv("GROQ_API_KEY"),
+                user_prompt_path="prompts/expense_user.txt",
+                system_prmpt_path="prompts/expense_system.txt"
+            ),
+            "Kapitalkosten": CapitalCostAnalysis(
+                model_name="mixtral-8x7b-32768",
+                api_key=os.getenv("GROQ_API_KEY"),
+                user_prompt_path="prompts/expense_user.txt",
+                system_prmpt_path="prompts/expense_system.txt"
+            ),
         }
 
     def evaluate_financial_metrics(self,
