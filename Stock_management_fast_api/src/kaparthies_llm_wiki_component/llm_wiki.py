@@ -73,7 +73,7 @@ class LLMWiki:
         response = client.chat.completions.create(
             model=self.groq_model_name,
             messages=[
-                {"role": "system_prompt.txt",
+                {"role": "system",
                  "content": system_prompt
                  },
                 {
@@ -97,7 +97,7 @@ class LLMWiki:
         response = client.chat.completions.create(
             model=self.groq_model_name,
             messages=[
-                {"role": "system_prompt.txt",
+                {"role": "system",
                  "content": system_prompt
                  },
                 {
@@ -122,7 +122,7 @@ class LLMWiki:
         response = client.chat.completions.create(
             model=self.groq_model_name,
             messages=[
-                {"role": "system_prompt.txt",
+                {"role": "system",
                  "content": system_prompt
                  },
                 {
@@ -147,7 +147,7 @@ class LLMWiki:
         response = client.chat.completions.create(
             model=self.groq_model_name,
             messages=[
-                {"role": "system_prompt.txt",
+                {"role": "system",
                  "content": system_prompt
                  },
                 {

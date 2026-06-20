@@ -33,7 +33,7 @@ class StockMarketAnalysis:
             response = client.chat.completions.create(
                 model=self.model_name,
                 messages=[
-                    {"role": "system_prompt.txt",
+                    {"role": "system",
                      "content": system_prompt
                      },
                     {
