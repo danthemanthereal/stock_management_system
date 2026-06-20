@@ -317,7 +317,9 @@ class AnalysisService:
         return await industry_service.get_industry_wiki_page_of_current_user(current_user_id=current_user_id)
 
     async def get_all_created_industries_of_current_user(self, current_user_id: UUID):
-        pass
+        industry_service = IndustryService(self.db)
+
+        return await industry_service.get_industries_of_current_user(current_user_id=current_user_id)
 
 
     async def add_to_current_user_new_industry(self,

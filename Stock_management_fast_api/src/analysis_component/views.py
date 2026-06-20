@@ -439,6 +439,8 @@ async def get_industry_edit_wiki_page(request: Request,
 
         wiki_pages = await analysis_service.get_industry_wiki_pages_of_current_user(current_user_id)
 
+        created_industries_of_current_user = await analysis_service.get_all_created_industries_of_current_user(current_user_id)
+
         return templates.TemplateResponse(
             request=request,
 
@@ -446,7 +448,8 @@ async def get_industry_edit_wiki_page(request: Request,
             context=
             {
                 "request": request,
-                "wiki_pages": wiki_pages
+                "wiki_pages": wiki_pages,
+                "created_industries_of_current_user": created_industries_of_current_user
             }
         )
 

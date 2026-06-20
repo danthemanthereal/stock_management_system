@@ -2,10 +2,24 @@
 
 {% block analysis_content %}
 
-    <form method="post" action="/analysis/add-to-current-user-new-industry">
+<!-- SELECT BOX -->
+<label for="industry_select">Bestehende Industrien</label>
+<select id="industry_select" name="selected_industry">
+    {% for industry in created_industries_of_current_user %}
+        <option value="{{ industry }}">
+            {{ industry }}
+        </option>
+    {% endfor %}
+</select>
+
+<br><br>
+
+<!-- INPUT FIELD -->
+<form method="post" action="/analysis/add-to-current-user-new-industry">
+
     <input
         type="text"
-        name="user_input"
+        name="industry_name"
         placeholder="Neue Branche eingeben"
         required
     />
@@ -13,6 +27,7 @@
     <button type="submit">
         Neue Industrie hinzufügen
     </button>
+
 </form>
 
 {% endblock %}

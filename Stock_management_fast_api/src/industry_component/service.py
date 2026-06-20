@@ -37,3 +37,12 @@ class IndustryService:
         except Exception as e:
             print(e)
 
+    async def get_industries_of_current_user(self, current_user_id: UUID):
+        result = await self.db.execute(
+            select(Industry.industry_name)
+            .where(Industry.user_id == current_user_id)
+        )
+
+        rows = result.scalars().all()
+        return list(rows)
+
