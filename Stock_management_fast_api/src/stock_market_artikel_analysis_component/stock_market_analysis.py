@@ -83,8 +83,7 @@ Important: Do not use any external knowledge or current data outside the text. O
     but not in a json style. 
     """
 
-    import json
-    import re
+
     from typing import Dict, Any
 
     def safe_parse_llm_json(self, content: str) -> Dict[str, Any]:

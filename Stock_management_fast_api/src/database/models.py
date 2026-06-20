@@ -152,6 +152,11 @@ class RefreshToken(Base):
 
     user = relationship("User", backref="refresh_tokens")
 
+class StockMarket(Base):
+    __tablename__ = "stock_market"
+    id = Column(Integer, primary_key=True, index=True)
+    wiki_page = Column(Text)
+
 
 class BaseModel(PydanticBase):
     id: str = Field(default_factory=lambda: str(uuid4()))
