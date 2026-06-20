@@ -246,3 +246,4 @@ class LLMWiki:
                 new_weakness=new_combined_weakness,
                 new_wiki_page=new_combined_wiki
             )
+
