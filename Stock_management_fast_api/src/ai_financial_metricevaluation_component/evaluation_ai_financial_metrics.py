@@ -65,7 +65,7 @@ class FinancialMetricAIEvaluator:
 
         total_ai_evaluation = ""
         for (category, _), analysis_text in zip(tasks, results):
-            total_ai_evaluation += f"{category}: \n{analysis_text}\n"
+            total_ai_evaluation += f"{category}: \n{analysis_text}\n\n"
 
         return total_ai_evaluation
 
@@ -261,8 +261,6 @@ Rules:
 
             content = response.choices[0].message.content
             llm_answer = content
-            print("llm answer of analysis cat metrics ")
-            print(llm_answer)
             cleand_json_answer = self.extract_json_from_llm_output(llm_answer)
             return cleand_json_answer.get("evaluation", "")
 

@@ -211,6 +211,10 @@
             width: 250px;
         }
 
+        .ai-summary {
+                white-space: pre-wrap; /* oder pre-line */
+        }
+
 
     </style>
 </head>
@@ -1413,7 +1417,7 @@
             {% endfor %}
         </div>
         <div class="ai-summary">
-            {{ evaluation }}
+                {{ evaluation|replace('\n', '<br>')|safe }}
         </div>
     </div>
 </div>
