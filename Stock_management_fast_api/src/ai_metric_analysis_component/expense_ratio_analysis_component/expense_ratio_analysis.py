@@ -8,10 +8,12 @@ class ExpenseRatioAnalysisComponent(AIMetricAnalysisComponent):
                  model_name: str,
                  api_key: str,
                  user_prompt_path: str,
-                 system_prmpt_path: str):
+                 system_prompt_path: str):
         super().__init__()
         self.model_name = model_name
-        self.api_key = api_key,
+        self.api_key = api_key
+        self.user_prompt_path = user_prompt_path
+        self.system_prompt_path = system_prompt_path
         self.prompt_loader = PromptLoader()
 
 
@@ -23,4 +25,5 @@ class ExpenseRatioAnalysisComponent(AIMetricAnalysisComponent):
                                   satisfied_only_development: dict,
                                   unsatisfied_only_development: dict,
                                   ):
-        pass
+        system_prompt = self.prompt_loader.load_prompt(self.system_prompt_path)
+        user_prompt = self.prompt_loader.load_prompt(self.user_prompt_path)
