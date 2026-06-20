@@ -260,21 +260,6 @@ class AnalysisService:
             model_name=FINANCIAL_METRIC_EVALUATION_MODEL
         )
 
-
-        print("satisfield one map ")
-        print(satisfied_metrics_by_category)
-
-        ai_evaluation_capital_cost = ""
-        ai_evaluation_dividend = ""
-        ai_evaluation_expense_ratio = ""
-        ai_evaluation_financial_stability = ""
-        ai_evaluation_profitability = ""
-        ai_evaluation_score = ""
-        ai_evaluation_structure = ""
-        ai_evaluation_valuation_multiples = ""
-        ai_evaluation_working_capital = ""
-
-
         return ai_financial_metric_evaluator.evaluate_financial_metrics(
             satisfied_by_category=satisfied_metrics_by_category,
             unsatisfied_by_category=unsatisfied_metrics_by_category,
@@ -308,5 +293,10 @@ class AnalysisService:
             finhub_api_key=os.getenv("FINNHUB_API_KEY")
         )
         return await news_component.get_stock_market_news_with_G_news()
+
+
+
+
+
 
 

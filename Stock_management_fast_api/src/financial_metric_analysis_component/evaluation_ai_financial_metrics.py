@@ -4,6 +4,8 @@ from groq import Groq
 from dotenv import load_dotenv
 import os
 
+from ai_metric_analysis_component.utils import get_all_considered_category_of_current_request
+
 load_dotenv()
 
 
@@ -12,6 +14,32 @@ class FinancialMetricAIEvaluator:
     def __init__(self,
                  model_name: str):
         self.model_name = model_name
+        self.analysis_components = {
+            "Aufwandsquote":ExpenseRatioAnalysisComponent(
+                model_name="mixtral-8x7b-32768",
+                api_key=os.getenv("GROQ_API_KEY"),
+                user_prompt_path="prompts/capital_cost_user.txt",
+                system_prmpt_path="prompts/capital_cost_system.txt"
+            ),
+            "Profitability": ProfitabilityAnalysis(
+                model_name="mixtral-8x7b-32768",
+                api_key=os.getenv("GROQ_API_KEY"),
+                user_prompt_path="prompts/profitability_user.txt",
+                system_prmpt_path="prompts/profitability_system.txt"
+            ),
+            "Valuation": ValuationAnalysis(
+                model_name="mixtral-8x7b-32768",
+                api_key=os.getenv("GROQ_API_KEY"),
+                user_prompt_path="prompts/valuation_user.txt",
+                system_prmpt_path="prompts/valuation_system.txt"
+            ),
+            "Expense": ExpenseAnalysis(
+                model_name="mixtral-8x7b-32768",
+                api_key=os.getenv("GROQ_API_KEY"),
+                user_prompt_path="prompts/expense_user.txt",
+                system_prmpt_path="prompts/expense_system.txt"
+            )
+        }
 
     def evaluate_financial_metrics(self,
                                    satisfied_by_category,
@@ -21,34 +49,37 @@ class FinancialMetricAIEvaluator:
                                    satisfied_only_development,
                                    unsatisfied_only_development,
                                    ):
-        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-        user_prompt = self.get_user_prompt(
-            satisfied_by_category=satisfied_by_category,
-            unsatisfied_by_category=unsatisfied_by_category,
-            satisfied_only_reference_value=satisfied_only_reference_value,
-            unsatisfied_only_reference_value=unsatisfied_only_reference_value,
-            satisfied_only_development=satisfied_only_development,
-            unsatisfied_only_development=unsatisfied_only_development,
+
+        print("satisfield one map ")
+        print(satisfied_by_category)
+
+        current_all_considered_categories = get_all_considered_category_of_current_request(
+            satisfied_by_category_map=satisfied_by_category
         )
 
-        system_prompt = self.get_system_prompt()
+        total_ai_evaluation = ""
 
-        response = client.chat.completions.create(
-            model=self.model_name,
-            messages=[
-                {"role": "system_prompt.txt",
-                 "content": system_prompt
-                 },
-                {
-                    "role": "user",
-                    "content": user_prompt
-                }
-            ])
+        for category in current_all_considered_categories:
+            current_category_analysis = self.get_ai_evaluation_capital_per_category(
+                category_name=category,
+                satisfied_by_category= satisfied_by_category,
+                unsatisfied_by_category=unsatisfied_by_category,
+                satisfied_only_reference_value=satisfied_only_reference_value,
+                unsatisfied_only_reference_value=unsatisfied_only_reference_value,
+                satisfied_only_development=satisfied_only_development,
+                unsatisfied_only_development=unsatisfied_only_development,
 
-        content = response.choices[0].message.content
-        llm_answer = content
-        cleand_json_answer = self.extract_json_from_llm_output(llm_answer)
-        return  cleand_json_answer.get("evaluation", "")
+            )
+
+            total_ai_evaluation += f"{category}: "
+            total_ai_evaluation += "\n"
+            total_ai_evaluation += current_category_analysis
+            total_ai_evaluation += "\n"
+
+
+        return total_ai_evaluation
+
+
 
 
     def get_user_prompt(self,
@@ -159,3 +190,14 @@ Rules:
         json_str = re.sub(r"(?<!\\)'", '"', json_str)
 
         return json_str
+
+    def get_ai_evaluation_capital_per_category(self,
+                                       category_name: str,
+                                       satisfied_by_category,
+                                       unsatisfied_by_category,
+                                       satisfied_only_reference_value,
+                                       unsatisfied_only_reference_value,
+                                       satisfied_only_development,
+                                       unsatisfied_only_development,
+                                       )->str:
+
