@@ -36,7 +36,7 @@ class FinancialMetricAIEvaluator:
         response = client.chat.completions.create(
             model=self.model_name,
             messages=[
-                {"role": "system",
+                {"role": "system_prompt.txt",
                  "content": system_prompt
                  },
                 {

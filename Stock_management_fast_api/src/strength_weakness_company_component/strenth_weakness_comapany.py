@@ -76,7 +76,7 @@ class StrengthWeaknessOfCompanyComponent:
         response = client.chat.completions.create(
             model=self.groq_model_name,
             messages=[
-                {"role": "system",
+                {"role": "system_prompt.txt",
                  "content": system_prompt
                  },
                 {
@@ -330,7 +330,7 @@ class StrengthWeaknessOfCompanyComponent:
            response = client.chat.completions.create(
                model=self.groq_model_name,
                messages=[
-                   {"role": "system",
+                   {"role": "system_prompt.txt",
                     "content": system_prompt
                     },
                    {
