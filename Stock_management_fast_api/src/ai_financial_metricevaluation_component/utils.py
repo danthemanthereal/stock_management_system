@@ -1,5 +1,10 @@
 def get_all_used_categories_for_eval(category_satisfied_map: dict[str, list])->list[str]:
-    return list(category_satisfied_map.keys())
+    if isinstance(category_satisfied_map, dict):
+        return list(category_satisfied_map.keys())
+    elif isinstance(category_satisfied_map, list) and all(isinstance(i, tuple) for i in category_satisfied_map):
+        return [item[0] for item in category_satisfied_map]
+    else:
+        raise TypeError("Unsupported type")
 
 
 def get_each_metrics_list_by_category(
