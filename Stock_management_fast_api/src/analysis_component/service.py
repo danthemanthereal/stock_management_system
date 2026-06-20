@@ -9,6 +9,7 @@ from src.financial_metric_analysis_component.utils import merge_financial_summar
 from src.financial_metric_category_component.service import FinancialMetricCategoryService
 from src.find_potential_stocks_component.find_potential_stocks import FindPotentialStocks
 from src.get_news_component.get_news import NewsFinderComponent
+from src.industry_component.service import IndustryService
 from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.stock_market_component.service import StockMarketComponentService
 from src.strength_weakness_company_component.strenth_weakness_comapany import StrengthWeaknessOfCompanyComponent
@@ -310,6 +311,10 @@ class AnalysisService:
         stock_market_service = StockMarketComponentService(self.db)
         await stock_market_service.update_stock_market_wiki_page(new_text)
 
+    async def get_industry_wiki_pages_of_current_user(self, current_user_id: UUID):
+
+        industry_service = IndustryService(self.db)
+        return await industry_service.get_industry_wiki_page_of_current_user(current_user_id=current_user_id)
 
 
 

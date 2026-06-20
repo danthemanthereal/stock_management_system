@@ -1,0 +1,30 @@
+{% extends "analysis/analysis_base.html" %}
+
+{% block analysis_content %}
+
+<!-- Markdown Container Liste -->
+<div id="wiki-container">
+    {% for page in wiki_pages %}
+        <div class="markdown-block" data-md="{{ page | e }}"></div>
+        <hr>
+    {% endfor %}
+</div>
+
+<!-- Marked.js -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const blocks = document.querySelectorAll(".markdown-block");
+
+    blocks.forEach(block => {
+        const markdownText = block.dataset.md;
+
+        if (markdownText) {
+            block.innerHTML = marked.parse(markdownText);
+        }
+    });
+});
+</script>
+
+{% endblock %}
