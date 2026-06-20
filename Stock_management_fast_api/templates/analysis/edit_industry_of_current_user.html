@@ -30,4 +30,57 @@
 
 </form>
 
+<form method="post" action="/analysis/update-wiki-page-current-selected-industry">
+
+    <input type="hidden" name="selected_industry" id="selected_input_industry">
+    <input type="hidden" name="action" value="update_name">
+
+    <input
+        type="text"
+        name="industry_name"
+        placeholder="Link aus dem man die Daten nimmt"
+        required
+    />
+
+    <button type="submit">
+        Update Name
+    </button>
+</form>
+
+<hr>
+
+<!-- TEXTAREA SECTION -->
+<form method="post" action="/analysis/update-wiki-page-current-selected-industry">
+
+    <input type="hidden" name="selected_industry" id="selected_textarea_industry">
+    <input type="hidden" name="action" value="update_wiki">
+
+    <textarea
+        name="industry_name"
+        placeholder="Neuer Text zur Wiki der aktuellen Branche"
+        rows="6"
+        required
+    ></textarea>
+
+    <button type="submit">
+        Update Wiki
+    </button>
+</form>
+
+<script>
+function syncIndustry() {
+    const val = document.getElementById("industry_select").value;
+
+    document.getElementById("selected_input_industry").value = val;
+    document.getElementById("selected_textarea_industry").value = val;
+}
+
+document.getElementById("industry_select")
+    .addEventListener("change", syncIndustry);
+
+// initial sync
+syncIndustry();
+</script>
+
 {% endblock %}
+
