@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.configs.used_model import LLM_WIKI_MODEL
 from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 
 STOCK_MARKET_WIKI_PAGE_ID=1
@@ -22,5 +23,13 @@ class StockMarketComponentService:
     async def update_stock_market_wiki_page(self, new_content):
 
         llm_wiki = LLMWiki(
+            self.db,
+            LLM_WIKI_MODEL
+        )
 
+        current_page = await self.get_current_wiki_page()
+
+        await llm_wiki.ingest_stock_market_wiki_page(
+            new_content,
+            current_page
         )
