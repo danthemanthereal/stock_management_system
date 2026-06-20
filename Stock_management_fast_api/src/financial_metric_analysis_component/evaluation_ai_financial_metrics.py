@@ -244,7 +244,14 @@ Rules:
 
         try:
             component = self.analysis_components[category_name]
-            return component.analyse_financial_metrics(all_financial_metrics)
+            return component.analyse_financial_metrics(
+                    satisfied_by_category=satisfied_by_category,
+                    unsatisfied_by_category=unsatisfied_by_category,
+                    satisfied_only_reference_value=satisfied_only_reference_value,
+                    unsatisfied_only_reference_value=unsatisfied_only_reference_value,
+                    satisfied_only_development=satisfied_only_development,
+                    unsatisfied_only_development=unsatisfied_only_development,
+                )
         except Exception as e:
             print(e)
             return ""

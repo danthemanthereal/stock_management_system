@@ -1,4 +1,5 @@
 from src.ai_metric_analysis_component.ai_metric_analysis import AIMetricAnalysisComponent
+from src.prompt_loader_component.prompt_loader import PromptLoader
 
 
 class ScoreAnalysis(AIMetricAnalysisComponent):
@@ -10,7 +11,8 @@ class ScoreAnalysis(AIMetricAnalysisComponent):
                  system_prmpt_path: str):
         super().__init__()
         self.model_name = model_name
-        self.api_key = api_key
+        self.api_key = api_key,
+        self.prompt_loader = PromptLoader()
 
     def analyse_financial_metrics(self,
                                   satisfied_by_category:dict,
