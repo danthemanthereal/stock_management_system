@@ -209,7 +209,7 @@ class AnalysisService:
 
         years = ["2022", "2023", "2024", "2025"]
 
-        ai_evaluation = self.get_ai_evaluation(
+        ai_evaluation = await self.get_ai_evaluation(
             satisfied_metrics_by_category=satisfied_metrics_by_category,
             unsatisfied_metrics_by_category=unsatisfied_metrics_by_category,
             satisfied_benchmarks_by_category=satisfied_benchmarks_by_category,
@@ -248,7 +248,7 @@ class AnalysisService:
                 "evaluation": ai_evaluation,
             })
 
-    def get_ai_evaluation(self,
+    async def get_ai_evaluation(self,
                           satisfied_metrics_by_category,
                           unsatisfied_metrics_by_category,
                           satisfied_benchmarks_by_category,
@@ -260,7 +260,7 @@ class AnalysisService:
             model_name=FINANCIAL_METRIC_EVALUATION_MODEL
         )
 
-        return ai_financial_metric_evaluator.evaluate_financial_metrics(
+        return await ai_financial_metric_evaluator.evaluate_financial_metrics(
             satisfied_by_category=satisfied_metrics_by_category,
             unsatisfied_by_category=unsatisfied_metrics_by_category,
             satisfied_only_reference_value=satisfied_benchmarks_by_category,

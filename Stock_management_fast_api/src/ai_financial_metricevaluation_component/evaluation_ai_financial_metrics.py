@@ -1,5 +1,6 @@
 import json
 import re
+import asyncio
 from dotenv import load_dotenv
 import os
 from groq import Groq
@@ -16,7 +17,7 @@ class FinancialMetricAIEvaluator:
         self.model_name = model_name
 
 
-    def evaluate_financial_metrics(self,
+    async def evaluate_financial_metrics(self,
                                    satisfied_by_category,
                                    unsatisfied_by_category,
                                    satisfied_only_reference_value,
@@ -33,7 +34,7 @@ class FinancialMetricAIEvaluator:
         )
 
         total_ai_evaluation = ""
-
+        tasks = []
         for category in current_all_considered_categories:
 
             (satisfied_current_category,
@@ -50,7 +51,8 @@ class FinancialMetricAIEvaluator:
                                                    category_satisfied_only_development_map=satisfied_only_development,
                                                    category_unsatisfied_development_map=unsatisfied_only_development,
                                                    )
-            current_category_analysis = self.get_ai_evaluation_capital_per_category(
+
+            task = self.get_ai_evaluation_capital_per_category(
                 category_name=category,
                 satisfied_of_one_category=satisfied_current_category,
                 unsatisfied_of_one_category=unsatisfied_current_category,
@@ -59,12 +61,13 @@ class FinancialMetricAIEvaluator:
                 satisfied_only_development_of_one_category=satisfied_only_development_current_category,
                 unsatisfied_only_development_of_one_category=unsatisfied_only_development_current_category,
             )
+            tasks.append((category, task))
 
-            total_ai_evaluation += f"{category}: "
-            total_ai_evaluation += "\n"
-            total_ai_evaluation += current_category_analysis
-            total_ai_evaluation += "\n"
+        results = await asyncio.gather(*[task for _, task in tasks])
 
+        total_ai_evaluation = ""
+        for (category, _), analysis_text in zip(tasks, results):
+            total_ai_evaluation += f"{category}: \n{analysis_text}\n"
 
         return total_ai_evaluation
 
