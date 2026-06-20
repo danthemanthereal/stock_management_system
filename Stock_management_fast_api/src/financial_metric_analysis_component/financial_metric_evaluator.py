@@ -99,7 +99,12 @@ class FinancialMetricEvaluator:
                                                                                            profile_metric_config_object,
                                                                                            values)
 
-                if not possible_result_satisfiability or not possible_result_development_only or not possible_result_benchmark_only:
+                if  self.check_one_metric_is_invalid(
+                        possible_result_satisfiability,
+                        possible_result_development_only,
+                        possible_result_benchmark_only,
+
+                ):
                     continue
 
                 if possible_result_satisfiability:
@@ -175,3 +180,10 @@ class FinancialMetricEvaluator:
             print(f"error in value ", values)
             print(f"fin metic obj {profile_metric_config_object}")
             return None
+
+    def check_one_metric_is_invalid(self, possible_result_satisfiability,
+                                    possible_result_development_only,
+                                    possible_result_benchmark_value,)-> bool:
+        return (possible_result_satisfiability is None
+                or possible_result_development_only is None
+                or possible_result_benchmark_value is None)
