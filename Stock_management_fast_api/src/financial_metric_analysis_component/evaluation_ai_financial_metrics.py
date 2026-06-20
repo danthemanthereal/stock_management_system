@@ -2,7 +2,6 @@ import json
 import re
 from dotenv import load_dotenv
 import os
-
 from src.ai_metric_analysis_component.capital_cost_analysis_component.capital_cost_analysis import CapitalCostAnalysis
 from src.ai_metric_analysis_component.dividend_analysis_component.dividend_analysis import DividendAnalysis
 from src.ai_metric_analysis_component.expense_ratio_analysis_component.expense_ratio_analysis import \
@@ -12,6 +11,7 @@ from src.ai_metric_analysis_component.financial_stability_analysis_component.fin
 from src.ai_metric_analysis_component.profibility_analysis_component.profitability_analysis import ProfitabilityAnalysis
 from src.ai_metric_analysis_component.score_analysis_component.score_analysis import ScoreAnalysis
 from src.ai_metric_analysis_component.structure_analysis_component.structure_analysis import StructureAnalysis
+from src.ai_metric_analysis_component.utils import get_all_considered_category_of_current_request
 from src.ai_metric_analysis_component.valuation_multiples_analysis_component.valuation_multiples_analysis import \
     EvaluationMultiplesAnalysis
 from src.ai_metric_analysis_component.working_capital_analysis_component.working_capital_analysis import \
@@ -241,4 +241,5 @@ Rules:
                                        satisfied_only_development,
                                        unsatisfied_only_development,
                                        )->str:
+        pass
 
