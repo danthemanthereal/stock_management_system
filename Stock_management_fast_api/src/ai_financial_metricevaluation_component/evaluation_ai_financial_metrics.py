@@ -143,12 +143,12 @@ Your text MUST include the following structured components in coherent paragraph
 ---
 
 **CRITICAL OUTPUT INSTRUCTIONS (aligned with the System Prompt):**
-- You generate **ONLY the raw analysis text**.
-- The JSON wrapper (`{{"evaluation": "..."}}`) is automatically enforced by the system prompt – **do NOT output JSON yourself**.
 - **LANGUAGE REQUIREMENT:** Even though these instructions are in English, the **actual analysis text** you produce MUST be written in **German** (as strictly required by the system prompt).
 - Do NOT use bullet points or markdown lists inside the text – use clean, flowing paragraphs instead.
 - Do NOT include introductory phrases like "Here is my analysis" – start directly with the summary text.
-
+-Return ONLY the following JSON structure:
+{{"evaluation": "<your complete German analysis>"}}
+Do not output any text outside the JSON object.
 Now, generate the analysis for the category "{category_name}".
 """
 
@@ -261,6 +261,8 @@ Rules:
 
             content = response.choices[0].message.content
             llm_answer = content
+            print("llm answer of analysis cat metrics ")
+            print(llm_answer)
             cleand_json_answer = self.extract_json_from_llm_output(llm_answer)
             return cleand_json_answer.get("evaluation", "")
 
