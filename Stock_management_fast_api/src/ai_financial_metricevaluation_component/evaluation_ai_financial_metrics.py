@@ -26,14 +26,11 @@ class FinancialMetricAIEvaluator:
                                    unsatisfied_only_development,
                                    ):
 
-        print("satisfield one map ")
-        print(satisfied_by_category)
-
         current_all_considered_categories = get_all_used_categories_for_eval(
             category_satisfied_map=satisfied_by_category
         )
 
-        total_ai_evaluation = ""
+
         tasks = []
         for category in current_all_considered_categories:
 
@@ -52,7 +49,8 @@ class FinancialMetricAIEvaluator:
                                                    category_unsatisfied_development_map=unsatisfied_only_development,
                                                    )
 
-            task = self.get_ai_evaluation_capital_per_category(
+            task = asyncio.to_thread(
+                self.get_ai_evaluation_capital_per_category,
                 category_name=category,
                 satisfied_of_one_category=satisfied_current_category,
                 unsatisfied_of_one_category=unsatisfied_current_category,

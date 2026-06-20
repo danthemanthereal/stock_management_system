@@ -25,8 +25,6 @@ def get_each_metrics_list_by_category(
                                                                                  list[str],
                                                                                  list[str]):
 
-    print("get a cat map ")
-    print(category_satisfied_map)
     return (
         convert_into_dictionary_if_necessary(category_satisfied_map).get(category, []),
         convert_into_dictionary_if_necessary(category_unsatisfied_map).get(category, []),
