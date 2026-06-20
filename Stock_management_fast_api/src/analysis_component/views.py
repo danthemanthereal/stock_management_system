@@ -378,7 +378,7 @@ async def get_stock_market_wiki_page(request: Request,
             name="error.html",
         )
 
-@analysis_router.post("/analysis/update-stock-wiki", response_class=HTMLResponse)
+@analysis_router.post("/update-stock-wiki", response_class=HTMLResponse)
 async def update_stock_wiki(
     request: Request,
     data: WikiUpdate,
