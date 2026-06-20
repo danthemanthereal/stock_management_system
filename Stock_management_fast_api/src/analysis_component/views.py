@@ -522,17 +522,13 @@ async def update_wiki_page_current_selected(request: Request,
                                             db: AsyncSession = Depends(get_db),
                                             current_user_id: UUID = Depends(get_current_user_id),
                                             selected_industry: str = Form(...),
-                                            industry_name: str = Form(...),
+                                            input_link_or_text: str = Form(...),
                                             action: str = Form(...)
                                             ):
     try:
         analysis_service = AnalysisService(db)
 
-        print("selected_industry", selected_industry)
-
-        print("industry_name", industry_name)
-
-        print("action", action)
+        await analysis_service
 
         wiki_pages = await analysis_service.get_industry_wiki_pages_of_current_user(current_user_id)
 

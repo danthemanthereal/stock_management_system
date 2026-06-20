@@ -331,5 +331,12 @@ class AnalysisService:
             current_user_id=current_user_id,
         )
 
+    async def update_wiki_of_current_selected_industry_of_current_user(self,
+                                                                       new_content: str,
+                                                                       current_user_id: UUID,
+                                                                       industry_name: str
+                                                                       ):
+        pass
+
 
 
