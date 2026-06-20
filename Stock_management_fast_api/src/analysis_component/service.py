@@ -1,10 +1,11 @@
 import json
 from uuid import UUID
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import  Request
-
 from src.ai_financial_metricevaluation_component.evaluation_ai_financial_metrics import FinancialMetricAIEvaluator
 from src.configs.used_model import STRENGTH_WEAKNESS_MODEL, FINANCIAL_METRIC_EVALUATION_MODEL, LLM_WIKI_MODEL
+from src.database.models import StockMarket
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.financial_metric_analysis_component.utils import merge_financial_summary_triples
 from src.financial_metric_category_component.service import FinancialMetricCategoryService
@@ -19,6 +20,8 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
+STOCK_MARKET_WIKI_PAGE_ID=1
 
 
 class AnalysisService:
@@ -295,6 +298,11 @@ class AnalysisService:
         )
         return await news_component.get_stock_market_news_with_G_news()
 
+
+    async def get_current_stock_market_wiki_page(self):
+        return (await self.db.execute(
+            select(StockMarket.wiki_page).where(StockMarket.id == STOCK_MARKET_WIKI_PAGE_ID)
+        )).scalar_one_or_none()
 
 
 

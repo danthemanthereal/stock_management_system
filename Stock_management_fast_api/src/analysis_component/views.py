@@ -351,3 +351,27 @@ async def get_stock_market_news(request: Request,
             request=request,
             name="error.html",
         )
+
+@analysis_router.get("/get-stock-market-wiki-page")
+async def get_stock_market_wiki_page(request: Request,
+                               db: AsyncSession = Depends(get_db)
+                               ):
+    try:
+        analysis_service = AnalysisService(db)
+
+        stock_market_wiki_page = await analysis_service.get_current_stock_market_wiki_page()
+        return templates.TemplateResponse(
+            request=request,
+            name="analysis/stock_market_wiki_page.html",
+            context={
+                "stock_market_wiki_page": stock_market_wiki_page
+            }
+        )
+
+    except Exception as e:
+        print(f"Error: {e}")
+        traceback.print_exc()
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+        )
