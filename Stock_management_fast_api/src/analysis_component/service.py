@@ -303,7 +303,7 @@ class AnalysisService:
             self.db
         )
 
-        return stock_market_service.get_current_wiki_page()
+        return await stock_market_service.get_current_wiki_page()
 
     async def update_stock_market_wiki_page(self, new_text):
 
