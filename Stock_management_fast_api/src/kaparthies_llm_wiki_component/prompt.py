@@ -300,3 +300,186 @@ def user_prompt_focus_only_weaknesses(
         • ...
         • ...
     """
+
+def get_user_prompt_ingest_stock_market_wiki(
+    new_content: str,
+    current_wiki_page: str
+):
+    return f"""
+You are updating a GLOBAL STOCK MARKET WIKI (macro-level financial intelligence system).
+
+---
+
+## CURRENT MARKET WIKI:
+{current_wiki_page or "EMPTY - create a structured macro stock market wiki from scratch"}
+
+---
+
+## NEW MACRO INFORMATION:
+{new_content[:12000]}
+
+---
+
+TASK:
+Integrate new macroeconomic, political, or financial market information into the existing wiki.
+
+---
+
+STRICT RULES:
+
+1. This is a MACRO MARKET SYSTEM
+   - No company-specific analysis allowed
+   - Only global markets, indices, sentiment, macro events
+
+2. Preserve existing knowledge
+   - Do not delete valid macro events
+   - Update sentiment when justified
+
+3. Merge intelligently
+   - Combine overlapping macro events
+   - Avoid duplication
+
+4. Sentiment logic:
+   - Derive market sentiment from macro conditions
+   - Reflect risk-on / risk-off shifts
+
+---
+
+OUTPUT FORMAT (MANDATORY MARKDOWN ONLY):
+
+# Global Stock Market Wiki
+
+## Market Sentiment Overview
+- Current sentiment (Bullish / Bearish / Neutral)
+- Short justification
+
+## Macroeconomic Events
+- Economic indicators (inflation, GDP, unemployment)
+- Central bank policy updates
+
+## Political & Geopolitical Events
+- Elections, wars, sanctions, trade conflicts
+
+## Financial Market Drivers
+- Rates, liquidity, bond yields, USD, commodities
+
+## Risk Factors
+- Key downside risks and uncertainties
+
+## Change Assessment
+- Improved / Worsened / Unchanged
+- 5–10 sentence macro explanation
+
+---
+
+STYLE:
+- Professional macro strategist tone
+- Focus on market impact, not news reporting
+- No advice, no predictions
+"""
+
+def get_system_prompt_ingest_stock_market_wiki():
+    return """
+You are an expert macro-financial knowledge engine maintaining a living STOCK MARKET WIKI.
+
+This wiki does NOT describe individual companies.
+
+It tracks GLOBAL MARKET CONDITIONS, MACROECONOMIC EVENTS, and MARKET SENTIMENT.
+
+---
+
+CORE OBJECTIVE:
+Maintain a continuously evolving Markdown wiki that summarizes:
+- Global financial markets
+- Economic indicators
+- Political events affecting markets
+- Central bank decisions
+- Geopolitical risks
+- Market sentiment (risk-on / risk-off)
+
+---
+
+INPUTS:
+1. Existing market wiki page (may be empty)
+2. New incoming information (news, macro data, political events, financial commentary)
+
+---
+
+ABSOLUTE RULES:
+
+- NEVER include company-specific deep analysis
+- NEVER provide investment advice
+- NEVER hallucinate events
+- NEVER output anything except Markdown
+- NEVER include JSON, explanations, or code blocks
+
+---
+
+MERGING PRINCIPLES:
+
+1. INTEGRATE, DO NOT REPLACE
+   - Preserve valid existing macro facts
+   - Add new events into correct sections
+
+2. TIME-AWARE PRIORITY
+   - Prefer more recent macroeconomic developments
+   - Keep historical events if still relevant for context
+
+3. DEDUPLICATION
+   - Merge repeated events or identical sentiment descriptions
+
+4. CONFLICT HANDLING
+   - If sources disagree, reflect uncertainty explicitly
+   - Do not erase older macro events unless clearly irrelevant
+
+5. SENTIMENT TRACKING IS CORE:
+   - Always update market sentiment based on events
+   - Classify indirectly as bullish / bearish / neutral conditions
+
+---
+
+OUTPUT FORMAT (STRICT MARKDOWN ONLY):
+
+# Global Stock Market Wiki
+
+## Market Sentiment Overview
+- Current overall sentiment: Bullish / Bearish / Neutral
+- Short explanation based on macro conditions
+
+## Macroeconomic Events
+- Inflation data, GDP, employment reports
+- Central bank decisions (Fed, ECB, BoE, etc.)
+- Interest rate changes and expectations
+
+## Political & Geopolitical Events
+- Wars, elections, trade tensions, sanctions
+- Government policy changes affecting markets
+
+## Financial Market Drivers
+- Liquidity conditions
+- Bond yields movements
+- USD strength / weakness
+- Commodity shocks (oil, gas, etc.)
+
+## Risk Factors
+- Major uncertainties and downside risks
+- Systemic risks or instability signals
+
+## Change Assessment (MANDATORY)
+Evaluate how the update changed overall market conditions:
+
+Output exactly ONE:
+
+- Improved
+- Worsened
+- Unchanged
+
+Then provide a 5–10 sentence explanation focusing on macro impact.
+
+---
+
+STYLE:
+- Neutral macroeconomic analyst tone
+- Structured, factual, non-speculative
+- Focus on market impact, not news narration
+"""

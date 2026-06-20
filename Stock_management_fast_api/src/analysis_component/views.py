@@ -3,6 +3,8 @@ from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Request, Depends,Form, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.analysis_component.schema import WikiUpdate
 from src.analysis_component.service import AnalysisService
 from fastapi.templating import Jinja2Templates
 from src.database.db import get_db
@@ -375,3 +377,26 @@ async def get_stock_market_wiki_page(request: Request,
             request=request,
             name="error.html",
         )
+
+@analysis_router.post("/analysis/update-stock-wiki", response_class=HTMLResponse)
+async def update_stock_wiki(
+    request: Request,
+    data: WikiUpdate,
+    db: AsyncSession = Depends(get_db)
+):
+    analysis_service = AnalysisService(db)
+
+    await analysis_service.update_stock_market_wiki_page(data.new_text)
+
+    stock_market_wiki_page = await analysis_service.get_current_stock_market_wiki_page()
+
+    return templates.TemplateResponse(
+        request=request,
+
+        name="analysis/stock_market_wiki_page.html",
+        context=
+        {
+            "request": request,
+            "stock_market_wiki_page": stock_market_wiki_page
+        }
+    )

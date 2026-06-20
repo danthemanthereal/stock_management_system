@@ -1,51 +1,77 @@
 {% extends "analysis/analysis_base.html" %}
 
 {% block analysis_content %}
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-<div id="markdown-container"></div>
+<div style="max-width: 800px; margin: auto; padding: 20px;">
 
-<!-- Markdown aus DB sicher in JSON einbetten -->
+    <h2>Stock Wiki Update</h2>
+
+    <p>Neuen Inhalt hinzufügen:</p>
+
+    <textarea id="new-text" style="
+        width: 100%;
+        height: 120px;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #444;
+    "></textarea>
+
+    <br><br>
+
+    <button onclick="sendUpdate()" style="
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+    ">
+        Update Wiki
+    </button>
+
+    <hr>
+
+    <h3>Aktueller Inhalt</h3>
+
+    <div id="markdown-container"></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<!-- aktueller Markdown aus DB -->
 <script id="markdown-data" type="text/markdown">
 {{ stock_market_wiki_page | e }}
 </script>
 
 <script>
-    const rawMarkdown = document.getElementById("markdown-data").textContent;
+    const currentMarkdown = document.getElementById("markdown-data").textContent;
+    const container = document.getElementById("markdown-container");
 
-    // Markdown → HTML rendern
-    const html = marked.parse(rawMarkdown || "");
+    function render() {
+        container.innerHTML = marked.parse(currentMarkdown || "");
+    }
 
-    document.getElementById("markdown-container").innerHTML = html;
+    render();
+
+    async function sendUpdate() {
+        const newText = document.getElementById("new-text").value;
+
+        if (!newText.trim()) return;
+
+        const response = await fetch("/analysis/update-stock-wiki", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                new_text: newText
+            })
+        });
+
+        if (response.ok) {
+            location.reload(); // simple refresh
+        } else {
+            alert("Fehler beim Update");
+        }
+    }
 </script>
-
-<style>
-#markdown-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    line-height: 1.6;
-}
-
-#markdown-container h1,
-#markdown-container h2,
-#markdown-container h3 {
-    margin-top: 1.2em;
-}
-
-#markdown-container pre {
-    background: #1e1e1e;
-    padding: 12px;
-    border-radius: 6px;
-    overflow-x: auto;
-}
-
-#markdown-container code {
-    background: #2a2a2a;
-    padding: 2px 5px;
-    border-radius: 4px;
-}
-</style>
 
 {% endblock %}

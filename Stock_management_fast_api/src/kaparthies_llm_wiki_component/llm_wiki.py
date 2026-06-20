@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 from src.bought_stock_component.service import BoughtStockService
 from src.kaparthies_llm_wiki_component.prompt import user_prompt_for_ingest, \
     user_prompt_focus_only_strengths, system_prompts_for_focus_only_strengths, system_prompt_for_focus_only_weaknesses, \
-    user_prompt_focus_only_weaknesses, get_system_prompt_for_ingest
+    user_prompt_focus_only_weaknesses, get_system_prompt_for_ingest, get_user_prompt_ingest_stock_market_wiki, \
+    get_system_prompt_ingest_stock_market_wiki
 from src.watchlist_component.service import WatchlistStockService
 
 load_dotenv()
@@ -246,4 +247,26 @@ class LLMWiki:
                 new_weakness=new_combined_weakness,
                 new_wiki_page=new_combined_wiki
             )
+
+    async def ingest_stock_market_wiki_page(self,
+                                            new_stock_market_infos,
+                                            current_wiki_page):
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        user_prompt =  get_user_prompt_ingest_stock_market_wiki(new_stock_market_infos, current_wiki_page)
+
+        system_prompt = get_system_prompt_ingest_stock_market_wiki()
+        response = client.chat.completions.create(
+            model=self.groq_model_name,
+            messages=[
+                {"role": "system",
+                 "content": system_prompt
+                 },
+                {
+                    "role": "user",
+                    "content": user_prompt
+                }
+            ])
+
+        content = response.choices[0].message.content
+        return content
 
