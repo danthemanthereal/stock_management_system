@@ -241,5 +241,11 @@ Rules:
                                        satisfied_only_development,
                                        unsatisfied_only_development,
                                        )->str:
-        pass
+
+        try:
+            component = self.analysis_components[category_name]
+            return component.analyse_financial_metrics(all_financial_metrics)
+        except Exception as e:
+            print(e)
+            return ""
 

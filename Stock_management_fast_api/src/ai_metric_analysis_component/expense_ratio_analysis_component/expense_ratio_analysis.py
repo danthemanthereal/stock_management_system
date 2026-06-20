@@ -13,5 +13,12 @@ class ExpenseRatioAnalysisComponent(AIMetricAnalysisComponent):
         self.api_key = api_key
 
 
-    def analyse_financial_metrics(self, all_to_considered_financial_metrics):
+    def analyse_financial_metrics(self,
+                                  satisfied_by_category: dict,
+                                  unsatisfied_by_category: dict,
+                                  satisfied_only_reference_value: dict,
+                                  unsatisfied_only_reference_value: dict,
+                                  satisfied_only_development: dict,
+                                  unsatisfied_only_development: dict,
+                                  ):
         pass
