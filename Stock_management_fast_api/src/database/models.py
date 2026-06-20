@@ -125,6 +125,11 @@ class User(Base):
     industry_profiles = relationship("IndustryProfile", back_populates="user", cascade="all, delete-orphan")
     stock_summary = relationship("StockSummary", back_populates="user", cascade="all, delete-orphan")
     last_selected_template_id = Column(Integer)
+    industries = relationship(
+        "Industry",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
 
 
 class RefreshToken(Base):
@@ -160,8 +165,12 @@ class StockMarket(Base):
 class Industry(Base):
     __tablename__ = "industry"
     id = Column(Integer, primary_key=True, index=True)
-    industry_name = Column(String, unique=True, index=True)
+    industry_name = Column(String, index=True)
     wiki_page = Column(Text)
+
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+
+    user = relationship("User", back_populates="industries")
 
 
 class BaseModel(PydanticBase):
