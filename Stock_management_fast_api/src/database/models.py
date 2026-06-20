@@ -157,6 +157,12 @@ class StockMarket(Base):
     id = Column(Integer, primary_key=True, index=True)
     wiki_page = Column(Text)
 
+class Industry(Base):
+    __tablename__ = "industry"
+    id = Column(Integer, primary_key=True, index=True)
+    industry_name = Column(String, unique=True, index=True)
+    wiki_page = Column(Text)
+
 
 class BaseModel(PydanticBase):
     id: str = Field(default_factory=lambda: str(uuid4()))
