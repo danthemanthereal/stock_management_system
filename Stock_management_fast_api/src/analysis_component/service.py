@@ -2,8 +2,9 @@ import json
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import  Request
+
+from src.ai_financial_metricevaluation_component.evaluation_ai_financial_metrics import FinancialMetricAIEvaluator
 from src.configs.used_model import STRENGTH_WEAKNESS_MODEL, FINANCIAL_METRIC_EVALUATION_MODEL, LLM_WIKI_MODEL
-from src.financial_metric_analysis_component.evaluation_ai_financial_metrics import FinancialMetricAIEvaluator
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.financial_metric_analysis_component.utils import merge_financial_summary_triples
 from src.financial_metric_category_component.service import FinancialMetricCategoryService

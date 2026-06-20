@@ -4,19 +4,12 @@ from uuid import UUID
 from fastapi import APIRouter, Request, Depends,Form, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.analysis_component.service import AnalysisService
-from src.bought_stock_component.service import BoughtStockService
 from fastapi.templating import Jinja2Templates
 from src.database.db import get_db
 from starlette.responses import HTMLResponse
-from src.financial_metric_analysis_component.evaluation_ai_financial_metrics import FinancialMetricAIEvaluator
-from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.utils.utils import render_localized
 from src.authenticator_component.authenticator import get_current_user_id
-from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from dotenv import load_dotenv
-from src.financial_metric_analysis_component.utils import merge_financial_summary_triples
-from src.configs.used_model import  FINANCIAL_METRIC_EVALUATION_MODEL, LLM_WIKI_MODEL
-from src.watchlist_component.service import WatchlistStockService
 
 load_dotenv()
 
