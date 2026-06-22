@@ -535,7 +535,7 @@ async def update_wiki_page_current_selected_industry(request: Request,
             action=action
         )
 
-        wiki_pages = [] # await analysis_service.get_industry_wiki_pages_of_current_user(current_user_id)
+        wiki_pages =  await analysis_service.get_industry_wiki_pages_of_current_user(current_user_id)
 
         created_industries_of_current_user = await analysis_service.get_all_created_industries_of_current_user(
             current_user_id)
