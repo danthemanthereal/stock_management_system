@@ -8,7 +8,8 @@ from src.kaparthies_llm_wiki_component.prompt import user_prompt_for_ingest, \
     user_prompt_focus_only_strengths, system_prompts_for_focus_only_strengths, system_prompt_for_focus_only_weaknesses, \
     user_prompt_focus_only_weaknesses, get_system_prompt_for_ingest, get_user_prompt_ingest_stock_market_wiki, \
     get_system_prompt_ingest_stock_market_wiki, get_user_prompt_ingest_industry_wiki, \
-    get_system_prompt_ingest_industry_wiki
+    get_system_prompt_ingest_industry_wiki, get_system_prompt_bull_factors, get_user_prompt_bull_factors, \
+    get_system_prompt_bear_factors, get_user_prompt_bear_factors
 from src.watchlist_component.service import WatchlistStockService
 
 load_dotenv()
@@ -300,17 +301,17 @@ class LLMWiki:
         return response.choices[0].message.content
 
     async def ingest_bear_factors_wiki_page(self,
+                                            industry_name: str,
                                             current_bear_factors: str,
                                             new_bear_factors: str,
                                             ):
         client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-        user_prompt = get_user_prompt_ingest_industry_wiki(
-            current_wiki_page=current_wiki_page,
-            industry_name=industry_name,
-            new_content=new_content,
+        user_prompt = get_user_prompt_bear_factors(
+                industry=industry_name,
+            current_bear_factors=current_bear_factors,
+            new_content=new_bear_factors,
         )
-
-        system_prompt = get_system_prompt_ingest_industry_wiki()
+        system_prompt = get_system_prompt_bear_factors()
         response = client.chat.completions.create(
             model=self.groq_model_name,
             messages=[
@@ -326,17 +327,18 @@ class LLMWiki:
         return response.choices[0].message.content
 
     async def ingest_bull_factors_wiki_page(self,
+                                            industry_name: str,
                                             current_bull_factors: str,
                                             new_bull_factors: str,
                                             ):
         client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-        user_prompt = get_user_prompt_ingest_industry_wiki(
-            current_wiki_page=current_wiki_page,
-            industry_name=industry_name,
-            new_content=new_content,
+        user_prompt = get_user_prompt_bull_factors(
+            industry=industry_name,
+            new_content=new_bull_factors,
+            current_bull_factors=current_bull_factors,
         )
 
-        system_prompt = get_system_prompt_ingest_industry_wiki()
+        system_prompt = get_system_prompt_bull_factors()
         response = client.chat.completions.create(
             model=self.groq_model_name,
             messages=[

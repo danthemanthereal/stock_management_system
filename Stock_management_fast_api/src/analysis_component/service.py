@@ -1,4 +1,5 @@
 import json
+import time
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import  Request
@@ -368,12 +369,25 @@ class AnalysisService:
             industry_name=industry_name,
         )
 
-        new_combined_bull_factors, new_combined_bear_factors = "", ""
 
         updated_wiki_page = await llm_wiki.ingest_industry_wiki_page(
             industry_name=industry_name,
             current_wiki_page=current_wiki_of_current_industry_of_current_user,
             new_content=new_content,
+        )
+
+        new_combined_bear_factors = await llm_wiki.ingest_bear_factors_wiki_page(
+            industry_name=industry_name,
+            current_bear_factors=current_bear_factors,
+            new_bear_factors=new_bear_factors,
+        )
+
+        time.sleep(61)
+
+        new_combined_bull_factors = await llm_wiki.ingest_bull_factors_wiki_page(
+            industry_name=industry_name,
+            current_bull_factors=current_bull_factors,
+            new_bull_factors=new_bull_factors,
         )
 
         await industry_service.update_wiki_page_of_selected_industry_of_current_user(
