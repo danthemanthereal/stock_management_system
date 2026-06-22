@@ -358,6 +358,16 @@ class AnalysisService:
         current_wiki_of_current_industry_of_current_user = await industry_service.get_current_wiki_page_of_industry_of_current_user(industry_name=industry_name,
                                                                                                                               current_user_id=current_user_id)
 
+        current_bull_factors, current_bear_factors = await industry_service.get_bear_and_bull_factors_of_current_industry_of_current_user(
+            current_user_id=current_user_id,
+        industry_name=industry_name,
+        )
+
+        new_bull_factors, new_bear_factors = self.get_new_bear_and_bull_factors_of_new_content(
+            new_content=new_content,
+            industry_name=industry_name,
+        )
+
         updated_wiki_page = await llm_wiki.ingest_industry_wiki_page(
             industry_name=industry_name,
             current_wiki_page=current_wiki_of_current_industry_of_current_user,
@@ -395,6 +405,29 @@ class AnalysisService:
 
         else:
             return ""
+
+
+    def get_new_bear_and_bull_factors_of_new_content(self,
+                                                     industry_name: str,
+                                                     new_content: str
+                                                     ):
+        try:
+            industry_ai_eval = IndustryAIEvaluation(
+                groq_model_name=INDUSTRY_EVALUATION_MODEL,
+                api_key=os.getenv("GROQ_API_KEY")
+            )
+
+            bear_factors, bull_factors = industry_ai_eval.get_bear_and_bull_factors_by_url(
+                industry=industry_name,
+                url=new_content,
+            )
+
+            return bull_factors, bear_factors
+        except Exception as e:
+            print(e)
+            return "", ""
+
+
 
 
 

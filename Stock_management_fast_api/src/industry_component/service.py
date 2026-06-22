@@ -89,3 +89,45 @@ class IndustryService:
 
         return True
 
+    async def get_bear_and_bull_factors_of_current_industry_of_current_user(self,
+                                                                            industry_name: str,
+                                                                            current_user_id: UUID
+                                                                            ):
+        result = await self.db.execute(
+            select(Industry.bull_factors, Industry.bear_factors)
+            .where(Industry.user_id == current_user_id,
+                   Industry.industry_name == industry_name
+                   )
+        )
+        return result.first()[0], result.first()[1]
+
+    async def update_bear_and_bull_of_selected_industry_of_current_user(
+            self,
+            industry_name: str,
+            current_user_id: UUID,
+            new_bear_factors: str,
+            new_bull_factors: str
+    ):
+
+        result = await self.db.execute(
+            select(Industry)
+            .where(Industry.user_id == current_user_id,
+                   Industry.industry_name == industry_name
+                   )
+        )
+        industry = result.scalars().first()
+
+        if not industry:
+            return False
+
+        industry.bear_factors = new_bear_factors
+        industry.bull_factors = new_bull_factors
+
+        await self.db.commit()
+
+        await self.db.refresh(industry)
+
+        return True
+
+
+
