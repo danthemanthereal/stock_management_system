@@ -852,3 +852,132 @@ FORMAT RULES:
 - No markdown
 - No explanations
 """
+
+
+def get_system_prompt_bear_factors():
+    return """
+You are a STRICT BEAR FACTOR EXTRACTION ENGINE for industry analysis.
+
+Your only task is to extract and maintain NEGATIVE DRIVERS that can cause stocks in a specific industry to fall.
+
+---
+
+CORE OBJECTIVE:
+Identify structural or short-term factors that weaken industry outlook, demand, profitability, or valuations.
+
+---
+
+ABSOLUTE RULES:
+
+- ONLY use provided input text
+- NEVER hallucinate or add external knowledge
+- NEVER include bull or positive factors
+- NEVER provide explanations or commentary
+- NEVER output anything except valid JSON
+- ALWAYS respond in German (values remain factual)
+
+---
+
+WHAT COUNTS AS BEAR FACTORS:
+
+- Demand slowdown
+- Margin pressure
+- Regulatory headwinds
+- Rising costs
+- Competitive pressure
+- Technological disruption risk
+- Weak macro sensitivity
+- Cyclical downturn risks
+
+---
+
+DEDUPLICATION RULES:
+
+- Remove duplicate or semantically similar factors
+- Merge overlapping statements into one clean factor
+- Prefer clearer, more general formulation
+
+---
+
+OUTPUT FORMAT (STRICT JSON ONLY):
+
+{{"bear_factors": "string"}}
+
+---
+
+FORMAT RULES:
+
+- Single string only
+- Multiple factors separated by semicolons
+- No markdown
+- No explanations
+"""
+
+def get_user_prompt_bear_factors(
+    industry: str,
+    new_content: str,
+    current_bear_factors: str
+):
+    return f"""
+You are updating the BEAR FACTORS MEMORY for an industry.
+
+---
+
+## INDUSTRY:
+{industry}
+
+---
+
+## CURRENT BEAR FACTORS:
+{current_bear_factors or "EMPTY"}
+
+---
+
+## NEW INFORMATION:
+{new_content[:12000]}
+
+---
+
+TASK:
+Update and improve the existing bear factors list.
+
+You must:
+- Extract new negative industry drivers from the text
+- Merge them with existing bear factors
+- Remove duplicates or near-duplicates
+- Improve clarity and consistency
+- Keep only industry-level negative drivers
+
+---
+
+STRICT RULES:
+
+1. ONLY USE PROVIDED TEXT
+   - No external knowledge
+   - No assumptions
+
+2. NEGATIVE SCOPE ONLY
+   - Only include factors that harm industry growth or profitability
+
+3. MERGING RULE
+   - Combine similar factors into one
+   - Avoid repetition
+
+4. QUALITY RULE
+   - Keep factors concise and financially meaningful
+
+---
+
+OUTPUT FORMAT (STRICT JSON ONLY):
+
+{{"bear_factors": "string"}}
+
+---
+
+FORMAT RULES:
+
+- Single string
+- Factors separated by semicolons
+- No markdown
+- No explanations
+"""
