@@ -528,9 +528,14 @@ async def update_wiki_page_current_selected_industry(request: Request,
     try:
         analysis_service = AnalysisService(db)
 
-        await analysis_service.update_wiki_of_current_selected_industry_of_current_user()
+        await analysis_service.update_wiki_of_current_selected_industry_of_current_user(
+            current_user_id=current_user_id,
+            industry_name=selected_industry,
+            input_link_or_text=input_link_or_text,
+            action=action
+        )
 
-        wiki_pages = await analysis_service.get_industry_wiki_pages_of_current_user(current_user_id)
+        wiki_pages = [] # await analysis_service.get_industry_wiki_pages_of_current_user(current_user_id)
 
         created_industries_of_current_user = await analysis_service.get_all_created_industries_of_current_user(
             current_user_id)
@@ -554,4 +559,6 @@ async def update_wiki_page_current_selected_industry(request: Request,
             request=request,
             name="error.html",
         )
+
+
 
