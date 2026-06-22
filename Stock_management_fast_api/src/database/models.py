@@ -167,6 +167,8 @@ class Industry(Base):
     id = Column(Integer, primary_key=True, index=True)
     industry_name = Column(String, index=True)
     wiki_page = Column(Text)
+    bear_factors = Column(Text)
+    bull_factors = Column(Text)
 
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
 
