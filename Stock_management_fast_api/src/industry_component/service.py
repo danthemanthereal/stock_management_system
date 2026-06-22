@@ -26,7 +26,8 @@ class IndustryService:
         try:
             new_industry = Industry(
                 industry_name=industry_name,
-                user_id=current_user_id
+                user_id=current_user_id,
+                wiki_page=""
             )
 
             self.db.add(new_industry)
