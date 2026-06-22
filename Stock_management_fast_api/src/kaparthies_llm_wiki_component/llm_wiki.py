@@ -299,3 +299,55 @@ class LLMWiki:
 
         return response.choices[0].message.content
 
+    async def ingest_bear_factors_wiki_page(self,
+                                            current_bear_factors: str,
+                                            new_bear_factors: str,
+                                            ):
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        user_prompt = get_user_prompt_ingest_industry_wiki(
+            current_wiki_page=current_wiki_page,
+            industry_name=industry_name,
+            new_content=new_content,
+        )
+
+        system_prompt = get_system_prompt_ingest_industry_wiki()
+        response = client.chat.completions.create(
+            model=self.groq_model_name,
+            messages=[
+                {"role": "system",
+                 "content": system_prompt
+                 },
+                {
+                    "role": "user",
+                    "content": user_prompt
+                }
+            ])
+
+        return response.choices[0].message.content
+
+    async def ingest_bull_factors_wiki_page(self,
+                                            current_bull_factors: str,
+                                            new_bull_factors: str,
+                                            ):
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        user_prompt = get_user_prompt_ingest_industry_wiki(
+            current_wiki_page=current_wiki_page,
+            industry_name=industry_name,
+            new_content=new_content,
+        )
+
+        system_prompt = get_system_prompt_ingest_industry_wiki()
+        response = client.chat.completions.create(
+            model=self.groq_model_name,
+            messages=[
+                {"role": "system",
+                 "content": system_prompt
+                 },
+                {
+                    "role": "user",
+                    "content": user_prompt
+                }
+            ])
+
+        return response.choices[0].message.content
+

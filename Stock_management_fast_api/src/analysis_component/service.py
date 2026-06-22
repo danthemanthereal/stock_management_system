@@ -368,6 +368,8 @@ class AnalysisService:
             industry_name=industry_name,
         )
 
+        new_combined_bull_factors, new_combined_bear_factors = "", ""
+
         updated_wiki_page = await llm_wiki.ingest_industry_wiki_page(
             industry_name=industry_name,
             current_wiki_page=current_wiki_of_current_industry_of_current_user,
@@ -378,6 +380,13 @@ class AnalysisService:
             current_user_id=current_user_id,
             industry_name=industry_name,
             new_wiki_page=updated_wiki_page
+        )
+
+        await industry_service.update_bear_and_bull_of_selected_industry_of_current_user(
+            current_user_id=current_user_id,
+            industry_name=industry_name,
+            new_bear_factors=new_combined_bear_factors,
+            new_bull_factors=new_combined_bull_factors
         )
 
     def get_content_of_url_or_text(self,

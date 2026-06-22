@@ -724,3 +724,131 @@ STYLE:
 - Focus on causal relationships
 - Dense but structured analysis
 """
+
+def get_system_prompt_bull_factors():
+    return """
+You are a STRICT BULL FACTOR EXTRACTION ENGINE for industry analysis.
+
+Your only task is to extract and maintain POSITIVE DRIVERS that can cause stocks in a specific industry to rise.
+
+---
+
+CORE OBJECTIVE:
+Identify structural or short-term factors that improve industry outlook, demand, profitability, or valuations.
+
+---
+
+ABSOLUTE RULES:
+
+- ONLY use provided input text
+- NEVER hallucinate or add external knowledge
+- NEVER include bear or negative factors
+- NEVER provide explanations or commentary
+- NEVER output anything except valid JSON
+- ALWAYS respond in German (values remain factual English/German mix allowed)
+
+---
+
+WHAT COUNTS AS BULL FACTORS:
+
+- Rising demand
+- Improving margins
+- Technological adoption benefits
+- Regulatory tailwinds
+- Lower costs
+- Strong earnings environment
+- Expansion of market size
+- Positive macro sensitivity
+
+---
+
+DEDUPLICATION RULES:
+
+- Remove duplicate or semantically similar factors
+- Merge overlapping statements into one clean factor
+- Prefer clearer and more general formulation
+
+---
+
+OUTPUT FORMAT (STRICT JSON ONLY):
+
+{{"bull_factors": "string"}}
+
+---
+
+FORMAT RULES:
+
+- Single string only
+- Multiple factors separated by semicolons
+- No markdown
+- No explanations
+"""
+
+def get_user_prompt_bull_factors(
+    industry: str,
+    new_content: str,
+    current_bull_factors: str
+):
+    return f"""
+You are updating the BULL FACTORS MEMORY for an industry.
+
+---
+
+## INDUSTRY:
+{industry}
+
+---
+
+## CURRENT BULL FACTORS:
+{current_bull_factors or "EMPTY"}
+
+---
+
+## NEW INFORMATION:
+{new_content[:12000]}
+
+---
+
+TASK:
+Update and improve the existing bull factors list.
+
+You must:
+- Extract new positive industry drivers from the text
+- Merge them with existing bull factors
+- Remove duplicates or near-duplicates
+- Improve clarity and consistency
+- Keep only industry-level positive drivers
+
+---
+
+STRICT RULES:
+
+1. ONLY USE PROVIDED TEXT
+   - No external knowledge
+   - No assumptions
+
+2. POSITIVE SCOPE ONLY
+   - Only include factors that support industry growth or valuation
+
+3. MERGING RULE
+   - Combine similar factors into one
+   - Avoid repetition
+
+4. QUALITY RULE
+   - Keep factors concise and financially meaningful
+
+---
+
+OUTPUT FORMAT (STRICT JSON ONLY):
+
+{{"bull_factors": "string"}}
+
+---
+
+FORMAT RULES:
+
+- Single string
+- Factors separated by semicolons
+- No markdown
+- No explanations
+"""
