@@ -336,7 +336,22 @@ class AnalysisService:
                                                                        current_user_id: UUID,
                                                                        industry_name: str
                                                                        ):
-        pass
+        industry_service = IndustryService(self.db)
+
+        llm_wiki = LLMWiki(self.db,
+                           LLM_WIKI_MODEL
+                           )
+
+        current_wiki_of_current_industry_of_current_user = await industry_service.get_current_wiki_page_of_industry_of_current_user(industry_name=industry_name,
+                                                                                                                              current_user_id=current_user_id)
+
+        updated_wiki_page = await llm_wiki.ingest_industry_wiki_page(
+            industry_name=industry_name,
+            current_wiki_page=current_wiki_of_current_industry_of_current_user,
+            new_content=new_content,
+            new_bear_factors="",
+            new_bull_factors=""
+        )
 
 
 

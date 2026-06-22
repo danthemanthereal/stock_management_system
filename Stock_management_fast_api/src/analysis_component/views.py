@@ -518,7 +518,7 @@ async def add_to_current_user_new_industry(request: Request,
 
 
 @analysis_router.post("/update-wiki-page-current-selected-industry")
-async def update_wiki_page_current_selected(request: Request,
+async def update_wiki_page_current_selected_industry(request: Request,
                                             db: AsyncSession = Depends(get_db),
                                             current_user_id: UUID = Depends(get_current_user_id),
                                             selected_industry: str = Form(...),
@@ -528,7 +528,7 @@ async def update_wiki_page_current_selected(request: Request,
     try:
         analysis_service = AnalysisService(db)
 
-        await analysis_service
+        await analysis_service.update_wiki_of_current_selected_industry_of_current_user()
 
         wiki_pages = await analysis_service.get_industry_wiki_pages_of_current_user(current_user_id)
 
@@ -546,8 +546,6 @@ async def update_wiki_page_current_selected(request: Request,
                 "created_industries_of_current_user": created_industries_of_current_user
             }
         )
-
-
 
     except Exception as e:
         print(f"Error: {e}")

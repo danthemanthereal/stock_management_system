@@ -7,7 +7,8 @@ from src.bought_stock_component.service import BoughtStockService
 from src.kaparthies_llm_wiki_component.prompt import user_prompt_for_ingest, \
     user_prompt_focus_only_strengths, system_prompts_for_focus_only_strengths, system_prompt_for_focus_only_weaknesses, \
     user_prompt_focus_only_weaknesses, get_system_prompt_for_ingest, get_user_prompt_ingest_stock_market_wiki, \
-    get_system_prompt_ingest_stock_market_wiki
+    get_system_prompt_ingest_stock_market_wiki, get_user_prompt_ingest_industry_wiki, \
+    get_system_prompt_ingest_industry_wiki
 from src.watchlist_component.service import WatchlistStockService
 
 load_dotenv()
@@ -269,4 +270,34 @@ class LLMWiki:
 
         content = response.choices[0].message.content
         return content
+
+    async def ingest_industry_wiki_page(self,
+                                        industry_name: str,
+                                        current_wiki_page: str,
+                                        new_content: str,
+                                        new_bear_factors: str,
+                                        new_bull_factors: str,
+                                        ):
+
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        user_prompt = get_user_prompt_ingest_industry_wiki(
+            current_wiki_page=current_wiki_page,
+            industry_name=industry_name,
+            new_content=new_content,
+        )
+
+        system_prompt = get_system_prompt_ingest_industry_wiki()
+        response = client.chat.completions.create(
+            model=self.groq_model_name,
+            messages=[
+                {"role": "system",
+                 "content": system_prompt
+                 },
+                {
+                    "role": "user",
+                    "content": user_prompt
+                }
+            ])
+
+        return response.choices[0].message.content
 
