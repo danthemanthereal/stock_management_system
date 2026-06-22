@@ -14,7 +14,7 @@ class IndustryService:
                                                current_user_id: UUID
                                                ):
         result = await self.db.execute(
-            select(Industry.wiki_page)
+            select(Industry)
             .where(Industry.user_id == current_user_id)
         )
 

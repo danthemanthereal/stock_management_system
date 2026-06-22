@@ -4,10 +4,29 @@
 
 <!-- Markdown Container Liste -->
 <div id="wiki-container">
-    {% for page in wiki_pages %}
-        <div class="markdown-block" data-md="{{ page | e }}"></div>
-        <hr>
-    {% endfor %}
+   {% for page in wiki_pages %}
+
+    <!-- Wiki Page (Markdown) -->
+    <div class="markdown-block" data-md="{{ page.wiki_page | e }}"></div>
+
+    <!-- Bull + Bear Factors nebeneinander -->
+    <div style="display: flex; gap: 20px; margin-top: 10px;">
+
+        <div style="flex: 1;">
+            <h4>Bull Factors</h4>
+            <div class="markdown-block" data-md="{{ page.bull_factors | e }}"></div>
+        </div>
+
+        <div style="flex: 1;">
+            <h4>Bear Factors</h4>
+            <div class="markdown-block" data-md="{{ page.bear_factors | e }}"></div>
+        </div>
+
+    </div>
+
+    <hr>
+
+{% endfor %}
 </div>
 
 <!-- Marked.js -->
