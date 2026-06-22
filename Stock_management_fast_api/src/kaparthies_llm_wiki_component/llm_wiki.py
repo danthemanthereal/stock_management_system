@@ -275,8 +275,6 @@ class LLMWiki:
                                         industry_name: str,
                                         current_wiki_page: str,
                                         new_content: str,
-                                        new_bear_factors: str,
-                                        new_bull_factors: str,
                                         ):
 
         client = Groq(api_key=os.getenv("GROQ_API_KEY"))

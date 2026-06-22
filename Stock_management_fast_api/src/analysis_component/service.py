@@ -3,12 +3,14 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import  Request
 from src.ai_financial_metricevaluation_component.evaluation_ai_financial_metrics import FinancialMetricAIEvaluator
-from src.configs.used_model import STRENGTH_WEAKNESS_MODEL, FINANCIAL_METRIC_EVALUATION_MODEL, LLM_WIKI_MODEL
+from src.configs.used_model import STRENGTH_WEAKNESS_MODEL, FINANCIAL_METRIC_EVALUATION_MODEL, LLM_WIKI_MODEL, \
+    INDUSTRY_EVALUATION_MODEL
 from src.financial_metric_analysis_component.financial_metric_service import MetricsService
 from src.financial_metric_analysis_component.utils import merge_financial_summary_triples
 from src.financial_metric_category_component.service import FinancialMetricCategoryService
 from src.find_potential_stocks_component.find_potential_stocks import FindPotentialStocks
 from src.get_news_component.get_news import NewsFinderComponent
+from src.industry_ai_evaluation_compoment.industry_ai_evaluation import IndustryAIEvaluation
 from src.industry_component.service import IndustryService
 from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 from src.stock_market_component.service import StockMarketComponentService
@@ -20,6 +22,10 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
+GET_CONTENT_BY_TEXT_ACTION_NAME="update_by_text"
+
+GET_CONTENT_BY_URL_ACTION_NAME="update_by_url"
 
 
 
@@ -343,27 +349,50 @@ class AnalysisService:
                            LLM_WIKI_MODEL
                            )
 
-        print("action ", action)
-        print("input_link_or_text ", input_link_or_text)
-
-        new_content = ""
+        new_content = self.get_content_of_url_or_text(
+            industry_name=industry_name,
+            input_link_or_text=input_link_or_text,
+            action=action
+        )
 
         current_wiki_of_current_industry_of_current_user = await industry_service.get_current_wiki_page_of_industry_of_current_user(industry_name=industry_name,
                                                                                                                               current_user_id=current_user_id)
 
-        '''updated_wiki_page = await llm_wiki.ingest_industry_wiki_page(
+        updated_wiki_page = await llm_wiki.ingest_industry_wiki_page(
             industry_name=industry_name,
             current_wiki_page=current_wiki_of_current_industry_of_current_user,
             new_content=new_content,
-            new_bear_factors="",
-            new_bull_factors=""
-        )'''
+        )
 
-    def get_content_of_url_or_text(self, input_link_or_text: str, action: str):
-        if action == "update_by_text":
+        await industry_service.update_wiki_page_of_selected_industry_of_current_user(
+            current_user_id=current_user_id,
+            industry_name=industry_name,
+            new_wiki_page=updated_wiki_page
+        )
+
+    def get_content_of_url_or_text(self,
+                                   industry_name: str,
+                                   input_link_or_text: str,
+                                   action: str):
+        if action == GET_CONTENT_BY_TEXT_ACTION_NAME:
             return input_link_or_text
-        elif action == "update_by_url":
-            return ""
+        elif action == GET_CONTENT_BY_URL_ACTION_NAME:
+            industry_ai_eval = IndustryAIEvaluation(
+                groq_model_name=INDUSTRY_EVALUATION_MODEL,
+                api_key=os.getenv("GROQ_API_KEY")
+            )
+
+            bear_factors, bull_factors = industry_ai_eval.get_bear_and_bull_factors_by_url(
+                industry=industry_name,
+                url=input_link_or_text,
+            )
+
+            return f"""
+                    Bear Factors: {bear_factors}
+                    
+                    Bull Factors: {bull_factors}
+            """
+
         else:
             return ""
 
