@@ -9,6 +9,8 @@ from src.analysis_component.service import AnalysisService
 from fastapi.templating import Jinja2Templates
 from src.database.db import get_db
 from starlette.responses import HTMLResponse
+
+from src.html__text_parser_component.bs4_text_parser import BS4TextParser
 from src.utils.utils import render_localized
 from src.authenticator_component.authenticator import get_current_user_id
 from dotenv import load_dotenv
@@ -402,7 +404,9 @@ async def update_stock_wiki(
 ):
     analysis_service = AnalysisService(db)
 
-    await analysis_service.update_stock_market_wiki_page(data.new_text)
+    new_stock_market_info = await get_new_stock_market_content(data.new_text)
+
+    await analysis_service.update_stock_market_wiki_page(new_stock_market_info)
 
     stock_market_wiki_page = await analysis_service.get_current_stock_market_wiki_page()
 
@@ -416,6 +420,15 @@ async def update_stock_wiki(
             "stock_market_wiki_page": stock_market_wiki_page
         }
     )
+
+async def get_new_stock_market_content(new_content: str)-> str:
+
+    if new_content.startswith('https'):
+
+        html_parser = BS4TextParser()
+        return await html_parser.get_website_text(new_content)
+
+    return new_content
 
 
 @analysis_router.get("/industry-wiki-page", response_class=HTMLResponse)
