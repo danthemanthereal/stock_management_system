@@ -49,6 +49,7 @@ dist/
 # SQLite (falls genutzt)
 
 *.db
+./test.db
 
 # FastAPI / Uvicorn
 
