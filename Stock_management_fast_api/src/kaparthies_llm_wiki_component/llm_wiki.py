@@ -305,7 +305,7 @@ class LLMWiki:
                                             current_bear_factors: str,
                                             new_bear_factors: str,
                                             ):
-        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        client = Groq(api_key=os.getenv("SECOND_GROQ_API_KEY"))
         user_prompt = get_user_prompt_bear_factors(
                 industry=industry_name,
             current_bear_factors=current_bear_factors,
@@ -331,7 +331,7 @@ class LLMWiki:
                                             current_bull_factors: str,
                                             new_bull_factors: str,
                                             ):
-        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        client = Groq(api_key=os.getenv("SECOND_GROQ_API_KEY"))
         user_prompt = get_user_prompt_bull_factors(
             industry=industry_name,
             new_content=new_bull_factors,
