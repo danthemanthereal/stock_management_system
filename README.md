@@ -22,9 +22,7 @@ Overall, the goal of the project is to explore how persistent memory, agent-base
 ## Project Structure 
 
 
----
-
-## 🧩 System Design Interpretation
+##  System Design Interpretation
 
 ### 1. Core Idea: AI Wiki Memory System
 
@@ -40,9 +38,9 @@ It:
 - merges new information instead of overwriting it
 - updates based on new inputs (news, financials, videos)
 
-👉 This is the **long-term intelligence layer of the system**
+ This is the **long-term intelligence layer of the system**
 
----
+
 
 ### 2. Data Ingestion Layer
 
@@ -53,9 +51,9 @@ Multiple components feed information into the system:
 - `html_text_parser_component` → website extraction
 - `stock_market_artikel_analysis_component` → article processing
 
-👉 All external data is normalized into structured text
+ All external data is normalized into structured text
 
----
+
 
 ### 3. Financial Intelligence Layer
 
@@ -66,12 +64,11 @@ Handles quantitative analysis:
 - `financial_metric_analysis_component`
 - `ai_financial_metricevaluation_component`
 
-👉 Combines:
+ Combines:
 - raw financial data
 - computed ratios
 - LLM reasoning
 
----
 
 ### 4. Watchlist & Portfolio Layer
 
@@ -79,10 +76,10 @@ Handles quantitative analysis:
 - `portfolio_component` → owned assets
 - `bought_stock_component` → transaction-level tracking
 
-👉 These interact directly with the AI Wiki system:
+ These interact directly with the AI Wiki system:
 every stock automatically enriches its knowledge page
 
----
+
 
 ### 5. Analysis & Discovery Layer
 
@@ -90,18 +87,17 @@ every stock automatically enriches its knowledge page
 - `find_potential_stocks_component` → stock screening engine
 - `evaluation_component` → scoring + comparison logic
 
-👉 This is where “decision intelligence” happens
+ This is where “decision intelligence” happens
 
----
 
 ### 6. Industry Intelligence Layer
 
 - `industry_component`
 - `industry_ai_evaluation_compoment`
 
-👉 Aggregates companies into sectors and evaluates macro patterns
+ Aggregates companies into sectors and evaluates macro patterns
 
----
+
 
 ### 7. Prompt & Template System
 
@@ -109,14 +105,13 @@ every stock automatically enriches its knowledge page
 - `template_metric_component`
 - `templates/`
 
-👉 Enables:
+ Enables:
 - dynamic prompting
 - reusable analysis strategies
 - industry-specific evaluation rules
 
----
 
-## 🧠 Overall Architecture Insight
+##  Overall Architecture Insight
 
 This system is best described as:
 
@@ -233,5 +228,15 @@ All required API keys must be configured before running the system.
 - The system supports multiple model providers, including a secondary Groq API key for load balancing and fallback usage.
 
 This setup helps ensure system stability under high request volume and prevents interruptions caused by API throttling.
+
+## Running the Application
+
+To start the FastAPI backend, navigate to the project root directory (Stock_management_fast_api):
+
+
+Then run the following command:
+
+```bash
+uvicorn src.main:app --reload
 
 
