@@ -218,19 +218,20 @@ The result is an evolving AI investment knowledge base where:
 
 This design significantly improves consistency and depth of financial reasoning across multiple analysis workflows.
 
-## Alle Api keys einflegen
+## API Keys Setup
 
--> dabei muss man aufpassen, wenn 429 häufig kommt 
+All required API keys must be configured before running the system.
 
--> entweder upgraden 
+### Important Notes
 
--> oder darauf achten, hintereinander nicht das selbe Model benutzen -> deswegen verschiedene Models 
-und der Zweite Groq API Key 
+- Be aware of HTTP 429 errors (rate limiting), which may occur frequently depending on API usage.
+- If rate limits are reached:
+  - Upgrade the API plan if necessary, or
+  - Avoid sending repeated requests to the same model in sequence
+  - Distribute requests across different models to reduce rate-limit pressure
 
-## Anwendung starten 
+- The system supports multiple model providers, including a secondary Groq API key for load balancing and fallback usage.
 
-in Stock_management_fast_api ordner :   uvicorn src.main:app --reload
+This setup helps ensure system stability under high request volume and prevents interruptions caused by API throttling.
 
-## Guro Focus Fetcher 
 
--> dann muss man aufpassen dass man die json aus der website nimmt und einsetzen. Falls es nicht gibt dann leeres array lassen
