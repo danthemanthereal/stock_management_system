@@ -58,7 +58,7 @@ class MetricsService:
             db=self.db,
             company_name=company_name,
             financial_metric_fetchers=[FROMPIPInstallSourceFetcher(),
-                                       GuroFocusFetcher(),
+                                 #      GuroFocusFetcher(),
                                        ]
         )
         metrics_of_current_user_template = await get_active_metrics_of_template_component.get_total_financial_metrics_of_current_template(current_user_id)
