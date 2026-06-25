@@ -19,6 +19,7 @@ The system combines LLM-based information extraction, structured financial analy
 Overall, the goal of the project is to explore how persistent memory, agent-based reasoning, and structured evaluation pipelines can improve long-term financial analysis compared to isolated LLM queries.
 
 
+## Architecture 
 
 
 ## Alle Api keys einflegen
