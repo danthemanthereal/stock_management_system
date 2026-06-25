@@ -120,7 +120,7 @@ every stock automatically enriches its knowledge page
 
 This system is best described as:
 
-> **A modular AI-driven investment research platform with a persistent, self-improving knowledge graph (AI Wiki) at its core.**
+> **A modular AI-driven investment research platform with a persistent, self-improving  Wiki at its core.**
 
 Key architectural principles:
 
@@ -131,28 +131,92 @@ Key architectural principles:
 - Template-driven analysis strategies
 - Separation of ingestion, analysis, and memory layers
 
----
 
-## 🚀 Why this architecture is strong (important for CV / interviews)
+## High-Level Structure
 
-This is not a simple “stock app”.
+The system is built as a modular FastAPI-based AI investment research platform.  
+It is organized into multiple domain-specific components that collectively implement:
 
-It demonstrates:
+- Watchlist analysis
+- Portfolio management
+- Financial evaluation pipelines
+- AI-generated company knowledge (Wiki system)
+- News + sentiment analysis
+- Stock discovery and filtering
+- Multi-source data ingestion (web, YouTube, articles)
 
-- AI system design thinking
-- knowledge persistence (very important in LLM systems)
-- multi-agent / multi-pipeline reasoning (implicit)
-- real-world data integration
-- scalable modular architecture
-- separation of concerns
+The architecture follows a **component-based design**, where each domain is encapsulated in its own module under `src/`.
 
----
+## AI Wiki System (Inspired by Andrej Karpathy’s Knowledge Accumulation Principle)
 
-## 🔥 One-liner (for GitHub / CV)
+At the core of the system lies a persistent AI-driven knowledge base that implements a wiki-style memory mechanism inspired by Andrej Karpathy’s idea of structured, continuously evolving information systems for LLM applications.
 
-> An AI-powered investment research system that builds a continuously evolving knowledge graph of companies using multi-source data ingestion, financial analysis pipelines, and LLM-based Wiki memory (Karpathy-style structured knowledge accumulation).
+Instead of treating each analysis as an isolated LLM query, the system maintains a long-term, entity-centric knowledge graph where each company, sector, or market topic is represented as a living "Wiki page".
+
+Each Wiki page contains structured sections such as:
+- Strengths
+- Weaknesses
+- Financial insights
+- News-driven updates
+- Risk factors
+- Historical analysis summaries
+
+### Key Idea: Continuous Knowledge Refinement
+
+Rather than overwriting existing information, the system follows a **merge-and-re-evaluate strategy**:
+
+When new data is introduced (e.g. news article, YouTube transcript, financial report, or web content), the system:
+
+1. Retrieves the existing Wiki page for the entity (if it exists)
+2. Extracts relevant structured information from the new source using LLM-based parsing
+3. Compares new insights with existing knowledge
+4. Merges consistent information
+5. Re-evaluates conflicting statements using LLM reasoning
+6. Updates the Wiki page with improved, consolidated knowledge
+
+This creates a continuously improving memory system instead of stateless analysis outputs.
 
 
+### Data-to-Knowledge Pipeline
+
+The AI Wiki system is fed by multiple data sources:
+
+- Financial data pipelines (fundamentals and ratios)
+- News articles and market updates
+- YouTube video transcripts
+- Web content extraction (HTML parsing)
+- Analyst-generated insights from other system components
+
+All inputs are normalized into structured text representations before being processed by the Wiki engine.
+
+
+### Strength & Weakness Evolution Model
+
+A key feature of the system is its structured “Strengths & Weaknesses” model.
+
+Instead of free-form summaries, each company page maintains:
+
+- A dynamically updated list of strengths
+- A dynamically updated list of weaknesses
+
+Each item is:
+- attributed to a source
+- re-evaluated over time
+- potentially strengthened, weakened, or removed based on new evidence
+
+This allows the system to simulate a form of **temporal reasoning over financial knowledge**.
+
+
+### Outcome
+
+The result is an evolving AI investment knowledge base where:
+
+- each company has a living, updated intelligence profile
+- insights improve over time instead of being regenerated from scratch
+- conflicting information is explicitly resolved
+- analysis becomes cumulative rather than isolated
+
+This design significantly improves consistency and depth of financial reasoning across multiple analysis workflows.
 
 ## Alle Api keys einflegen
 
