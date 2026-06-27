@@ -35,12 +35,24 @@ async def login(
     )
     user = result.scalar_one_or_none()
     if not user:
-        raise AuthenticationFailed(detail="Invalid username.")
+        #raise AuthenticationFailed(detail="Invalid username.")
+        return templates.TemplateResponse(
+            request=request,
+            name="index.html", context={
+                "request": request,
+                "user": user
+            })
 
 
     auth_handler = Auth()
     if not auth_handler.verify_password(password, user.password_hash):
-        raise AuthenticationFailed(detail="Invalid password.")
+        #raise AuthenticationFailed(detail="Invalid password.")
+        return templates.TemplateResponse(
+            request=request,
+            name="index.html", context={
+                "request": request,
+                "user": user
+            })
 
     request.session["user_id"] = str(user.id)
 
