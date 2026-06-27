@@ -231,8 +231,46 @@ This setup helps ensure system stability under high request volume and prevents 
 
 ## Running the Application
 
-To start the FastAPI backend, navigate to the project root directory (Stock_management_fast_api):
+To set up and start the FastAPI backend, follow these steps:
 
+**1. Prerequisites**
+Make sure you have **Python 3.11.x** installed on your system. You can verify this with:
+```bash
+python3.11 --version
+```
+
+Navigate to the project root with cd Stock_management_fast_api
+
+Create a virtual environment 
+
+```bash
+python3.11 -m venv .venv
+```
+
+ Activate the Virtual Environment
+
+Activate the environment you just created.
+
+(Choose the command that matches your operating system.)
+
+Operating System	Command
+
+macOS / Linux	source .venv/bin/activate
+
+Windows (CMD)	.venv\Scripts\activate
+
+Windows (PowerShell)	.venv\Scripts\Activate.ps1
+
+After activation, (.venv) should appear at the beginning of your terminal
+
+After activating your virtual environment, run the following commands to install all required packages:
+
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+To start the FastAPI backend, navigate to the project root directory (Stock_management_fast_api):
 
 Then run the following command:
 
