@@ -31,28 +31,6 @@ class PortfolioService:
             }
         )
 
-    async def add_to_user_stock(self,
-                                name: str,
-                                bought_price: float,
-                                amount: float,
-                                current_user_id:UUID,
-                                ):
-        ticker = self.get_ticker_of_stock(name)
-
-        bought_stock_service = BoughtStockService(self.db)
-
-        await bought_stock_service.add_stock_to_current_user(
-            name=name,
-            ticker=ticker,
-            bought_price=bought_price,
-            amount=amount,
-            current_user_id=current_user_id,
-            strengths="",
-            weakness="",
-            wiki_page=""
-        )
-
-
     async def get_bought_stocks_of_current_user(self, current_user_id: str):
         bought_stock_service = BoughtStockService(db=self.db)
         return await bought_stock_service.get_bought_stocks_of_current_user(
@@ -73,7 +51,9 @@ class PortfolioService:
                                                              bought_price=bought_price,
                                                              amount=amount,
                                                              current_user_id=current_user_id,
-                                                             strengths="", weakness="", wiki_page="")
+                                                             strengths="",
+                                                             weakness="",
+                                                             wiki_page="")
 
     async def update_bought_stocks(self,
                                    current_user_id:UUID,

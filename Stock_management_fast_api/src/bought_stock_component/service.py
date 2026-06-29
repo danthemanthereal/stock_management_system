@@ -27,8 +27,7 @@ class BoughtStockService:
     async def add_stock_to_current_user(self, name:str, ticker:str,
                                          bought_price:float, amount: float,
                                          current_user_id:UUID, strengths, weakness, wiki_page):
-        get_ticker_component = TickerStock()
-        ticker = get_ticker_component.get_ticker_of_a_stock(name)
+
         if await self.user_already_bought_stock(current_user_id=current_user_id, ticker=ticker):
             from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
             llm_wiki = LLMWiki(self.db, LLM_WIKI_MODEL)

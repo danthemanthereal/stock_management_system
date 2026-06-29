@@ -58,7 +58,11 @@ async def create_bought_stock_of_current_user(
 
         portfolio_service = PortfolioService(db)
 
-        await portfolio_service.add_to_user_stock(name=name, bought_price=bought_price, amount=amount,current_user_id=current_user_id)
+        await portfolio_service.add_to_user_stock(name=name,
+                                                  ticker=ticker,
+                                                  bought_price=bought_price,
+                                                  amount=amount,
+                                                  current_user_id=current_user_id)
 
         return await portfolio_service.get_portfolio_main_page(
              current_user_id, request
