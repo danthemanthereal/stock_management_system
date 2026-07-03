@@ -217,6 +217,16 @@ This design significantly improves consistency and depth of financial reasoning 
 
 All required API keys must be configured before running the system.
 
+FINNHUB_API_KEY: https://finnhub.io/register
+
+GROQ_API_KEY: https://console.groq.com/keys
+
+SECOND_GROQ_API_KEY: https://console.groq.com/keys
+
+FMP_API_KEY: https://site.financialmodelingprep.com/developer/docs
+
+ALPHA_VENTAGE_API_KEY: https://www.alphavantage.co/
+
 ### Important Notes
 
 - Be aware of HTTP 429 errors (rate limiting), which may occur frequently depending on API usage.
