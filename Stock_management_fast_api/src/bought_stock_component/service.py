@@ -207,7 +207,8 @@ class BoughtStockService:
                                                  ticker: str,
                                                  current_user_id: UUID):
         watchlist_service = WatchlistStockService(db=self.db)
-        await watchlist_service.get_current_stock_of_user(current_user_id=current_user_id, ticker_of_stock=ticker)
+        return await watchlist_service.get_current_stock_of_user(current_user_id=current_user_id,
+                                                          ticker_of_stock=ticker)
 
     async def deactivate_current_stock_on_watchlist(self, current_user_id: UUID, ticker: str):
         watchlist_service = WatchlistStockService(db=self.db)

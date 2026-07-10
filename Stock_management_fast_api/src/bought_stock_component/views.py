@@ -30,7 +30,7 @@ async def add_stock_from_watchlist(
         ticker = bought_stock_service.get_ticker_of_a_stock(name)
 
         current_stock_on_watchlist = await bought_stock_service.get_current_stock_on_watchlist_obj(
-            ticker=ticker,
+            ticker=ticker.strip(),
             current_user_id=current_user_id
         )
 
