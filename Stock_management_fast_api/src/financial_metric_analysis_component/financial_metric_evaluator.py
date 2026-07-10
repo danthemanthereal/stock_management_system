@@ -137,7 +137,7 @@ class FinancialMetricEvaluator:
             if profile_metric_config_object.should_rise:
                 asc_sorting = sorted(values)
 
-                return asc_sorting == values and profile_metric_config_object.reference_value >= last_value
+                return asc_sorting == values and last_value >= profile_metric_config_object.reference_value
             else:
                 desc_sorting = sorted(values, reverse=True)
                 return desc_sorting == values and last_value <= profile_metric_config_object.reference_value
@@ -172,9 +172,9 @@ class FinancialMetricEvaluator:
 
             if profile_metric_config_object.should_rise:
 
-                return profile_metric_config_object.reference_value >= last_value
+                return last_value >= profile_metric_config_object.reference_value
             else:
-                return profile_metric_config_object.reference_value <= last_value
+                return last_value <= profile_metric_config_object.reference_value
         except Exception as e:
             print(e)
             print(f"error in value ", values)
