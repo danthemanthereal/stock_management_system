@@ -144,7 +144,7 @@ class FinancialMetricEvaluator:
         except Exception as e:
             print(e)
             print(f"error in value ", values)
-            print(f"fin metic obj {profile_metric_config_object}")
+            print(f"fin metic obj {profile_metric_config_object.metric_id}")
             return None
 
     def check_satisfiability_development(self, financial_metric_config_obj: ProfileMetricConfiguration,
@@ -160,7 +160,7 @@ class FinancialMetricEvaluator:
         except Exception as e:
             print(e)
             print(f"error in value ", values)
-            print(f"fin metic obj {financial_metric_config_obj}")
+            print(f"fin metic obj {financial_metric_config_obj.id}")
             return None
 
     def check_satisfiability_benchmark_value(self, financial_metric_obj: FinancialMetric, profile_metric_config_object,
@@ -178,7 +178,7 @@ class FinancialMetricEvaluator:
         except Exception as e:
             print(e)
             print(f"error in value ", values)
-            print(f"fin metic obj {profile_metric_config_object}")
+            print(f"fin metic obj {profile_metric_config_object.id}")
             return None
 
     def check_one_metric_is_invalid(self, possible_result_satisfiability,
