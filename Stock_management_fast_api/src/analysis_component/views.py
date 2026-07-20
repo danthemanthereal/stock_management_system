@@ -92,8 +92,8 @@ async def upload_markdown(
     try:
 
         analysis_service = AnalysisService(db)
-        content = await file.read()
-        companies_array = await analysis_service.analyse_yt_video(url)
+        content = (await file.read()).decode("utf-8")
+        companies_array = await analysis_service.analyse_markdown_file(content)
 
         return templates.TemplateResponse(
             request=request,
