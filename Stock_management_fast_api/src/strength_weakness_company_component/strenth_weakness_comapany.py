@@ -93,10 +93,10 @@ class StrengthWeaknessOfCompanyComponent:
         return self.safe_parse(content)
 
 
-    def analysis_of_markdown_file_content(self,transcript: str):
+    def analysis_of_markdown_file_content(self,markdown_content: str):
         client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-        user_prompt = self.get_user_prompt_yt_script(transcript)
-        system_prompt = self.get_system_instruction_youtube_script()
+        user_prompt = self.get_user_prompt_markdown_file(markdown_content)
+        system_prompt = self.get_system_prompt_markdown_file()
         response = client.chat.completions.create(
             model=self.groq_model_name,
             messages=[
@@ -192,6 +192,46 @@ class StrengthWeaknessOfCompanyComponent:
             - Alternatively, separate bullet points within a string using semicolons (;) or a simple space, so that each string remains a single continuous line.
         </output_format>
         """
+
+    def get_user_prompt_markdown_file(self,content: str):
+        return f"""
+                <context>
+                text: {content}
+                </context>
+
+                <task>
+                Analyze the content of the provided text and identify all relevant companies.
+
+                For each identified company:
+                - Provide a brief summary of the company.
+                - Identify strengths (factors that could positively impact the company's stock price).
+                - Identify weaknesses (factors that could negatively impact the company's stock price).
+
+                Use only information from the provided text. Do not speculate or add unsupported claims.
+                </task>
+
+                <output_format>
+                Return ONLY a valid JSON array.
+
+                Use the exact following structure for each company:
+                [
+                  {{
+                    "company_name": "Company name",
+                    "strength": "• Factor 1\n• Factor 2",
+                    "weakness": "• Factor 1\n• Factor 2"
+                  }}
+                ]
+
+                Rules:
+                    - The response MUST be in German
+                    - Do not include any explanations or comments outside the JSON
+                    - Use double quotes only (strict JSON)
+                    - No trailing commas
+                    - If no companies are found, return an empty array []
+                    - Do NOT use real line breaks (newline characters) inside any JSON string values. Instead, use the escaped form \n if a line break is absolutely necessary.
+                    - Alternatively, separate bullet points within a string using semicolons (;) or a simple space, so that each string remains a single continuous line.
+                </output_format>
+                """
 
     def get_system_instruction_url_context(self) -> str:
         return """
@@ -295,6 +335,53 @@ class StrengthWeaknessOfCompanyComponent:
        - The response MUST be in German
     </output_format>
     """
+
+    def get_system_prompt_markdown_file(self):
+        return """
+            <role>
+            You are an expert in analyzing companies based on information from provided markdown file.
+
+            Your task is to identify and summarize strengths and weaknesses of each company:
+            - Strengths are factors that could positively impact the company's stock price.
+            - Weaknesses are factors that could negatively impact the company's stock price.
+
+            You must respond ONLY in German.
+
+            Your output MUST be a valid JSON array.
+            Do not include any explanations, comments, or additional text outside the JSON.
+            </role>
+
+            <instructions>
+            1. Analyze the provided URLs and identify relevant information about the company.
+
+            2. Extract strengths and weaknesses:
+               - Strengths: factors that could positively impact the company's stock price
+               - Weaknesses: factors that could negatively impact the company's stock price
+
+            3. Validate:
+               - Ensure all points are based on the provided content
+               - Avoid speculation or unsupported claims
+
+            4. Format:
+               - Output ONLY a valid JSON array
+               - Each entry must clearly separate "strengths" and "weaknesses"
+               - Do not include any explanations, comments, or text outside the JSON
+               - The response MUST be in German
+            </instructions>
+
+            <constraints>
+            Use only the content of the given text.
+            </constraints>
+
+            <output_format>
+            Structure your response as follows:
+               - Output ONLY a valid JSON array
+               - Use the following structure for each company:
+                 {{"company_name": "", "strength": "","weakness": "" }}
+               - Do not include any explanations, comments, or text outside the JSON
+               - The response MUST be in German
+            </output_format>
+            """
 
     def safe_parse(self, content: str):
         try:
