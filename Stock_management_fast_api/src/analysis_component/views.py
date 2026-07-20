@@ -101,7 +101,7 @@ async def upload_markdown(
             context={
                 "request": request,
                 "companies": companies_array,
-                "yt_url": url
+                "yt_url": ""
             }
         )
     except Exception as e:
