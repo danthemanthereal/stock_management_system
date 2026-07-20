@@ -84,11 +84,34 @@ async def get_yt_transcript(request: Request,
 
 
 @analysis_router.post("/get-summary-by-markdown-file")
-async def upload_markdown(file: UploadFile = File(...)):
-    content = await file.read()
-    print("inhalt")
-    print(content.decode("utf-8"))
-    return {"filename": file.filename, "size": len(content)}
+async def upload_markdown(
+        request: Request,
+        db: AsyncSession = Depends(get_db),
+        file: UploadFile = File(...)):
+
+    try:
+
+        analysis_service = AnalysisService(db)
+        content = await file.read()
+        companies_array = await analysis_service.analyse_yt_video(url)
+
+        return templates.TemplateResponse(
+            request=request,
+            name="analysis/companies_overview.html",
+            context={
+                "request": request,
+                "companies": companies_array,
+                "yt_url": url
+            }
+        )
+    except Exception as e:
+        print(e)
+        traceback.print_exc()
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+            context={"request": request},
+        )
 
 
 @analysis_router.api_route("/show-saved-financial-metrics", methods=["GET", "POST"], response_class=HTMLResponse)
