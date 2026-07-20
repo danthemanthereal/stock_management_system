@@ -56,6 +56,9 @@ class StrengthWeaknessOfCompanyComponent:
         transcript = transcript_component.get_summary_of_yt_video(url)
         return self.analysis_of_yt_video_with_ollama(transcript)
 
+    def get_strength_weakness_of_markdown_file(self,content:str):
+        return self
+
     def get_summary_of_gemini_of_transcript(self,transcript: str):
         client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
         user_prompt = self.get_user_prompt_yt_script(transcript)
@@ -70,6 +73,27 @@ class StrengthWeaknessOfCompanyComponent:
         return response.text
 
     def analysis_of_yt_video_with_ollama(self,transcript: str):
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        user_prompt = self.get_user_prompt_yt_script(transcript)
+        system_prompt = self.get_system_instruction_youtube_script()
+        response = client.chat.completions.create(
+            model=self.groq_model_name,
+            messages=[
+                {"role": "system",
+                 "content": system_prompt
+                 },
+                {
+                    "role": "user",
+                    "content": user_prompt
+                }
+            ])
+
+        content = response.choices[0].message.content
+
+        return self.safe_parse(content)
+
+
+    def analysis_of_markdown_file_content(self,transcript: str):
         client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         user_prompt = self.get_user_prompt_yt_script(transcript)
         system_prompt = self.get_system_instruction_youtube_script()
