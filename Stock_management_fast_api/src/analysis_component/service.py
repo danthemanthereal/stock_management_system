@@ -67,7 +67,7 @@ class AnalysisService:
         strength_weakness_company_component = StrengthWeaknessOfCompanyComponent(
             groq_model_name=STRENGTH_WEAKNESS_MODEL
         )
-        companies_array = strength_weakness_company_component.get_strength_weakness_of_youtube(yt_url)
+        companies_array = strength_weakness_company_component.get_strength_weakness_of_youtube(markdown_file_content)
 
         if isinstance(companies_array, str):
             try:
