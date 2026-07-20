@@ -57,7 +57,7 @@ class StrengthWeaknessOfCompanyComponent:
         return self.analysis_of_yt_video_with_ollama(transcript)
 
     def get_strength_weakness_of_markdown_file(self,content:str):
-        return self
+        return self.analysis_of_markdown_file_content(content)
 
     def get_summary_of_gemini_of_transcript(self,transcript: str):
         client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
