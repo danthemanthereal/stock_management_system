@@ -1,203 +1,232 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-    /* Grid für die verschiedenen Tool-Kacheln */
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-    }
+    <style>
+        /* Grid für die verschiedenen Tool-Kacheln */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
 
-    /* Kachel-Design aus deinem neuen Layout */
-    .action-card {
-        background: #ffffff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        border-top: 4px solid #2c3e50;
-    }
+        /* Kachel-Design aus deinem neuen Layout */
+        .action-card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid #2c3e50;
+        }
 
-    /* Farben für die unterschiedlichen Kategorien */
-    .card-ai { border-top-color: #9b59b6; } /* Lila für KI/Zusammenfassungen */
-    .card-metrics { border-top-color: #e67e22; } /* Orange für Kennzahlen */
-    .card-news { border-top-color: #3498db; } /* Blau für News */
+        /* Farben für die unterschiedlichen Kategorien */
+        .card-ai {
+            border-top-color: #9b59b6;
+        }
 
-    .form-group {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-    .form-group input {
-        flex: 1;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 14px;
-    }
+        /* Lila für KI/Zusammenfassungen */
+        .card-metrics {
+            border-top-color: #e67e22;
+        }
 
-    /* Button Styles */
-    .btn-block {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-    .btn-outline {
-        background: transparent;
-        color: #2c3e50;
-        border: 1px solid #2c3e50;
-    }
-    .btn-outline:hover {
-        background: #2c3e50;
-        color: white;
-    }
-    .btn-small {
-        padding: 6px 12px;
-        font-size: 13px;
-    }
+        /* Orange für Kennzahlen */
+        .card-news {
+            border-top-color: #3498db;
+        }
 
-    /* Styling für die News-Liste */
-    .news-item {
-        background: white;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        margin-bottom: 15px;
-        border-left: 4px solid #3498db;
-    }
-    .news-title {
-        font-weight: bold;
-        font-size: 1.1em;
-        color: #2c3e50;
-        margin: 0;
-    }
-    .summary-box {
-        display: none;
-        margin-top: 15px;
-        padding: 15px;
-        background-color: #f8f9fa;
-        border-radius: 6px;
-        font-family: sans-serif;
-        line-height: 1.5;
-        border: 1px solid #e9ecef;
-    }
-</style>
+        /* Blau für News */
 
-<h1> Analyse Dashboard</h1>
-<p style="color: #7f8c8d; margin-bottom: 30px;">Nutze die Tools, um Aktienkennzahlen zu berechnen, News zu filtern oder Skripte zusammenzufassen.</p>
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
 
-<div class="dashboard-grid">
+        .form-group input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
 
-    <!-- BLOCK 1: KI & Zusammenfassungen -->
-    <div class="action-card card-ai">
-        <h3 style="margin-top: 0;">📝 Content Analyzer</h3>
+        /* Button Styles */
+        .btn-block {
+            width: 100%;
+            margin-bottom: 10px;
+        }
 
-        <form action="/analysis/get-summary-url" method="post" class="form-group">
-            <input type="text" name="url" placeholder="Artikel-URL für Zusammenfassung..." required>
-            <button type="submit" class="btn">Senden</button>
-        </form>
+        .btn-outline {
+            background: transparent;
+            color: #2c3e50;
+            border: 1px solid #2c3e50;
+        }
 
-        <form action="/analysis/get-summary-by-yt-video" method="post" class="form-group" style="margin-bottom: 0;">
-            <input type="text" name="url" placeholder="YouTube-URL für Skript..." required>
-            <button type="submit" class="btn">Senden</button>
-        </form>
-    </div>
+        .btn-outline:hover {
+            background: #2c3e50;
+            color: white;
+        }
 
-    <!-- BLOCK 2: Finanzkennzahlen -->
-    <div class="action-card card-metrics">
-        <h3 style="margin-top: 0;">📊 Finanzkennzahlen</h3>
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
 
-        <form action="/analysis/get-financial-metrics" method="get" class="form-group">
-            <input type="text" name="company" placeholder="Ticker (z.B. MSFT)" required>
-            <button type="submit" class="btn">Berechnen</button>
-        </form>
+        /* Styling für die News-Liste */
+        .news-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+        }
 
-        <form action="/analysis/show-saved-financial-metrics" method="post">
-            <button type="submit" class="btn btn-outline btn-block">Alle gespeicherten Kennzahlen anzeigen</button>
-        </form>
+        .news-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #2c3e50;
+            margin: 0;
+        }
 
-        <form action="/analysis/find-potential-stocks" method="post">
-            <button type="submit" class="btn btn-outline btn-block">Potenzielle Aktien finden</button>
-        </form>
-    </div>
+        .summary-box {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            font-family: sans-serif;
+            line-height: 1.5;
+            border: 1px solid #e9ecef;
+        }
+    </style>
 
-    <!-- BLOCK 3: News Suche -->
-    <div class="action-card card-news">
-        <h3 style="margin-top: 0;">📰 News & Stimmungsbild</h3>
-        <p style="font-size: 13px; color: #7f8c8d;">Suche nach aktuellen Nachrichten zu einer bestimmten Aktie.</p>
+    <h1> Analyse Dashboard</h1>
+    <p style="color: #7f8c8d; margin-bottom: 30px;">Nutze die Tools, um Aktienkennzahlen zu berechnen, News zu filtern
+        oder Skripte zusammenzufassen.</p>
 
-        <form action="/analysis/get-news" method="get" class="form-group" style="margin-bottom: 0;">
-            <input type="text" name="stock" placeholder="Ticker eingeben (z.B. AAPL)" required>
-            <button type="submit" class="btn">News abrufen</button>
-        </form>
-        <form action="/analysis/get-stock-market-news" method="get" class="form-group" style="margin-bottom: 0;">
+    <div class="dashboard-grid">
 
-            <button type="submit" class="btn">Aktienmarkt news</button>
-        </form>
-        <form action="/analysis/get-stock-market-wiki-page" method="get" class="form-group" style="margin-bottom: 0;">
+        <!-- BLOCK 1: KI & Zusammenfassungen -->
+        <div class="action-card card-ai">
+            <h3 style="margin-top: 0;">📝 Content Analyzer</h3>
 
-            <button type="submit" class="btn">Gehe Zur Wiki page von dem Aktienmarkt</button>
+            <form action="/analysis/get-summary-url" method="post" class="form-group">
+                <input type="text" name="url" placeholder="Artikel-URL für Zusammenfassung..." required>
+                <button type="submit" class="btn">Senden</button>
+            </form>
+
+            <form action="/analysis/get-summary-by-yt-video" method="post" class="form-group" style="margin-bottom: 0;">
+                <input type="text" name="url" placeholder="YouTube-URL für Skript..." required>
+                <button type="submit" class="btn">Senden</button>
+            </form>
+            <div style="clear: both; margin-top: 2rem; border-top: 1px solid #ddd; padding-top: 1.5rem;">
+        <form action="/analysis/get-summary-by-markdown-file" method="post" enctype="multipart/form-data" style="display: block; width: 100%;">
+            <label for="md-file" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">📄 Markdown-Datei hochladen</label>
+            <input type="file" name="file" id="md-file" accept=".md,.markdown" required style="display: block; width: 100%; max-width: 400px; margin-bottom: 0.75rem; padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; background: #fff;">
+            <button type="submit" class="btn" style="display: inline-block;">Hochladen & verarbeiten</button>
+            <small style="display: block; margin-top: 0.4rem; color: #666;">Erlaubte Formate: .md, .markdown</small>
         </form>
     </div>
-    <div class="action-card card-industry">
-        <h3 style="margin-top: 0;">Branchen Management</h3>
-
-        <form action="/analysis/industry-wiki-page" method="get" class="form-group" style="margin-bottom: 0;">
-
-            <button type="submit" class="btn">Gehe Zur Wiki page von den Branchen</button>
-        </form>
-
-        <form action="/analysis/industry-edit-wiki-page" method="get" class="form-group" style="margin-bottom: 0;">
-
-            <button type="submit" class="btn">Branchen Management</button>
-        </form>
-    </div>
-
-</div>
-
-<!-- NEWS ERGEBNISSE (Wird nur angezeigt, wenn "news" übergeben wird) -->
-{% if news %}
-<hr style="border: 0; border-top: 1px solid #ddd; margin: 40px 0;">
-<h2>Aktuelle News für deine Suche</h2>
-
-<ul style="list-style-type: none; padding-left: 0;">
-    {% for artikel in news %}
-    <li class="news-item">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
-
-            <!-- 1. Nur der Titel, KEIN Link -->
-            <p class="news-title">{{ artikel.headline }}</p>
-
-            <!-- 2. Der Button für das JavaScript -->
-            <button type="button" class="btn btn-small"
-                    onclick="loadSummary('{{ artikel.url }}', 'summary-{{ loop.index }}')"
-                    style="white-space: nowrap;">
-                🧠 Stärken & Schwächen
-            </button>
         </div>
 
-        <!-- 3. Der Container für die Antwort -->
-        <div id="summary-{{ loop.index }}" class="summary-box">
-            <!-- Hier kommt per JS der Inhalt rein -->
-            <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 15px;">
-                <button class="btn btn-small" style="background-color: #27ae60;">👀 In Watchlist übernehmen</button>
-            </div>
+        <!-- BLOCK 2: Finanzkennzahlen -->
+        <div class="action-card card-metrics">
+            <h3 style="margin-top: 0;">📊 Finanzkennzahlen</h3>
+
+            <form action="/analysis/get-financial-metrics" method="get" class="form-group">
+                <input type="text" name="company" placeholder="Ticker (z.B. MSFT)" required>
+                <button type="submit" class="btn">Berechnen</button>
+            </form>
+
+            <form action="/analysis/show-saved-financial-metrics" method="post">
+                <button type="submit" class="btn btn-outline btn-block">Alle gespeicherten Kennzahlen anzeigen</button>
+            </form>
+
+            <form action="/analysis/find-potential-stocks" method="post">
+                <button type="submit" class="btn btn-outline btn-block">Potenzielle Aktien finden</button>
+            </form>
         </div>
-    </li>
-    {% endfor %}
-</ul>
-{% endif %}
-<script>
-    function loadSummary(url, targetId) {
-    fetch(url)
-        .then(response => response.text())
-        .then(html => {
-            // Stärken und Schwächen farbig markieren
-            html = html.replace(/(Stärken:)/g, '<span class="strength">$1</span>');
-            html = html.replace(/(Schwächen:)/g, '<span class="weakness">$1</span>');
-            document.getElementById(targetId).innerHTML = html;
-        });
-}
-</script>
+
+        <!-- BLOCK 3: News Suche -->
+        <div class="action-card card-news">
+            <h3 style="margin-top: 0;">📰 News & Stimmungsbild</h3>
+            <p style="font-size: 13px; color: #7f8c8d;">Suche nach aktuellen Nachrichten zu einer bestimmten Aktie.</p>
+
+            <form action="/analysis/get-news" method="get" class="form-group" style="margin-bottom: 0;">
+                <input type="text" name="stock" placeholder="Ticker eingeben (z.B. AAPL)" required>
+                <button type="submit" class="btn">News abrufen</button>
+            </form>
+            <form action="/analysis/get-stock-market-news" method="get" class="form-group" style="margin-bottom: 0;">
+
+                <button type="submit" class="btn">Aktienmarkt news</button>
+            </form>
+            <form action="/analysis/get-stock-market-wiki-page" method="get" class="form-group"
+                  style="margin-bottom: 0;">
+
+                <button type="submit" class="btn">Gehe Zur Wiki page von dem Aktienmarkt</button>
+            </form>
+        </div>
+        <div class="action-card card-industry">
+            <h3 style="margin-top: 0;">Branchen Management</h3>
+
+            <form action="/analysis/industry-wiki-page" method="get" class="form-group" style="margin-bottom: 0;">
+
+                <button type="submit" class="btn">Gehe Zur Wiki page von den Branchen</button>
+            </form>
+
+            <form action="/analysis/industry-edit-wiki-page" method="get" class="form-group" style="margin-bottom: 0;">
+
+                <button type="submit" class="btn">Branchen Management</button>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- NEWS ERGEBNISSE (Wird nur angezeigt, wenn "news" übergeben wird) -->
+    {% if news %}
+        <hr style="border: 0; border-top: 1px solid #ddd; margin: 40px 0;">
+        <h2>Aktuelle News für deine Suche</h2>
+
+        <ul style="list-style-type: none; padding-left: 0;">
+            {% for artikel in news %}
+                <li class="news-item">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+
+                        <!-- 1. Nur der Titel, KEIN Link -->
+                        <p class="news-title">{{ artikel.headline }}</p>
+
+                        <!-- 2. Der Button für das JavaScript -->
+                        <button type="button" class="btn btn-small"
+                                onclick="loadSummary('{{ artikel.url }}', 'summary-{{ loop.index }}')"
+                                style="white-space: nowrap;">
+                            🧠 Stärken & Schwächen
+                        </button>
+                    </div>
+
+                    <!-- 3. Der Container für die Antwort -->
+                    <div id="summary-{{ loop.index }}" class="summary-box">
+                        <!-- Hier kommt per JS der Inhalt rein -->
+                        <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 15px;">
+                            <button class="btn btn-small" style="background-color: #27ae60;">👀 In Watchlist übernehmen
+                            </button>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <script>
+        function loadSummary(url, targetId) {
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    // Stärken und Schwächen farbig markieren
+                    html = html.replace(/(Stärken:)/g, '<span class="strength">$1</span>');
+                    html = html.replace(/(Schwächen:)/g, '<span class="weakness">$1</span>');
+                    document.getElementById(targetId).innerHTML = html;
+                });
+        }
+    </script>
 
 {% endblock %}

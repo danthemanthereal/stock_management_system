@@ -1,7 +1,7 @@
 import traceback
 from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Request, Depends, Form, Query
+from fastapi import APIRouter, Request, Depends, Form, Query, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.analysis_component.schema import WikiUpdate
@@ -81,6 +81,14 @@ async def get_yt_transcript(request: Request,
             name="error.html",
             context={"request": request},
         )
+
+
+@analysis_router.post("/get-summary-by-markdown-file")
+async def upload_markdown(file: UploadFile = File(...)):
+    content = await file.read()
+    print("inhalt")
+    print(content.decode("utf-8"))
+    return {"filename": file.filename, "size": len(content)}
 
 
 @analysis_router.api_route("/show-saved-financial-metrics", methods=["GET", "POST"], response_class=HTMLResponse)
