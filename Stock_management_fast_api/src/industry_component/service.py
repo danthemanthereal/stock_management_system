@@ -73,13 +73,13 @@ class IndustryService:
     ):
 
         result = await self.db.execute(
-            select(Industry.wiki_page)
+            select(Industry)
             .where(Industry.user_id == current_user_id,
                    Industry.industry_name == industry_name
                    )
         )
-        industry = result.scalars().first()
 
+        industry = result.scalars().first()
         if not industry:
             return False
 
@@ -88,7 +88,8 @@ class IndustryService:
         await self.db.commit()
 
         await self.db.refresh(industry)
-
+        print("updated wiki page")
+        print(industry.wiki_page)
         return True
 
     async def get_bear_and_bull_factors_of_current_industry_of_current_user(self,
