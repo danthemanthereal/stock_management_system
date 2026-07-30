@@ -489,18 +489,11 @@ class AnalysisService:
                 current_user_id=current_user_id,
                 industry_name=industry_name,
             )
-            print("after methdo call")
-
-            print("current bull factors:", current_bull_factors)
-            print("current bear factors:", current_bear_factors)
 
             new_bull_factors, new_bear_factors = await self.get_new_bear_and_bull_factors_of_new_content(
                 new_content=file_content_str,
                 industry_name=industry_name,
             )
-
-            print("new bull bear factors ", new_bull_factors)
-            print("new bear factors ", new_bear_factors)
 
             new_combined_bear_factors = await llm_wiki_component.ingest_bear_factors_wiki_page(
                 industry_name=industry_name,
