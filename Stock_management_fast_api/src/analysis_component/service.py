@@ -484,7 +484,7 @@ class AnalysisService:
                 self.db,
                 LLM_WIKI_MODEL
             )
-            print("before current bull factor ")
+
             current_bull_factors, current_bear_factors = await industry_service.get_bear_and_bull_factors_of_current_industry_of_current_user(
                 current_user_id=current_user_id,
                 industry_name=industry_name,
@@ -520,6 +520,9 @@ class AnalysisService:
                 industry_name=industry_name,
                 new_wiki_page=updated_page_industry_page
             )
+
+            print("new combind bear factors: ", new_combined_bear_factors)
+            print("new combind bull factors: ", new_combined_bull_factors)
 
             await industry_service.update_bear_and_bull_of_selected_industry_of_current_user(
                 current_user_id=current_user_id,

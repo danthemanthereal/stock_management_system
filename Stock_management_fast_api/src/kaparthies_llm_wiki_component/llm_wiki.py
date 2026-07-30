@@ -2,6 +2,7 @@ from uuid import UUID
 from groq import Groq
 from sqlalchemy.ext.asyncio import AsyncSession
 import os
+import json
 from dotenv import load_dotenv
 from src.bought_stock_component.service import BoughtStockService
 from src.kaparthies_llm_wiki_component.prompt import user_prompt_for_ingest, \
@@ -323,8 +324,9 @@ class LLMWiki:
                     "content": user_prompt
                 }
             ])
-
-        return response.choices[0].message.content
+        print("response ")
+        print(response.choices[0].message.content)
+        return json.loads(response.choices[0].message.content).get("bear_factors")
 
     async def ingest_bull_factors_wiki_page(self,
                                             industry_name: str,
@@ -351,6 +353,6 @@ class LLMWiki:
                 }
             ])
 
-        return response.choices[0].message.content
+        return json.loads(response.choices[0].message.content).get("bull_factors")
 
 
