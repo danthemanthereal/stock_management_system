@@ -68,6 +68,9 @@
     </form>
     <form id="upload-form" action="/analysis/update-wiki-page-by-markdown-file" method="post"
           enctype="multipart/form-data" style="display: block; width: 100%;">
+        <input type="hidden"
+               id="selected_industry_hidden"
+               name="selected_industry">
         <label for="md-file" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">📄 Markdown-Datei
             hochladen</label>
         <input type="file" name="file" id="md-file" accept=".md,.markdown" required
@@ -89,6 +92,12 @@
 
         // initial sync
         syncIndustry();
+    </script>
+    <script>
+        document.getElementById("upload-form").addEventListener("submit", function () {
+            document.getElementById("selected_industry_hidden").value =
+                document.getElementById("industry_select").value;
+        });
     </script>
 
 {% endblock %}
