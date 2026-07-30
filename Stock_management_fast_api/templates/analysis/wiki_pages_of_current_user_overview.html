@@ -2,51 +2,45 @@
 
 {% block analysis_content %}
 
-<!-- Markdown Container Liste -->
-<div id="wiki-container">
-   {% for page in wiki_pages %}
+    <!-- Markdown Container Liste -->
+    <div id="wiki-container">
+        {% for page in wiki_pages %}
 
-    <!-- Wiki Page (Markdown) -->
-    <div class="markdown-block" data-md="{{ page.wiki_page | e }}"></div>
+            <!-- Wiki Page (Markdown) -->
+            <div class="markdown-block" data-md="{{ page.wiki_page | e }}"></div>
 
-    <!-- Bull + Bear Factors nebeneinander -->
-    <div style="display: flex; gap: 20px; margin-top: 10px;">
-        <div style="flex: 1;">
-            <h2>Industry</h2>
-            <div class="markdown-block" data-md="{{ page.industry_name | e }}"></div>
-        </div>
-        <div style="flex: 1;">
-            <h4>Bull Factors</h4>
-            <div class="markdown-block" data-md="{{ page.bull_factors | e }}"></div>
-        </div>
+            <!-- Bull + Bear Factors nebeneinander -->
+            <div style="display: flex; gap: 20px; margin-top: 10px;">
+                <div style="flex: 1;">
+                    <h2>Industry</h2>
+                    <div class="markdown-block" data-md="{{ page.industry_name | e }}"></div>
+                </div>
+                <br>
+                <div class="markdown-block" data-md="{{ page.wiki_page | e }}"></div>
 
-        <div style="flex: 1;">
-            <h4>Bear Factors</h4>
-            <div class="markdown-block" data-md="{{ page.bear_factors | e }}"></div>
-        </div>
 
+            </div>
+
+            <hr>
+
+        {% endfor %}
     </div>
 
-    <hr>
+    <!-- Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-{% endfor %}
-</div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const blocks = document.querySelectorAll(".markdown-block");
 
-<!-- Marked.js -->
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+            blocks.forEach(block => {
+                const markdownText = block.dataset.md;
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const blocks = document.querySelectorAll(".markdown-block");
-
-    blocks.forEach(block => {
-        const markdownText = block.dataset.md;
-
-        if (markdownText) {
-            block.innerHTML = marked.parse(markdownText);
-        }
-    });
-});
-</script>
+                if (markdownText) {
+                    block.innerHTML = marked.parse(markdownText);
+                }
+            });
+        });
+    </script>
 
 {% endblock %}

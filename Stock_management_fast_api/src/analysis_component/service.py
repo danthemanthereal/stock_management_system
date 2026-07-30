@@ -485,7 +485,7 @@ class AnalysisService:
                 LLM_WIKI_MODEL
             )
 
-            await llm_wiki_component.ingest_industry_wiki_page(
+            updated_page_industry_page = await llm_wiki_component.ingest_industry_wiki_page(
                 industry_name=industry_name,
                 current_wiki_page=current_wiki_page,
                 new_content=file_content_str,
@@ -494,8 +494,9 @@ class AnalysisService:
             await industry_service.update_wiki_page_of_selected_industry_of_current_user(
                 current_user_id=current_user_id,
                 industry_name=industry_name,
-                new_wiki_page=file_content_str
+                new_wiki_page=updated_page_industry_page
             )
+
         except Exception as e:
             print(e)
             return

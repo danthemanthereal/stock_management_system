@@ -627,7 +627,7 @@ async def update_industry_page_by_mark_down(request: Request,
 
         return templates.TemplateResponse(
             request=request,
-            name="analysis/edit_industry_of_current_user.html",
+            name="analysis/wiki_pages_of_current_user_overview.html",
             context=
             {
                 "request": request,
