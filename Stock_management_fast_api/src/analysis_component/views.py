@@ -614,6 +614,8 @@ async def update_industry_page_by_mark_down(request: Request,
     try:
         analysis_service = AnalysisService(db)
 
+        print("selected industry", selected_industry)
+
         await analysis_service.update_industry_wiki_page_of_current_user(
             current_user_id=current_user_id,
             industry_name=selected_industry,

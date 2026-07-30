@@ -131,22 +131,5 @@ class IndustryService:
 
         return True
 
-    async def merge_industry_page_with_current_and_new_content(self,
-                                                               current_page: str,
-                                                               new_page: str
-                                                               ):
-        try:
-
-            llm_wiki_component = LLMWiki(
-                self.db,
-                LLM_WIKI_MODEL
-            )
-
-            llm_wiki_component
-
-        except Exception as e:
-            print(e)
-            return
-
 
 

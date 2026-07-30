@@ -2,91 +2,94 @@
 
 {% block analysis_content %}
 
-<!-- SELECT BOX -->
-<label for="industry_select">Bestehende Industrien</label>
-<select id="industry_select" name="selected_industry">
-    {% for industry in created_industries_of_current_user %}
-        <option value="{{ industry }}">
-            {{ industry }}
-        </option>
-    {% endfor %}
-</select>
+    <!-- SELECT BOX -->
+    <label for="industry_select">Bestehende Industrien</label>
+    <select id="industry_select" name="selected_industry">
+        {% for industry in created_industries_of_current_user %}
+            <option value="{{ industry }}">
+                {{ industry }}
+            </option>
+        {% endfor %}
+    </select>
 
-<br><br>
+    <br><br>
 
-<!-- INPUT FIELD -->
-<form method="post" action="/analysis/add-to-current-user-new-industry">
+    <!-- INPUT FIELD -->
+    <form method="post" action="/analysis/add-to-current-user-new-industry">
 
-    <input
-        type="text"
-        name="industry_name"
-        placeholder="Neue Branche eingeben"
-        required
-    />
+        <input
+                type="text"
+                name="industry_name"
+                placeholder="Neue Branche eingeben"
+                required
+        />
 
-    <button type="submit">
-        Neue Industrie hinzufügen
-    </button>
+        <button type="submit">
+            Neue Industrie hinzufügen
+        </button>
 
-</form>
+    </form>
 
-<form method="post" action="/analysis/update-wiki-page-current-selected-industry">
+    <form method="post" action="/analysis/update-wiki-page-current-selected-industry">
 
-    <input type="hidden" name="selected_industry" id="selected_input_industry">
-    <input type="hidden" name="action" value="update_by_url">
+        <input type="hidden" name="selected_industry" id="selected_input_industry">
+        <input type="hidden" name="action" value="update_by_url">
 
-    <input
-        type="text"
-        name="input_link_or_text"
-        placeholder="Link aus dem man die Daten nimmt"
-        required
-    />
+        <input
+                type="text"
+                name="input_link_or_text"
+                placeholder="Link aus dem man die Daten nimmt"
+                required
+        />
 
-    <button type="submit">
-        Update Wiki der ausgewählten Branche über URL
-    </button>
-</form>
+        <button type="submit">
+            Update Wiki der ausgewählten Branche über URL
+        </button>
+    </form>
 
-<hr>
+    <hr>
 
-<!-- TEXTAREA SECTION -->
-<form method="post" action="/analysis/update-wiki-page-current-selected-industry">
+    <!-- TEXTAREA SECTION -->
+    <form method="post" action="/analysis/update-wiki-page-current-selected-industry">
 
-    <input type="hidden" name="selected_industry" id="selected_textarea_industry">
-    <input type="hidden" name="action" value="update_by_text">
+        <input type="hidden" name="selected_industry" id="selected_textarea_industry">
+        <input type="hidden" name="action" value="update_by_text">
 
-    <textarea
-        name="input_link_or_text"
-        placeholder="Neuer Text zur Wiki der aktuellen Branche"
-        rows="6"
-        required
-    ></textarea>
+        <textarea
+                name="input_link_or_text"
+                placeholder="Neuer Text zur Wiki der aktuellen Branche"
+                rows="6"
+                required
+        ></textarea>
 
-    <button type="submit">
-        Update Wiki der gerade ausgewählten Branche über einen Text
-    </button>
-</form>
-<form action="/analysis/update-wiki-page-by-markdown-file" method="post" enctype="multipart/form-data" style="display: block; width: 100%;">
-            <label for="md-file" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">📄 Markdown-Datei hochladen</label>
-            <input type="file" name="file" id="md-file" accept=".md,.markdown" required style="display: block; width: 100%; max-width: 400px; margin-bottom: 0.75rem; padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; background: #fff;">
-            <button type="submit" class="btn" style="display: inline-block;">Hochladen & verarbeiten</button>
-            <small style="display: block; margin-top: 0.4rem; color: #666;">Erlaubte Formate: .md, .markdown</small>
-        </form>
+        <button type="submit">
+            Update Wiki der gerade ausgewählten Branche über einen Text
+        </button>
+    </form>
+    <form id="upload-form" action="/analysis/update-wiki-page-by-markdown-file" method="post"
+          enctype="multipart/form-data" style="display: block; width: 100%;">
+        <label for="md-file" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">📄 Markdown-Datei
+            hochladen</label>
+        <input type="file" name="file" id="md-file" accept=".md,.markdown" required
+               style="display: block; width: 100%; max-width: 400px; margin-bottom: 0.75rem; padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; background: #fff;">
+        <button type="submit" class="btn" style="display: inline-block;">Hochladen & verarbeiten</button>
+        <small style="display: block; margin-top: 0.4rem; color: #666;">Erlaubte Formate: .md, .markdown</small>
+    </form>
 
-<script>
-function syncIndustry() {
-    const val = document.getElementById("industry_select").value;
+    <script>
+        function syncIndustry() {
+            const val = document.getElementById("industry_select").value;
 
-    document.getElementById("selected_input_industry").value = val;
-    document.getElementById("selected_textarea_industry").value = val;
-}
+            document.getElementById("selected_input_industry").value = val;
+            document.getElementById("selected_textarea_industry").value = val;
+        }
 
-document.getElementById("industry_select")
-    .addEventListener("change", syncIndustry);
+        document.getElementById("industry_select")
+            .addEventListener("change", syncIndustry);
 
-// initial sync
-syncIndustry();
-</script>
+        // initial sync
+        syncIndustry();
+    </script>
 
 {% endblock %}
 
