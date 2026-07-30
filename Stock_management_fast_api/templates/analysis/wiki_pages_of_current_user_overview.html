@@ -15,9 +15,16 @@
                     <h2>Industry</h2>
                     <div class="markdown-block" data-md="{{ page.industry_name | e }}"></div>
                 </div>
-                <br>
-                <div class="markdown-block" data-md="{{ page.wiki_page | e }}"></div>
 
+                <div style="flex: 1;">
+                    <h4>Bull Factors</h4>
+                    <div class="markdown-block" data-md="{{ page.bull_factors | e }}"></div>
+                </div>
+
+                <div style="flex: 1;">
+                    <h4>Bear Factors</h4>
+                    <div class="markdown-block" data-md="{{ page.bear_factors | e }}"></div>
+                </div>
 
             </div>
 

@@ -88,8 +88,6 @@ class IndustryService:
         await self.db.commit()
 
         await self.db.refresh(industry)
-        print("updated wiki page")
-        print(industry.wiki_page)
         return True
 
     async def get_bear_and_bull_factors_of_current_industry_of_current_user(self,
@@ -102,7 +100,9 @@ class IndustryService:
                    Industry.industry_name == industry_name
                    )
         )
-        return result.first()[0], result.first()[1]
+        row = result.first()
+
+        return row[0], row[1]
 
     async def update_bear_and_bull_of_selected_industry_of_current_user(
             self,

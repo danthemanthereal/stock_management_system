@@ -364,7 +364,7 @@ class AnalysisService:
                            LLM_WIKI_MODEL
                            )
 
-        new_content = self.get_content_of_url_or_text(
+        new_content = await self.get_content_of_url_or_text(
             industry_name=industry_name,
             input_link_or_text=input_link_or_text,
             action=action
@@ -378,7 +378,7 @@ class AnalysisService:
         industry_name=industry_name,
         )
 
-        new_bull_factors, new_bear_factors = self.get_new_bear_and_bull_factors_of_new_content(
+        new_bull_factors, new_bear_factors = await self.get_new_bear_and_bull_factors_of_new_content(
             new_content=new_content,
             industry_name=industry_name,
         )
@@ -417,7 +417,7 @@ class AnalysisService:
             new_bull_factors=new_combined_bull_factors
         )
 
-    def get_content_of_url_or_text(self,
+    async def get_content_of_url_or_text(self,
                                    industry_name: str,
                                    input_link_or_text: str,
                                    action: str):
@@ -429,7 +429,7 @@ class AnalysisService:
                 api_key=os.getenv("GROQ_API_KEY")
             )
 
-            bear_factors, bull_factors = industry_ai_eval.get_bear_and_bull_factors_by_url(
+            bear_factors, bull_factors = await industry_ai_eval.get_bear_and_bull_factors_by_url(
                 industry=industry_name,
                 url=input_link_or_text,
             )
@@ -444,7 +444,7 @@ class AnalysisService:
             return ""
 
 
-    def get_new_bear_and_bull_factors_of_new_content(self,
+    async def get_new_bear_and_bull_factors_of_new_content(self,
                                                      industry_name: str,
                                                      new_content: str
                                                      ):
@@ -454,7 +454,7 @@ class AnalysisService:
                 api_key=os.getenv("GROQ_API_KEY")
             )
 
-            bear_factors, bull_factors = industry_ai_eval.get_bear_and_bull_factors_by_url(
+            bear_factors, bull_factors = await industry_ai_eval.get_bear_and_bull_factors_by_url(
                 industry=industry_name,
                 url=new_content,
             )
@@ -484,6 +484,37 @@ class AnalysisService:
                 self.db,
                 LLM_WIKI_MODEL
             )
+            print("before current bull factor ")
+            current_bull_factors, current_bear_factors = await industry_service.get_bear_and_bull_factors_of_current_industry_of_current_user(
+                current_user_id=current_user_id,
+                industry_name=industry_name,
+            )
+            print("after methdo call")
+
+            print("current bull factors:", current_bull_factors)
+            print("current bear factors:", current_bear_factors)
+
+            new_bull_factors, new_bear_factors = await self.get_new_bear_and_bull_factors_of_new_content(
+                new_content=file_content_str,
+                industry_name=industry_name,
+            )
+
+            print("new bull bear factors ", new_bull_factors)
+            print("new bear factors ", new_bear_factors)
+
+            new_combined_bear_factors = await llm_wiki_component.ingest_bear_factors_wiki_page(
+                industry_name=industry_name,
+                current_bear_factors=current_bear_factors,
+                new_bear_factors=new_bear_factors,
+            )
+
+            time.sleep(61)
+
+            new_combined_bull_factors = await llm_wiki_component.ingest_bull_factors_wiki_page(
+                industry_name=industry_name,
+                current_bull_factors=current_bull_factors,
+                new_bull_factors=new_bull_factors,
+            )
 
             updated_page_industry_page = await llm_wiki_component.ingest_industry_wiki_page(
                 industry_name=industry_name,
@@ -495,6 +526,13 @@ class AnalysisService:
                 current_user_id=current_user_id,
                 industry_name=industry_name,
                 new_wiki_page=updated_page_industry_page
+            )
+
+            await industry_service.update_bear_and_bull_of_selected_industry_of_current_user(
+                current_user_id=current_user_id,
+                industry_name=industry_name,
+                new_bear_factors=new_combined_bear_factors,
+                new_bull_factors=new_combined_bull_factors
             )
 
         except Exception as e:
