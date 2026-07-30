@@ -604,5 +604,43 @@ async def update_wiki_page_current_selected_industry(request: Request,
             name="error.html",
         )
 
+@analysis_router.post("/update-wiki-page-by-markdown-file")
+async def update_industry_page_by_mark_down(request: Request,
+                                            db: AsyncSession = Depends(get_db),
+                                            current_user_id: UUID = Depends(get_current_user_id),
+                                            selected_industry: str = Form(...),
+                                            file: UploadFile = File(...)
+                                            ):
+    try:
+        analysis_service = AnalysisService(db)
 
+        await analysis_service.update_industry_wiki_page_of_current_user(
+            current_user_id=current_user_id,
+            industry_name=selected_industry,
+            file=file,
+        )
+
+        wiki_pages = await analysis_service.get_industry_wiki_pages_of_current_user(current_user_id)
+
+        created_industries_of_current_user = await analysis_service.get_all_created_industries_of_current_user(
+            current_user_id)
+
+        return templates.TemplateResponse(
+            request=request,
+            name="analysis/edit_industry_of_current_user.html",
+            context=
+            {
+                "request": request,
+                "wiki_pages": wiki_pages,
+                "created_industries_of_current_user": created_industries_of_current_user
+            }
+        )
+
+    except Exception as e:
+        print(f"Error: {e}")
+        traceback.print_exc()
+        return templates.TemplateResponse(
+            request=request,
+            name="error.html",
+        )
 

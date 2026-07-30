@@ -3,7 +3,9 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.configs.used_model import LLM_WIKI_MODEL
 from src.database.models import Industry
+from src.kaparthies_llm_wiki_component.llm_wiki import LLMWiki
 
 
 class IndustryService:
@@ -128,6 +130,23 @@ class IndustryService:
         await self.db.refresh(industry)
 
         return True
+
+    async def merge_industry_page_with_current_and_new_content(self,
+                                                               current_page: str,
+                                                               new_page: str
+                                                               ):
+        try:
+
+            llm_wiki_component = LLMWiki(
+                self.db,
+                LLM_WIKI_MODEL
+            )
+
+            llm_wiki_component
+
+        except Exception as e:
+            print(e)
+            return
 
 
 

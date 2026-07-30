@@ -464,6 +464,42 @@ class AnalysisService:
             print(e)
             return "", ""
 
+    async def update_industry_wiki_page_of_current_user(self,
+                                                        current_user_id: UUID,
+                                                        industry_name: str,
+                                                        file
+                                                        ):
+
+        try:
+            industry_service = IndustryService(self.db)
+
+            current_wiki_page = await industry_service.get_current_wiki_page_of_industry_of_current_user(
+                industry_name=industry_name,
+                current_user_id=current_user_id)
+
+            file_content_str =  (await file.read()).decode("utf-8")
+
+
+            llm_wiki_component = LLMWiki(
+                self.db,
+                LLM_WIKI_MODEL
+            )
+
+            await llm_wiki_component.ingest_industry_wiki_page(
+                industry_name=industry_name,
+                current_wiki_page=current_wiki_page,
+                new_content=file_content_str,
+            )
+
+            await industry_service.update_wiki_page_of_selected_industry_of_current_user(
+                current_user_id=current_user_id,
+                industry_name=industry_name,
+                new_wiki_page=file_content_str
+            )
+        except Exception as e:
+            print(e)
+            return
+
 
 
 

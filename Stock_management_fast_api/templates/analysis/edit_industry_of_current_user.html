@@ -66,6 +66,12 @@
         Update Wiki der gerade ausgewählten Branche über einen Text
     </button>
 </form>
+<form action="/analysis/update-wiki-page-by-markdown-file" method="post" enctype="multipart/form-data" style="display: block; width: 100%;">
+            <label for="md-file" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">📄 Markdown-Datei hochladen</label>
+            <input type="file" name="file" id="md-file" accept=".md,.markdown" required style="display: block; width: 100%; max-width: 400px; margin-bottom: 0.75rem; padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; background: #fff;">
+            <button type="submit" class="btn" style="display: inline-block;">Hochladen & verarbeiten</button>
+            <small style="display: block; margin-top: 0.4rem; color: #666;">Erlaubte Formate: .md, .markdown</small>
+        </form>
 
 <script>
 function syncIndustry() {
