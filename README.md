@@ -287,4 +287,22 @@ Then run the following command:
 ```bash
 uvicorn src.main:app --reload
 
+```
+
+## License
+
+This project is provided for **private, academic, educational, and
+non-commercial use only**.
+
+Commercial use is **strictly prohibited** without prior written
+permission from the author.
+
+This includes, but is not limited to:
+- using the project for commercial purposes,
+- incorporating the code into commercial products or services,
+- selling or licensing the code,
+- using the project as part of a paid service.
+
+By using this project, you agree to these terms.
+
 
