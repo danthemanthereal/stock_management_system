@@ -494,7 +494,7 @@ class AnalysisService:
                 new_content=file_content_str,
                 industry_name=industry_name,
             )
-            
+
 
             new_combined_bear_factors = await llm_wiki_component.ingest_bear_factors_wiki_page(
                 industry_name=industry_name,
